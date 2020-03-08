@@ -10,8 +10,8 @@ void main() async {
   await d.initiate();
   print("teste");
 
-  /*runApp(MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     home: HomePage(),
-  )); */
+  ));
 }
