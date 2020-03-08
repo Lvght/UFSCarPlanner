@@ -8,8 +8,12 @@ import 'package:html/dom.dart'
 class Meal {
   String day, date, type;
   List<String> lista;
+  Map<String, dynamic> lista2;
+  bool isBreakfast;
 
-  Meal(this.date, this.day, this.type, this.lista);
+  Meal(this.date, this.day, this.type, this.lista) {
+    isBreakfast = !( this.type.contains("ALMOÇO") || this.type.contains("JANTAR") );
+  }
 
   @override
   String toString() {
