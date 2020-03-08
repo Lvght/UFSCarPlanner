@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       appBar: GradientAppBar(
         title: Text("UFSCar Planner"),
         backgroundColorStart: Colors.red,
-        backgroundColorEnd: Colors.lightBlue,
+        backgroundColorEnd: Colors.redAccent,
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

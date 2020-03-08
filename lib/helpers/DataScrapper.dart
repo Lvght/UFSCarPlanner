@@ -7,10 +7,13 @@ import 'package:html/dom.dart' as dom;    // Contains DOM related classes for ex
 class Meal{
   String day,date,type;
   List<String> lista;
-  Meal(this.date,this.day,this.type);
+  Meal(this.date,this.day,this.type,this.lista);
   @override
   String toString() {
-    return this.date+"\n"+this.day+"\n"+this.type+"\nPrato Principal\n"+lista.toString();
+    String listagem= "";
+    for(int i=0;i<lista.length;i++)
+      listagem+=lista[i]+'\n';
+    return this.date+"\n"+this.day+"\n"+this.type+"\n"+listagem;
   }
 }
 class DataScrapper {
@@ -18,19 +21,19 @@ class DataScrapper {
     this._url = url;
   }
 
+  List<Meal> meals;
   String _url;
 
   // Método para obter os dados
   Future initiate() async {
     var client = Client();
-    var meals;
     Response response = await client.get(this._url);
 
     var document = parse(response.body);
 
     print(document.querySelectorAll('#content'));
     meals = find(response);
-    print (meals.toString());
+  //  print (meals.toString());
     print(document.querySelectorAll("#cardapio").toString().length);
 
   }
@@ -63,12 +66,10 @@ class DataScrapper {
       for(int j=0;j<temp.length;j++){
         if(temp[j].length<3){
           temp.removeAt(j);
-          j--;
+
         }
       }
-      refeicoes[i]= new Meal(temp[0], temp[1], temp[2]);
-      refeicoes[i].lista=temp.sublist(3,temp.length-1);
-
+      refeicoes[i]= new Meal(temp[0], temp[1], temp[2],temp.sublist(3,temp.length-1));
     }
     return refeicoes;
   }
