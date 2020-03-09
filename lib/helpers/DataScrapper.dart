@@ -1,9 +1,9 @@
-import 'dart:convert'; // Contains the JSON encoder
-import 'package:flutter/material.dart';
+
+
 import 'package:http/http.dart'; // Contains a client for making API calls
-import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-import 'package:html/dom.dart'
-    as dom; // Contains DOM related classes for extracting data from elements
+import 'package:html/parser.dart';// Contains HTML parsers to generate a Document object
+
+
 
 class Meal {
   String day, date, type;
@@ -77,7 +77,7 @@ class DataScrapper {
         }
       }
       refeicoes[i] =
-          new Meal(temp[0], temp[1], temp[2], temp.sublist(3, temp.length - 1));
+          new Meal(temp[0], temp[1], temp[2], temp.sublist(3, temp.length -1));
     }
     return refeicoes;
   }
