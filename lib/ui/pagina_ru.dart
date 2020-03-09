@@ -12,7 +12,7 @@ class _PaginaRuState extends State<PaginaRu> {
   DataScrapper d1 = DataScrapper(
       'https://www2.ufscar.br/restaurantes-universitario/cardapio');
 
-  Widget cardTextBuilder(AsyncSnapshot<List<Meal>> snapshot, int index) {
+  /*Widget cardTextBuilder(AsyncSnapshot<List<Meal>> snapshot, int index) {
     String out = "";
     for (int i = 0; i < snapshot.data[index].lista.length; i++)
       out += snapshot.data[index].lista[i];
@@ -20,7 +20,7 @@ class _PaginaRuState extends State<PaginaRu> {
     return Container(
         // child: Text(out),
         );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +38,17 @@ class _PaginaRuState extends State<PaginaRu> {
             return ListView.builder(
               shrinkWrap: true,
               itemBuilder: (context, index) => SingleChildScrollView(
-                child: Container(
+                child: Container( decoration: BoxDecoration(color:widgets.Color.fromARGB(225, 200, 50, 50),border: Border.all(
+                  width: 3.0,
+
+                  color: widgets.Color.fromARGB(225, 200, 50, 50),
+                ),
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(10.0) //         <--- border radius here
+                  ),),
                   padding: EdgeInsets.all(10),
                   margin: EdgeInsets.all(10),
-                  color: Colors.greenAccent,
+
                   child: Row(
 
                     children: <Widget>[
@@ -52,13 +59,35 @@ class _PaginaRuState extends State<PaginaRu> {
                         height: MediaQuery.of(context).size.width * 30 / 100,
                       ),*/
                     Container(
+                      decoration: BoxDecoration(color: Colors.deepOrangeAccent,border: Border.all(
+                          width: 3.0,
+
+                        color:Colors.deepOrangeAccent,
+                      ),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(10.0) //         <--- border radius here
+                        ),),
+
                       padding: EdgeInsets.all(15),
+
                       width: MediaQuery.of(context).size.width * 30 / 100,
                       child: Column(
                         children: <Widget>[
-                          widgets.Text(snapshot.data[index].day,textAlign: TextAlign.start,),
-                          widgets.Text(snapshot.data[index].date,textAlign: TextAlign.start,),
-                          widgets.Text(snapshot.data[index].type,textAlign: TextAlign.start,),
+                          widgets.Text(snapshot.data[index].day,textAlign: TextAlign.center,  style: new TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),),
+                          widgets.Text(snapshot.data[index].date,textAlign: TextAlign.start,  style: new TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),),
+                          widgets.Text(snapshot.data[index].type,textAlign: TextAlign.start,  style: new TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),),
 
 
                         ],
@@ -66,11 +95,16 @@ class _PaginaRuState extends State<PaginaRu> {
                       ),
                     ),
 
-                      Container(
+                      Container(decoration: BoxDecoration(color: Colors.deepOrangeAccent,border: Border.all(
+                        width: 10.0,
+                        color:Colors.black,
+                      ),
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(15.0) //         <--- border radius here
+                        ),),
                           padding: EdgeInsets.all(10),
                           width: MediaQuery.of(context).size.width * 58 / 100,
                           height: MediaQuery.of(context).size.width * 60 / 100,
-                          color: Colors.black,
 
                           child: ListView.builder(
 
@@ -79,11 +113,12 @@ class _PaginaRuState extends State<PaginaRu> {
                                 SingleChildScrollView(
 
                                     child: Container(
+
                               padding: EdgeInsets.all(1.0),
                               width:MediaQuery.of(context).size.width * 57 / 100,
                                         height:
                                         MediaQuery.of(context).size.width * 20 / 100,
-                              color: Colors.amber,
+                              color: Colors.deepOrangeAccent,
 
                               child: widgets.Column(
 
@@ -100,10 +135,10 @@ class _PaginaRuState extends State<PaginaRu> {
                                       widgets.Flexible(
                                         child: widgets.Text(
                                           snapshot.data[index]
-                                              .lista[index2 * 2 + 1],
+                                              .lista[index2 * 2 + 1].replaceAll("/", "\n"),
                                           style: new TextStyle(
                                             fontSize: 13.0,
-                                          ),
+                                          ),textAlign: TextAlign.justify,
                                         ),
                                       ),
                                     ],
