@@ -18,8 +18,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     PaginaRu(),
     PaginaAgenda(),
-    PaginaConfiguracoes(),
-    LoginPage()
+    PaginaConfiguracoes()
   ];
 
   @override
@@ -48,10 +47,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               title: Text("Configurações")
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            title: Text("Login")
           ),
         ],
       ),

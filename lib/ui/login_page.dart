@@ -19,8 +19,11 @@ class _LoginPageState extends State<LoginPage> {
     child: RaisedButton(
       child: Text("Entrar"),
       onPressed: () async {
+        // Pode conter as seguintes propriedades:
+        // URL, headers, body e encoding
+        // FIXME o que cada uma faz?
         http.Response response = await http
-            .post('https://sistemas.ufscar.br/siga/login.xhtml', headers: Map<String,String>{
+            .post('https://sistemas.ufscar.br/siga/login.xhtml', headers: {
           'login': 'login',
           'javax.faces.ViewState': '-7991983047578773891%3A4650427535077768370',
           'org.richfaces.focus': 'login%3AloginButton%20login',
@@ -45,8 +48,15 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[this.loginInput, this.passwordInput, this.loginButton],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Página de login"),
+      ),
+      body: Column(
+        children: <Widget>[this.loginInput, this.passwordInput, this.loginButton],
+      ),
     );
+
+
   }
 }
