@@ -1,214 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:flutter/widgets.dart' as widgets;
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
+
 }
 
 class _LoginPageState extends State<LoginPage> {
 
-  String text;
+  static coleta() async{
+    //TODO ARRUMA ISSO AI
+   // var i = c.replaceAll("\t", "").replaceAll("\u003", "");
 
-  void _changeText(String s) {
-    setState(() {
-      _controller.text = s;
-    });
+  //  print(i.toString());
   }
-
   final TextEditingController _controller = TextEditingController();
-
-  final loginInput = TextField(
+  static Future<String> b;
+  static String c;
+  static String deuRuim= "por enquanto não";
+  static WebViewController _controlador;
+  static final loginInput = TextField(
     decoration: InputDecoration(hintText: "Login"),
+    controller: u,
   );
 
-  final passwordInput = TextField(
+  static TextEditingController u= new TextEditingController(),p = new TextEditingController();
+  static var ResultText = new widgets.Text(deuRuim) ;
+  static final passwordInput = TextField(
     decoration: InputDecoration(hintText: "Password"),
+    obscureText: true,
+    controller: p,
   );
 
-  final loginButton = Material(
-    child: RaisedButton(
-      child: Text("Entrar"),
-      onPressed: () async {
-        // Pode conter as seguintes propriedades:
-        // URL, headers, body e encoding
-        // FIXME o que cada uma faz?
-        // FIXME ja to tentando arrumar blz
-        /*
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        NAO POSTA ESSA PORRA
-        TEM A SENHA DO RAMOS
-        TODO TODO PARA COM ISSO PORRA
+   WebView  a = new WebView(
+    onWebViewCreated: (WebViewController webViewController) {
+      _controlador = webViewController;
+    },
+    initialUrl: "https://sistemas.ufscar.br/siga/login.xhtml",
+    javascriptMode: JavascriptMode.unrestricted,
+    onPageStarted: (url)async{
+      //TODO TRATAR FALTA DE INTERNET
+      deuRuim="carregando.... "+url;
+      print(deuRuim);
+    },
+    onPageFinished: (url) async{
+      if (url == "https://sistemas.ufscar.br/siga/login.xhtml"&&bola==false) {
+        deuRuim="pode logar";
+      }else if(url == "https://sistemas.ufscar.br/siga/login.xhtml") {
 
+        //TODO GRAVAR DADOS DE B
+        //TODO VOLTAR PARA PAGINA DE CONFIGURAÇÕES
+        c=await b;
+        coleta();
+        bola=true;
+      }
+      if(url=="https://sistemas.ufscar.br/siga/paginas/home.xhtml"){
+        _controlador.loadUrl("https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml");
+      }
+      if (url ==
+          "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
+        _controlador.evaluateJavascript(
+            "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();");
+      if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
+        _controlador.evaluateJavascript(
+            "document.getElementById('acoes-matriculas-form:solicitacao-inscricao-link').click();");
+      if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?"))
+        _controlador.evaluateJavascript(
+            "document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
 
-         */
+      if(url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?")) {
+        b = _controlador.evaluateJavascript(
+            "document.documentElement.innerHTML;");
+        print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+(await b).split("inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
+        _controlador.evaluateJavascript(
+            "document.getElementById('logout-form:sair-link').click();");
+        deuRuim="logou";
+        bola=true;
+      }
 
-        http.Response alcool = await http.get(
-            'https://sistemas.ufscar.br/siga/login.xhtml',
-            headers: {
-              'Host': 'sistemas.ufscar.br',
-              'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-              'Accept-Language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3',
-              'Accept-Encoding': 'gzip, deflate, br',
-              'Referer': 'https://sistemas.ufscar.br/siga/paginas/home.xhtml',
-              'DNT': '1',
-              'Connection': 'keep-alive',
-              'Upgrade-Insecure-Requests': '1'
-            }
-        );
+      deuRuim="carregado.... "+url;
+      print(deuRuim);
 
-        print("COOKIE MONSTER WANT " + alcool.headers.toString());
-        var cookie = alcool.headers['set-cookie'].split('JSESSIONID=')[1].split(';')[0];
-        print("cok " + cookie);
-
-        http.Response response = await http.post(
-            'https://sistemas.ufscar.br/siga/login.xhtml',
-            headers: {
-              'Host': 'sistemas.ufscar.br',
-              'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0',
-              'Accept': '*/*',
-              'Accept-Language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3',
-              'Accept-Encoding': 'gzip, deflate, br',
-              'Faces-Request': 'partial/ajax',
-              'Content-type': 'application/x-www-form-urlencoded;charset=UTF-8',
-              'Content-Length': '505',
-              'Origin': 'https://sistemas.ufscar.br',
-              'DNT': '1',
-              'Connection': 'keep-alive',
-              'Referer': 'https://sistemas.ufscar.br/siga/login.xhtml',
-              'Cookie': 'JSESSIONID='+cookie+';'
-            },
-            body: {
-              'login': 'login',
-              'javax.faces.ViewState': '-3906064097761691964:-5578141727260975006',
-              'org.richfaces.focus': 'login:loginButton login',
-              'login:usuario': '',
-              'login:password': '',
-              'javax.faces.source': 'login:loginButton',
-              'javax.faces.partial.event': 'click',
-              'javax.faces.partial.execute': 'login:loginButton @component',
-              'javax.faces.partial.render': '@component',
-              'org.richfaces.ajax.component': 'login:loginButton',
-              'login:loginButton': 'login:loginButton',
-              'rfExt': 'null',
-              'AJAX:EVENTS_COUNT': '1',
-              'javax.faces.partial.ajax': 'true'
-            });
-
-        http.Response cesar = await http.get(
-          'https://sistemas.ufscar.br/siga/paginas/home.xhtml',
-          headers: {
-            'Host': 'sistemas.ufscar.br',
-            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Referer': 'https://sistemas.ufscar.br/siga/login.xhtml',
-            'Cookie': 'JSESSIONID='+cookie+';',
-            'Upgrade-Insecure-Requests': '1'
-          }
-        );
-
-        print("LOGIN QUE " + cesar.body.split('login')[1]);
-        print("CESÁR: " + cesar.body.split('candidato-jubilamento-popup')[1]);
-        String cid = cesar.body.split('action="/siga/paginas/aluno/listMatriculas.xhtml?cid=')[0];
-        print("TA AQUI O CID OH " + cid);
-
-        /*http.Response ednaldo = await http.post(
-            'https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?cid=' + cid,
-            headers: {
-              'Host': 'sistemas.ufscar.br',
-              'User-Agent': 'Ricardo Menotti Browser v0.1',
-              'Accept': 'text/plain',
-              'Accept-Encoding': 'plain',
-              'Origin': 'https://sistemas.ufscar.br',
-              'Cookie': 'JSESSIONID=aQwjIlulfldnbcy5G5ewl8SK; csfcfc=tZ3ZAsEHvMc%3D; ga=GA1.2.357381401.1553744638; _pk_id.9.f1a8=5139c238472f6883.1558054540.13.1583986831.1583983923.; _pk_ses.9.f1a8=1'
-            },
-            body: {
-              'acoes-matriculas-form': 'acoes-matriculas-form',
-              'javax.faces.ViewState': '-6602081005325861943:4124917805817902599',
-              'org.richfaces.focus': 'login:loginButton login',
-              'javax.faces.source': 'acoes-matriculas-form:solicitacao-inscricao-link',
-              'javax.faces.partial.event': 'click',
-              'javax.faces.partial.execute': 'acoes-matriculas-form:solicitacao-inscricao-link @component',
-              'javax.faces.partial.render': '@component',
-              'org.richfaces.ajax.component': 'acoes-matriculas-form:solicitacao-inscricao-link',
-              'acoes-matriculas-form:solicitacao-inscricao-link': 'acoes-matriculas-form:solicitacao-inscricao-link',
-              'rfExt': '1',
-              'AJAX:EVENTS_COUNT': '1',
-              'javax.faces.partial.ajax': 'true'
-            });
-
-        http.Response ciferri = await http.post(
-            'https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?cid=' + cid,
-            headers: {
-              'Host': 'sistemas.ufscar.br',
-              'User-Agent': 'Ricardo Menotti Browser v0.1',
-              'Accept': 'text/plain',
-              'Accept-Encoding': 'plain',
-              'Origin': 'https://sistemas.ufscar.br',
-              'Cookie': 'JSESSIONID=aQwjIlulfldnbcy5G5ewl8SK; csfcfc=tZ3ZAsEHvMc%3D; ga=GA1.2.357381401.1553744638; _pk_id.9.f1a8=5139c238472f6883.1558054540.13.1583986831.1583983923.; _pk_ses.9.f1a8=1'
-            },
-            body: {
-              'inscricao-resultados-form': 'inscricao-resultados-form',
-              'javax.faces.ViewState': '5892697975601029891:1975318493397231398',
-              'inscricao-resultados-form:j': 'idt104-value	inscricao-resultados-form:j_idt105',
-              'javax.faces.source': 'inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113',
-              'javax.faces.partial.event': 'click',
-              'javax.faces.partial.execute': 'inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113 @component',
-              'javax.faces.partial.render': '@component',
-              'org.richfaces.ajax.component': 'inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113',
-              'inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113':	'inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113',
-              'rfExt': 'null',
-              'AJAX:EVENTS_COUNT': '1',
-              'javax.faces.partial.ajax': 'true'
-            });
-
-        http.Response marcela = await http.get(
-            'https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=' + cid,
-            headers: {
-              'Host': 'sistemas.ufscar.br',
-              'User-Agent': 'Ricardo Menotti Browser v0.1',
-              'Accept': 'text/plain',
-              'Accept-Encoding': 'plain',
-              'Origin': 'https://sistemas.ufscar.br',
-              'Cookie': 'JSESSIONID=aQwjIlulfldnbcy5G5ewl8SK; csfcfc=tZ3ZAsEHvMc%3D; ga=GA1.2.357381401.1553744638; _pk_id.9.f1a8=5139c238472f6883.1558054540.13.1583986831.1583983923.; _pk_ses.9.f1a8=1'
-            }
-        );*/
-
+    },
+  );
+  static bool bola=false;
+  Material loginButton = Material(
+    child:Column(children: <Widget>[loginInput,passwordInput,ResultText,RaisedButton(
+    child: widgets.Text("Entrar"),onLongPress:() async{
+    ResultText= new  widgets.Text(deuRuim);},
+    onPressed: ()  {
+      _controlador.evaluateJavascript(
+          "document.getElementById('login:usuario').value = '"  +u.text+   "';");
+      _controlador.evaluateJavascript(
+          "document.getElementById('login:password').value = '"+ p.text +"';");
+      _controlador.evaluateJavascript(
+          "document.getElementById('login:loginButton').click();");
+      ResultText=  widgets.Text(deuRuim);
       },
-    ),
-  );
+  ),
+  ],) );
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Página de login"),
+        title: widgets.Text("Página de login"),
+
       ),
       body: Column(
         children: <Widget>[
           this.loginButton,
-          SingleChildScrollView(
-            child: Text(text??"null"),
-          )
+          Container(
+            child: a,
+            width: 1,
+            height: 1,
+
+          ),
         ],
       ),
     );
+
   }
+
 }

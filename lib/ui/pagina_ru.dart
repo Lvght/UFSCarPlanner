@@ -10,17 +10,10 @@ class PaginaRu extends StatefulWidget {
 
 class _PaginaRuState extends State<PaginaRu> {
   DataScrapper d1 = DataScrapper(
+
+    //TODO TRATAR FALTA DE INTERNET
       'https://www2.ufscar.br/restaurantes-universitario/cardapio');
 
-  /*Widget cardTextBuilder(AsyncSnapshot<List<Meal>> snapshot, int index) {
-    String out = "";
-    for (int i = 0; i < snapshot.data[index].lista.length; i++)
-      out += snapshot.data[index].lista[i];
-
-    return Container(
-        // child: Text(out),
-        );
-  }*/
 
   @override
   Widget build(BuildContext context) {
