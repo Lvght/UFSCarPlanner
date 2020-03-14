@@ -29,6 +29,7 @@ class _PaginaRuState extends State<PaginaRu> {
 
           default:
             return ListView.builder(
+              itemCount: snapshot.data.length - 1,
               shrinkWrap: false,
               itemBuilder: (context, index) => Container(
                   padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
@@ -163,7 +164,6 @@ class _PaginaRuState extends State<PaginaRu> {
                       ),
                     ],
                   )),
-              itemCount: snapshot.data.length,
             );
         }
       },
