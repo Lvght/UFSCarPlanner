@@ -16,11 +16,53 @@ class _LoginPageState extends State<LoginPage> {
   // Construtor
 
 
-  static String coleta(String s) {
+  static List<Map<String,String>> coleta(String s) {
     //TODO ARRUMA ISSO AI
-    String i = c.replaceAll("\\t", "").replaceAll("\\u003", "");
-    print(i.toString());
-    return i;
+    String a = "\u005C";
+    var p="";
+    String i = s.split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[1].split("inscricao-resultados-form:atividades-inscritas-table:5:j_idt171")[0].replaceAll(a+'u003C', "<").replaceAll("<td","<>TD<").replaceAll("<tr","<>TR<").replaceAll('class=\\"rf-dt-c\\"', "");
+
+    for(int j=0;j<i.replaceAll(">", "<").split("<").length;j++){
+      if(j%2==0)
+        p+="<sploint>"+i.replaceAll(">", "<").split("<")[j];
+    }
+    var aux;
+    do{
+      aux=p;
+      p=p.replaceAll("<sploint><sploint>", "<sploint>");
+      p=p.replaceAll(a+a,a );
+      p=p.replaceAll(' '+a,a);
+      p=p.replaceAll("  "," ");
+      p=p.replaceAll(a+"t"+a+"t", a+"t");
+    }while(p!=aux);
+    aux = p.split("<sploint>");
+    p="";
+    for(int j=0;j<aux.length;j++){
+      if(aux[j]!=a+"n"+a+"t"&&aux[j]!=a+"n")
+        p+=aux[j]+"\n";
+    }
+    int tr=-1,td=-1;
+
+    List<Map<String,String>> mapa = new List<Map<String,String>>();
+    Map<String,String>   axa= {"Aula":"","Turma":"","Dias/Horarios":"","Ministrantes":"","Operacoes":""};
+    Map<String,String> axismo = axa;
+    List<String> lista = ["Aula","Turma","Dias/Horarios","Ministrantes","Operacoes"];
+
+    for(int j=7;j<p.split("\n").length;j++){
+      if(p.split("\n")[j]=="TR"){
+        if(axa!=axismo)
+          mapa.add(axa);
+        tr++;
+        axa= {"Aula":"","Turma":"","Dias/Horarios":"","Ministrantes":"","Operacoes":""};
+      }else if(p.split("\n")[j]=="TD"){
+        td++;
+      }else{
+        axa[lista[td%5]]+=p.split("\n")[j]+"\n";
+      }
+
+    }
+    print(mapa.toString());
+    return mapa;
   }
 
   final TextEditingController _controller = TextEditingController();
