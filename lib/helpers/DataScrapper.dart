@@ -35,6 +35,8 @@ class DataScrapper {
 
     print(document.querySelectorAll('#content'));
     meals = find(response);
+    debugPrint("Meals = ${meals.toString()}]");
+    debugPrint("Tamanho do meals = ${meals.length}");
     return meals;
   }
 

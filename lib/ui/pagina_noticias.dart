@@ -50,7 +50,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         if (B != C) {
           D.add(B);
         }
-       print(B.toString());
+       debugPrint(B.toString());
       }
     }
     //TODO CHAMAR DECENTEMENTE ESSA FUNÇÃO

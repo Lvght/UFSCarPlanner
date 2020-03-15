@@ -10,9 +10,83 @@ class PaginaRu extends StatefulWidget {
 class _PaginaRuState extends State<PaginaRu> {
   DataScrapper d1 = DataScrapper(
 
-    //TODO TRATAR FALTA DE INTERNET
+      //TODO TRATAR FALTA DE INTERNET
       'https://www2.ufscar.br/restaurantes-universitario/cardapio');
 
+  TextStyle _boldTextStyle() => TextStyle(fontWeight: FontWeight.bold, fontSize: 18);
+
+  TextStyle _regularText() => TextStyle(
+        color: Colors.black,
+        fontSize: 18, // FIXME Usar tamanho relativo seria preferível?
+      );
+
+  Container _getContainingModule(String title, String content, {bool isLast = false}) => Container(
+        margin: isLast ? EdgeInsets.only(top: 10) : EdgeInsets.only(top: 10, bottom: 10),
+        child: Column(
+          children: <Widget>[Text(title, style: _boldTextStyle()), Text(content, style: _regularText())],
+        ),
+      );
+
+  Widget _assembleText(Meal m) {
+    List<Widget> output = List<Widget>();
+    bool hasTwoOptions = m.lista[1].split("/").length > 1;
+    List<String> titles = ["Prato principal", "Guarnição", "Arroz", "Feijão", "Saladas", "Sobremesa", "Bebida"];
+
+    // Mostra informações sobre a data e refeição
+    output.add(RichText(
+        text: TextSpan(style: _regularText(), children: <TextSpan>[
+      TextSpan(text: m.type[1].toUpperCase() + m.type.substring(2).toLowerCase(), style: _boldTextStyle()),
+      TextSpan(text: " | " + m.day + "," + m.date)
+    ])));
+
+    // Adiciona uma linha divisória
+    output.add(Container(
+      height: 15,
+      margin: EdgeInsets.only(top: 10),
+      decoration: m.type.contains("ALMOÇO")
+      // FIXME As cores DEFINITIVAMENTE precisam ser alteradas
+          ? BoxDecoration(gradient: LinearGradient(colors: [Color.fromRGBO(210, 30, 30, 1), Color.fromRGBO(250, 80, 80, 1)]))
+          : BoxDecoration(gradient: LinearGradient(colors: [Color.fromRGBO(30, 30, 210, 1), Color.fromRGBO(80, 80, 250, 1)])),
+    ));
+
+    // Verifica se o cardápio ainda não está indefinido
+    if (m.lista[1].contains("Não Definido")) {
+      output.add(Container(
+          margin: EdgeInsets.only(top: 15, bottom: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                Icons.error,
+                size: 30,
+              ),
+              Text(
+                "Cardápio ainda não informado!",
+                style: _regularText(),
+              )
+            ],
+          )));
+    } else {
+      // Caso haja duas opções, o app fará distinção entre convencional e vegano
+      if (hasTwoOptions) {
+        output.add(_getContainingModule("Opção convencional", m.lista[1].split("/")[0]));
+        output.add(_getContainingModule("Opção vegana", m.lista[1].split("/")[1]));
+      } else
+        output.add(_getContainingModule("Opção principal", m.lista[1]));
+
+      // Este for adiciona os elementos restantes da lista, como Guarnição, arroz, feijão, etc
+      for (int i = 3, j = 1; i < m.lista.length; i += 2, j += 1) output.add(_getContainingModule(titles[j], m.lista[i]));
+    }
+
+    return Container(
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+        decoration:
+            BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Color.fromRGBO(230, 230, 230, 1), offset: Offset(0, 2), blurRadius: 5)]),
+        child: Column(
+          children: output,
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,142 +102,11 @@ class _PaginaRuState extends State<PaginaRu> {
 
           default:
             return ListView.builder(
-              itemCount: 6, // snapshot.data.length,
-              shrinkWrap: false,
-              itemBuilder: (context, index) => Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 1),
-                          blurRadius: 2
-                        )
-                      ],
-                      border: Border.all(color: Colors.black, width: 1)),
-                  margin: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            snapshot.data[index].type.toLowerCase() + " |",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(snapshot.data[index].day +
-                              ", " +
-                              snapshot.data[index].date),
-                        ],
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 10, bottom: 15),
-                        height: 5,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [Colors.red, Colors.blueAccent],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text(
-                              "Opção convencional",
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              snapshot.data[index].lista[1].split('/')[0],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Opção vegana",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[1].split('/')[1],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Guarnição",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[3],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Arroz",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[5],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Feijão",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[7],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Saladas",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[9],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          children: <Widget>[
-                            Text("Sobremesa",
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                            Text(
-                              snapshot.data[index].lista[11],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )),
-            );
+                itemCount: snapshot.data.length,
+                shrinkWrap: false,
+                itemBuilder: (context, index) => Container(
+                      child: this._assembleText(snapshot.data[index]),
+                    ));
         }
       },
     );
