@@ -3,6 +3,7 @@ import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
 import 'package:ufscarplanner/ui/pagina_configuracoes.dart';
+import 'package:ufscarplanner/ui/pagina_noticias.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,7 +18,9 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     PaginaRu(),
     PaginaAgenda(),
+    PaginaNoticias(),
     PaginaConfiguracoes()
+
   ];
 
   @override
@@ -42,6 +45,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
               title: Text("Agenda")
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.assignment),
+              title: Text("Notícias")
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.settings),
