@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:html/dom.dart';
-import 'package:http/http.dart' as http;
-
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,162 +8,130 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Controladores
+  final TextEditingController _loginTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+  WebViewController _webViewController;
 
-  // Construtor
+  // Outras propriedades
+  bool _done = false;
+  String _mensagem;
+  String _rawData;
+  String _cleanData;
 
+  // Cria o WebView
+  WebView _createWebView(String initialUrl, void onPageStartedFunction(String url), void onPageFinishedFunction(String url)) {
+    return WebView(
+      initialUrl: initialUrl,
+      javascriptMode: JavascriptMode.unrestricted,
+      onWebViewCreated: (WebViewController w) => this._webViewController = w,
+      onPageStarted: onPageStartedFunction,
+      onPageFinished: onPageFinishedFunction,
+    );
+  }
 
-  static List<Map<String,String>> coleta(String s) {
+  void _onPageStartedFunct(String url) async {
+    //TODO TRATAR FALTA DE INTERNET
+    print("Carregando a página: $url");
+  }
+
+  void _onPageFinishedFunct(String url) async {
+    // Primeira página: o login acontece aqui.
+    if (url == "https://sistemas.ufscar.br/siga/login.xhtml" && this._done == false) {
+      this._mensagem = "pode logar";
+    }
+
+    // Esta condição indica o fim do processo das páginas
+    // Este é o ÚLTIMO CASO!
+    else if (url == "https://sistemas.ufscar.br/siga/login.xhtml") {
+      //TODO GRAVAR DADOS DE B
+      //TODO VOLTAR PARA PAGINA DE CONFIGURAÇÕES
+      this._cleanData = this._rawData;
+      _coleta(this._cleanData);
+      _done = true;
+      Navigator.pop(this.context);
+    }
+
+    // Aqui a página de Matrículas é carregada.
+    if (url == "https://sistemas.ufscar.br/siga/paginas/home.xhtml") {
+      this._webViewController.loadUrl("https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml");
+    }
+
+    // Aqui executa-se o JS necessário na página de matrículas para que se possa avançar
+    if (url == "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
+      this._webViewController.evaluateJavascript("document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();");
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
+      this._webViewController.evaluateJavascript("document.getElementById('acoes-matriculas-form:solicitacao-inscricao-link').click();");
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?"))
+      this
+          ._webViewController
+          .evaluateJavascript("document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
+
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?")) {
+      _rawData = await this._webViewController.evaluateJavascript("document.documentElement.innerHTML;");
+      print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
+          this._rawData.split("inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
+      this._webViewController.evaluateJavascript("document.getElementById('logout-form:sair-link').click();");
+      this._done = true;
+    }
+
+    print("Esta página foi carregada: $url");
+  }
+
+  InputDecoration _getInputDecoration(String labelText) => InputDecoration.collapsed(
+        hintText: labelText,
+      );
+
+  List<Map<String, String>> _coleta(String s) {
     //TODO ARRUMA ISSO AI
     String a = "\u005C";
-    var p="";
-    String i = s.split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[1].split("inscricao-resultados-form:atividades-inscritas-table:5:j_idt171")[0].replaceAll(a+'u003C', "<").replaceAll("<td","<>TD<").replaceAll("<tr","<>TR<").replaceAll('class=\\"rf-dt-c\\"', "");
+    var p = "";
+    String i = s
+        .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[1]
+        .split("inscricao-resultados-form:atividades-inscritas-table:5:j_idt171")[0]
+        .replaceAll(a + 'u003C', "<")
+        .replaceAll("<td", "<>TD<")
+        .replaceAll("<tr", "<>TR<")
+        .replaceAll('class=\\"rf-dt-c\\"', "");
 
-    for(int j=0;j<i.replaceAll(">", "<").split("<").length;j++){
-      if(j%2==0)
-        p+="<sploint>"+i.replaceAll(">", "<").split("<")[j];
+    for (int j = 0; j < i.replaceAll(">", "<").split("<").length; j++) {
+      if (j % 2 == 0) p += "<sploint>" + i.replaceAll(">", "<").split("<")[j];
     }
     var aux;
-    do{
-      aux=p;
-      p=p.replaceAll("<sploint><sploint>", "<sploint>");
-      p=p.replaceAll(a+a,a );
-      p=p.replaceAll(' '+a,a);
-      p=p.replaceAll("  "," ");
-      p=p.replaceAll(a+"t"+a+"t", a+"t");
-    }while(p!=aux);
+    do {
+      aux = p;
+      p = p.replaceAll("<sploint><sploint>", "<sploint>");
+      p = p.replaceAll(a + a, a);
+      p = p.replaceAll(' ' + a, a);
+      p = p.replaceAll("  ", " ");
+      p = p.replaceAll(a + "t" + a + "t", a + "t");
+    } while (p != aux);
     aux = p.split("<sploint>");
-    p="";
-    for(int j=0;j<aux.length;j++){
-      if(aux[j]!=a+"n"+a+"t"&&aux[j]!=a+"n")
-        p+=aux[j]+"\n";
+    p = "";
+    for (int j = 0; j < aux.length; j++) {
+      if (aux[j] != a + "n" + a + "t" && aux[j] != a + "n") p += aux[j] + "\n";
     }
-    int tr=-1,td=-1;
+    int tr = -1, td = -1;
 
-    List<Map<String,String>> mapa = new List<Map<String,String>>();
-    Map<String,String>   axa= {"Aula":"","Turma":"","Dias/Horarios":"","Ministrantes":"","Operacoes":""};
-    Map<String,String> axismo = axa;
-    List<String> lista = ["Aula","Turma","Dias/Horarios","Ministrantes","Operacoes"];
+    List<Map<String, String>> mapa = new List<Map<String, String>>();
+    Map<String, String> axa = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
+    Map<String, String> axismo = axa;
+    List<String> lista = ["Aula", "Turma", "Dias/Horarios", "Ministrantes", "Operacoes"];
 
-    for(int j=7;j<p.split("\n").length;j++){
-      if(p.split("\n")[j]=="TR"){
-        if(axa!=axismo)
-          mapa.add(axa);
+    for (int j = 7; j < p.split("\n").length; j++) {
+      if (p.split("\n")[j] == "TR") {
+        if (axa != axismo) mapa.add(axa);
         tr++;
-        axa= {"Aula":"","Turma":"","Dias/Horarios":"","Ministrantes":"","Operacoes":""};
-      }else if(p.split("\n")[j]=="TD"){
+        axa = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
+      } else if (p.split("\n")[j] == "TD") {
         td++;
-      }else{
-        axa[lista[td%5]]+=p.split("\n")[j]+"\n";
+      } else {
+        axa[lista[td % 5]] += p.split("\n")[j] + "\n";
       }
-
     }
     print(mapa.toString());
     return mapa;
   }
-
-  final TextEditingController _controller = TextEditingController();
-  static Future<String> rawData;
-  static String c;
-  static String warningMessage = "por enquanto não";
-  static WebViewController _controlador;
-  static final loginInput = TextField(
-    decoration: InputDecoration(hintText: "Login"),
-    controller: u,
-  );
-
-  static TextEditingController u = new TextEditingController(),
-      p = new TextEditingController();
-  static var ResultText = new widgets.Text(warningMessage);
-
-  static final passwordInput = TextField(
-    decoration: InputDecoration(hintText: "Password"),
-    obscureText: true,
-    controller: p,
-  );
-
-  WebView webViewWidget = new WebView(
-    onWebViewCreated: (WebViewController webViewController) {
-      _controlador = webViewController;
-    },
-    initialUrl: "https://sistemas.ufscar.br/siga/login.xhtml",
-    javascriptMode: JavascriptMode.unrestricted,
-    onPageStarted: (url) async {
-      //TODO TRATAR FALTA DE INTERNET
-      warningMessage = "carregando.... " + url;
-      print(warningMessage);
-    },
-    onPageFinished: (url) async {
-      if (url == "https://sistemas.ufscar.br/siga/login.xhtml" &&
-          terminou == false) {
-        warningMessage = "pode logar";
-      }
-      // Esta condição indica o fim do processo das páginas
-      else if (url == "https://sistemas.ufscar.br/siga/login.xhtml") {
-        //TODO GRAVAR DADOS DE B
-        //TODO VOLTAR PARA PAGINA DE CONFIGURAÇÕES
-        c = await rawData;
-        coleta(c);
-        terminou = true;
-      }
-      if (url == "https://sistemas.ufscar.br/siga/paginas/home.xhtml") {
-        _controlador.loadUrl(
-            "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml");
-      }
-      if (url ==
-          "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
-        _controlador.evaluateJavascript(
-            "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();");
-      if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
-        _controlador.evaluateJavascript(
-            "document.getElementById('acoes-matriculas-form:solicitacao-inscricao-link').click();");
-      if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?"))
-        _controlador.evaluateJavascript(
-            "document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
-
-      if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?")) {
-        rawData = _controlador
-            .evaluateJavascript("document.documentElement.innerHTML;");
-        print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
-            (await rawData).split(
-                "inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
-        _controlador.evaluateJavascript(
-            "document.getElementById('logout-form:sair-link').click();");
-        warningMessage = "logou";
-        terminou = true;
-      }
-
-      warningMessage = "carregado.... " + url;
-      print(warningMessage);
-    },
-  );
-  static bool terminou = false;
-  Material loginButton = Material(
-      child: Column(
-    children: <Widget>[
-      loginInput,
-      passwordInput,
-      ResultText,
-      RaisedButton(
-        child: widgets.Text("Entrar"),
-        onPressed: () {
-          _controlador.evaluateJavascript(
-              "document.getElementById('login:usuario').value = '" +
-                  u.text +
-                  "';");
-          _controlador.evaluateJavascript(
-              "document.getElementById('login:password').value = '" +
-                  p.text +
-                  "';");
-          _controlador.evaluateJavascript(
-              "document.getElementById('login:loginButton').click();");
-          ResultText = widgets.Text(warningMessage);
-        },
-      ),
-    ],
-  ));
 
   @override
   Widget build(BuildContext context) {
@@ -177,11 +141,42 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Column(
         children: <Widget>[
-          this.loginButton,
-          Container(
-            child: webViewWidget,
-            width: 1,
-            height: 1,
+          TextField(
+            decoration: _getInputDecoration('Login'),
+            controller: _loginTextController,
+          ),
+          TextField(
+            decoration: _getInputDecoration('Senha'),
+            obscureText: true,
+            controller: _passwordTextController,
+          ),
+          RaisedButton(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[Icon(Icons.check_circle), widgets.Text("Fazer login")],
+            ),
+            onPressed: () {
+              print("Botão pressionado");
+
+              // Ativa o WebView
+              this
+                  ._webViewController
+                  .evaluateJavascript("document.getElementById('login:usuario').value = '" + _loginTextController.text + "';");
+              this
+                  ._webViewController
+                  .evaluateJavascript("document.getElementById('login:password').value = '" + _passwordTextController.text + "';");
+              this._webViewController.evaluateJavascript("document.getElementById('login:loginButton').click();");
+            },
+          ),
+          Visibility(
+            child: Container(
+              // O tamanho definido é arbitrário
+              // efetivamente, nada será mostrado na tela
+                height: 20,
+                width: 20,
+                child: this._createWebView("https://sistemas.ufscar.br/siga/login.xhtml", this._onPageStartedFunct, this._onPageFinishedFunct)),
+            maintainState: true,
+            visible: false,
           ),
         ],
       ),

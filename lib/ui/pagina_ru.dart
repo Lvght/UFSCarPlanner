@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
-import 'package:flutter/widgets.dart' as widgets;
 
 class PaginaRu extends StatefulWidget {
   @override
@@ -29,7 +28,7 @@ class _PaginaRuState extends State<PaginaRu> {
 
           default:
             return ListView.builder(
-              itemCount: snapshot.data.length - 1,
+              itemCount: 6, // snapshot.data.length,
               shrinkWrap: false,
               itemBuilder: (context, index) => Container(
                   padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
