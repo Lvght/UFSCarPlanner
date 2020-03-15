@@ -33,6 +33,11 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        unselectedIconTheme: IconThemeData(
+          color: Color.fromRGBO(200, 200, 200, 1),
+        ),
+        selectedIconTheme: Theme.of(context).iconTheme,
+        showSelectedLabels: false,
         currentIndex: _currentIndex,
         onTap: (int index) => setState(() {
           _currentIndex = index;
