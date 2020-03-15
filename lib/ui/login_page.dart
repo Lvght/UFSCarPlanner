@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:ufscarplanner/helpers/UserData.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -36,6 +37,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onPageFinishedFunct(String url) async {
+
+    final userHelper = UserHelper();
+
     // Primeira página: o login acontece aqui.
     if (url == "https://sistemas.ufscar.br/siga/login.xhtml" && this._done == false) {
       this._mensagem = "pode logar";
@@ -49,6 +53,11 @@ class _LoginPageState extends State<LoginPage> {
       this._cleanData = this._rawData;
       _coleta(this._cleanData);
       _done = true;
+
+      print("Escrevendo...\n");
+      await userHelper.writeRawData(_coleta(_cleanData).toString());
+      print("Os dados foram escritos\n");
+
       Navigator.pop(this.context);
     }
 

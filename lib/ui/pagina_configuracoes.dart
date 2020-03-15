@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
 import 'login_page.dart';
+import 'package:ufscarplanner/helpers/UserData.dart';
 
 class PaginaConfiguracoes extends StatefulWidget {
   @override
@@ -17,6 +18,13 @@ class _PaginaConfiguracoesState extends State<PaginaConfiguracoes> {
         RaisedButton(
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
           child: Text("Fazer login"),
+        ),
+        RaisedButton(
+          child: Text("Imprimir texto do arquivo"),
+          onPressed: () async {
+            final userHelper = UserHelper();
+            debugPrint(await userHelper.readRawData());
+          },
         )
       ],
     );
