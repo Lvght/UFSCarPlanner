@@ -149,19 +149,20 @@ class _LoginPageState extends State<LoginPage> {
     // Este valor não possui significado lógico e sim estrutural.
     for (int j = 7; j < cleanData.split("\n").length; j++) {
       if (cleanData.split("\n")[j] == "TR") {
-        if (mapaDasAulas != mapaDeChecagem) mapList.add(mapaDasAulas);
-        mapaDasAulas = mapaDeChecagem;
+        if (mapaDasAulas != mapaDeChecagem){
+
+          mapList.add(mapaDasAulas);}
+        mapaDasAulas = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
       } else if (cleanData.split("\n")[j] == "TD") {
         td++;
       } else {
         mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j] + "\n";
       }
     }
-    print(mapList.toString());
 
     output.nome = "";
     output.materias = mapList;
-
+    print("===============>"+mapList.toString());
     return output;
   }
 
