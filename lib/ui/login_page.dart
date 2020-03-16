@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart' as widgets;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 
+const String menorQue = "\\u003C";
+const String contrabarra = "\u005C";
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -37,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onPageFinishedFunct(String url) async {
-
+    User user = User();
     final userHelper = UserHelper();
 
     // Primeira página: o login acontece aqui.
@@ -71,10 +74,19 @@ class _LoginPageState extends State<LoginPage> {
       this._webViewController.evaluateJavascript("document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();");
     if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
       this._webViewController.evaluateJavascript("document.getElementById('acoes-matriculas-form:solicitacao-inscricao-link').click();");
-    if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?"))
-      this
-          ._webViewController
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?")) {
+
+      String rawData = await this._webViewController.evaluateJavascript("document.documentElement.innerHTML;");
+      debugPrint("PRIMEIRO PRINT = ${rawData.split("IRA: ")[1].toString()}\n\n\n");
+      user.ira = rawData.split("IRA: ").toString(); // split("${contrabarra}u003C/span>")[0].split(">")[0];
+      debugPrint("VALOR DO IRA = ${user.ira}");
+
+      /* user.nome = rawData.split("${this._loginTextController.text} - ")[1].split("</span>")[0];
+      debugPrint("Valor do nome = ${user.nome}"); */
+
+      this._webViewController
           .evaluateJavascript("document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
+    }
 
     if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?")) {
       _rawData = await this._webViewController.evaluateJavascript("document.documentElement.innerHTML;");
@@ -91,55 +103,67 @@ class _LoginPageState extends State<LoginPage> {
         hintText: labelText,
       );
 
-  List<Map<String, String>> _coleta(String s) {
+  // List<Map<String, String>> _coleta(String s) {
+  /*
+   * String _nome;
+   * String _ira;
+   * String _ra;
+   * List< Map<String, String> > _materias;
+   */
+  User _coleta(String s) {
+    User output = User();
     //TODO ARRUMA ISSO AI
-    String a = "\u005C";
-    var p = "";
+    String cleanData = "";
     String i = s
         .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[1]
         .split("inscricao-resultados-form:atividades-inscritas-table:5:j_idt171")[0]
-        .replaceAll(a + 'u003C', "<")
+        .replaceAll(contrabarra + 'u003C', "<")
         .replaceAll("<td", "<>TD<")
         .replaceAll("<tr", "<>TR<")
         .replaceAll('class=\\"rf-dt-c\\"', "");
 
     for (int j = 0; j < i.replaceAll(">", "<").split("<").length; j++) {
-      if (j % 2 == 0) p += "<sploint>" + i.replaceAll(">", "<").split("<")[j];
+      if (j % 2 == 0) cleanData += "<sploint>" + i.replaceAll(">", "<").split("<")[j];
     }
     var aux;
     do {
-      aux = p;
-      p = p.replaceAll("<sploint><sploint>", "<sploint>");
-      p = p.replaceAll(a + a, a);
-      p = p.replaceAll(' ' + a, a);
-      p = p.replaceAll("  ", " ");
-      p = p.replaceAll(a + "t" + a + "t", a + "t");
-    } while (p != aux);
-    aux = p.split("<sploint>");
-    p = "";
+      aux = cleanData;
+      cleanData = cleanData.replaceAll("<sploint><sploint>", "<sploint>");
+      cleanData = cleanData.replaceAll(contrabarra + contrabarra, contrabarra);
+      cleanData = cleanData.replaceAll(' ' + contrabarra, contrabarra);
+      cleanData = cleanData.replaceAll("  ", " ");
+      cleanData = cleanData.replaceAll(contrabarra + "t" + contrabarra + "t", contrabarra + "t");
+    } while (cleanData != aux);
+    aux = cleanData.split("<sploint>");
+    cleanData = "";
     for (int j = 0; j < aux.length; j++) {
-      if (aux[j] != a + "n" + a + "t" && aux[j] != a + "n") p += aux[j] + "\n";
+      if (aux[j] != contrabarra + "n" + contrabarra + "t" && aux[j] != contrabarra + "n") cleanData += aux[j] + "\n";
     }
-    int tr = -1, td = -1;
+    int td = -1;
 
-    List<Map<String, String>> mapa = new List<Map<String, String>>();
-    Map<String, String> axa = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
-    Map<String, String> axismo = axa;
+    List<Map<String, String>> mapList = new List<Map<String, String>>();
+    Map<String, String> mapaDasAulas = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
+    Map<String, String> mapaDeChecagem = mapaDasAulas;
     List<String> lista = ["Aula", "Turma", "Dias/Horarios", "Ministrantes", "Operacoes"];
 
-    for (int j = 7; j < p.split("\n").length; j++) {
-      if (p.split("\n")[j] == "TR") {
-        if (axa != axismo) mapa.add(axa);
-        tr++;
-        axa = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
-      } else if (p.split("\n")[j] == "TD") {
+    // O for se inicia no '7' para que conteúdo desnecessário da página seja pulado.
+    // Este valor não possui significado lógico e sim estrutural.
+    for (int j = 7; j < cleanData.split("\n").length; j++) {
+      if (cleanData.split("\n")[j] == "TR") {
+        if (mapaDasAulas != mapaDeChecagem) mapList.add(mapaDasAulas);
+        mapaDasAulas = mapaDeChecagem;
+      } else if (cleanData.split("\n")[j] == "TD") {
         td++;
       } else {
-        axa[lista[td % 5]] += p.split("\n")[j] + "\n";
+        mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j] + "\n";
       }
     }
-    print(mapa.toString());
-    return mapa;
+    print(mapList.toString());
+
+    output.nome = "";
+    output.materias = mapList;
+
+    return output;
   }
 
   @override
