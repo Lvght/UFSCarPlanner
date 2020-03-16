@@ -77,12 +77,11 @@ class _LoginPageState extends State<LoginPage> {
     if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?")) {
 
       String rawData = await this._webViewController.evaluateJavascript("document.documentElement.innerHTML;");
-      debugPrint("PRIMEIRO PRINT = ${rawData.split("IRA: ")[1].toString()}\n\n\n");
-      user.ira = rawData.split("IRA: ").toString(); // split("${contrabarra}u003C/span>")[0].split(">")[0];
+      user.ira=rawData.split("IRA")[1].split(">")[2].split(contrabarra+"u003C"+"/span")[0];
       debugPrint("VALOR DO IRA = ${user.ira}");
 
-      /* user.nome = rawData.split("${this._loginTextController.text} - ")[1].split("</span>")[0];
-      debugPrint("Valor do nome = ${user.nome}"); */
+      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra+"u003C"+"/span>")[0];
+      debugPrint("Valor do nome = ${user.nome}");
 
       this._webViewController
           .evaluateJavascript("document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
