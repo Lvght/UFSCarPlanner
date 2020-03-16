@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
+import 'package:http/http.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 
@@ -60,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
       print("Escrevendo...\n");
       await userHelper.writeRawData(_coleta(_cleanData).toString());
       print("Os dados foram escritos\n");
-
       Navigator.pop(this.context);
     }
 
@@ -147,10 +147,11 @@ class _LoginPageState extends State<LoginPage> {
 
     // O for se inicia no '7' para que conteúdo desnecessário da página seja pulado.
     // Este valor não possui significado lógico e sim estrutural.
+    cleanData+="\nTR";
     for (int j = 7; j < cleanData.split("\n").length; j++) {
       if (cleanData.split("\n")[j] == "TR") {
         if (mapaDasAulas != mapaDeChecagem){
-
+        
           mapList.add(mapaDasAulas);}
         mapaDasAulas = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
       } else if (cleanData.split("\n")[j] == "TD") {
@@ -158,11 +159,13 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j] + "\n";
       }
+
     }
 
     output.nome = "";
     output.materias = mapList;
-    print("===============>"+mapList.toString());
+   /* print("===============>"+mapList.toString());*/
+    output.agendamento(output);
     return output;
   }
 

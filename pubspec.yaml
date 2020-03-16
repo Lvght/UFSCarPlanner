@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_webview_plugin: ^0.3.10+1
-
+  intl: ^0.16.1
   webview_flutter: ^0.3.19+9
 
 
