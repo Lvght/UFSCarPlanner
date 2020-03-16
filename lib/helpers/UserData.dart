@@ -17,7 +17,7 @@ class User {
         "Materias": this.materias.toString()
       }.toString();
 
-  List<Materia> agendamento(User user) {
+  Map<String,List<Materia>> agendamento(User user) {
     List<Materia> aux = new List<Materia>();
     for (int i = 0; i < user.materias.length; i++) {
       for (int j = 0;
@@ -36,9 +36,13 @@ class User {
     aux.sort((Materia A,Materia B){
         return   A.toint()>B.toint()?1:0;
     });
-    /*for(int i=0;i<aux.length;i++)
-    print(aux[i].toString());*/
-    return aux;
+
+    Map<String,List<Materia>> map = {"Dom":new List<Materia>(), "Seg": new List<Materia>(), "Ter": new List<Materia>(),
+      "Qua": new List<Materia>(), "Qui": new List<Materia>(), "Sex": new List<Materia>(), "Sab": new List<Materia>()};
+    for(int i=0;i<aux.length;i++)
+      map[aux[i].dia].add(aux[i]);
+
+    return map;
   }
 }
 
