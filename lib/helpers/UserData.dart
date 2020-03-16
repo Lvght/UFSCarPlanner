@@ -17,7 +17,7 @@ class User {
         "Materias": this.materias.toString()
       }.toString();
 
-  Map<String,List<Materia>> agendamento(User user) {
+  List<List<Materia>> agendamento(User user) {
     List<Materia> aux = new List<Materia>();
     for (int i = 0; i < user.materias.length; i++) {
       for (int j = 0;
@@ -37,12 +37,32 @@ class User {
         return   A.toint()>B.toint()?1:0;
     });
 
-    Map<String,List<Materia>> map = {"Dom":new List<Materia>(), "Seg": new List<Materia>(), "Ter": new List<Materia>(),
-      "Qua": new List<Materia>(), "Qui": new List<Materia>(), "Sex": new List<Materia>(), "Sab": new List<Materia>()};
-    for(int i=0;i<aux.length;i++)
-      map[aux[i].dia].add(aux[i]);
+    var x = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ];
+    var y = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+    DateTime today = DateTime.now();
+    String f = new DateFormat('EEEE').format(today);
 
-    return map;
+    List<List<Materia>> list =  [new List<Materia>(),new List<Materia>(),new List<Materia>(),new List<Materia>()
+      ,new List<Materia>(),new List<Materia>(),new List<Materia>() ];
+
+    for(int i=0;i<aux.length;i++) {
+      list[ y.indexOf(aux[i].dia)- x.indexOf(f)<0? y.indexOf(aux[i].dia)- x.indexOf(f)+7: y.indexOf(aux[i].dia)- x.indexOf(f)].add(aux[i]);
+
+     // print(aux[i].toString());
+    }
+
+    print(list.toString());
+
+
+    return list;
   }
 }
 
@@ -75,7 +95,7 @@ class Materia {
     var y = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
     DateTime today = DateTime.now();
     String f = new DateFormat('EEEE').format(today);
-    return  (y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f))*10000+int.parse(this.horaI.split(":")[0]) * 100 +
+    return  (y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f)<0?y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f)+7:y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f))*10000+int.parse(this.horaI.split(":")[0]) * 100 +
         int.parse(this.horaI.split(":")[1]);
   }
 
