@@ -14,7 +14,18 @@ class _PaginaConfiguracoesState extends State<PaginaConfiguracoes> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text("Página de configurações"),
+        Container(
+          margin: EdgeInsets.only(top: 15, bottom: 60),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset("_assets/brasil.png", width: MediaQuery.of(context).size.width * 25 / 100,),
+              SizedBox(height: 10,),
+              Text("Defenda a ciência brasileira.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+            ],
+          ),
+        ),
         RaisedButton(
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
           child: Text("Fazer login"),
