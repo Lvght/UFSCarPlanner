@@ -68,15 +68,11 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     http.Response response = await http.get(url);
 
     Map<String, String> E = {"Autor": "", "Texto": ""};
-    E["Autor"] = response.body
-        .split('<div class="autor">')[1]
-        .split("</" + "i>")[0]
-        .replaceAll("<i>", "")
-        .replaceAll("\n", "");
+    E["Autor"] = response.body.split('<div class="autor">')[1].split("</" + "i>")[0].replaceAll("<i>", "").replaceAll("\n", "");
     var aux = response.body
         .split('<div class="texto">')[1]
         .split("</" + "div>")[0]
-        .replaceAll("<br>", "\n")
+        //.replaceAll("<br>", "--------------------")
         .replaceAll("<strong>", "")
         .replaceAll("<em>", '')
         .replaceAll("<br />", "\n")
@@ -88,7 +84,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     do {
       ax = aux;
       if (aux.contains("<" + "/a>"))
-        aux = aux.replaceAll("<a"+aux.split("<" + "/a>")[0].split("<a")[1]+"<" + "/a>", aux.split("<" + "/a>")[0].split("<a")[1].split(">")[1]);
+        aux = aux.replaceAll("<a" + aux.split("<" + "/a>")[0].split("<a")[1] + "<" + "/a>", aux.split("<" + "/a>")[0].split("<a")[1].split(">")[1]);
     } while (aux != ax);
 
     E["Texto"] = aux;
@@ -99,8 +95,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: getLinks('https://www2.ufscar.br/noticias'),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<Map<String, String>>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
@@ -110,19 +105,25 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
             default:
               return ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => NewsPage(
-                                  snapshot.data[index]["Titulo"],
-                                  snapshot.data[index]["Autor"].trim(),
-                                  snapshot.data[index]["Data"].trim(),
-                                  snapshot.data[index]["Texto"],
-                                ))),
-                    child:
-                        ListTile(title: Text(snapshot.data[index]["Titulo"])),
-                  );
+                  return Container(
+                      margin: EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 3)]),
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: ListTile(
+                            title: Text(snapshot.data[index]["Titulo"]),
+                            subtitle: Text(snapshot.data[index]["Data"].trim() + " | " + snapshot.data[index]["Autor"].trim()),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => NewsPage(
+                                          snapshot.data[index]["Titulo"],
+                                          snapshot.data[index]["Autor"].trim(),
+                                          snapshot.data[index]["Data"].trim(),
+                                          snapshot.data[index]["Texto"],
+                                        ))),
+                          )));
                 },
                 itemCount: snapshot.data.length - 1,
               );
