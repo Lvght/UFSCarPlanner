@@ -79,7 +79,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         .replaceAll("<br>", "\n")
         .replaceAll("<strong>", "")
         .replaceAll("<em>", '')
-        .replaceAll("<br />", "")
+        .replaceAll("<br />", "\n")
         .replaceAll("</" + "strong>", "")
         .replaceAll("</" + "em>", "")
         .replaceAll("<u>", "")
