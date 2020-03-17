@@ -68,37 +68,31 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     http.Response response = await http.get(url);
 
     Map<String, String> E = {"Autor": "", "Texto": ""};
-    E["Autor"] = response.body.split('<div class="autor">')[1].split("</" + "i>")[0].replaceAll("<i>", "").replaceAll("\n", "");
+    E["Autor"] = response.body
+        .split('<div class="autor">')[1]
+        .split("</" + "i>")[0]
+        .replaceAll("<i>", "")
+        .replaceAll("\n", "");
     var aux = response.body
         .split('<div class="texto">')[1]
         .split("</" + "div>")[0]
         //.replaceAll("<br>", "--------------------")
-        .replaceAll("<strong>", "")
-        .replaceAll("<em>", '')
+        .replaceAll("<strong>", "<sploint><strong><sploint>")
+        .replaceAll("<em>", '<sploint><em><sploint>')
         .replaceAll("<br />", "\n")
-        .replaceAll("</" + "strong>", "")
-        .replaceAll("</" + "em>", "")
-        .replaceAll("<u>", "")
-        .replaceAll("</u>", "");
-    String ax = aux;
-    do {
-      ax = aux;
-      if (aux.contains("<" + "/a>"))
-        aux = aux.replaceAll("<a" + aux.split("<" + "/a>")[0].split("<a")[1] + "<" + "/a>", aux.split("<" + "/a>")[0].split("<a")[1].split(">")[1]);
-    } while (aux != ax);
-
+        .replaceAll("</" + "strong>", "<sploint></strong><sploint>")
+        .replaceAll("</" + "em>", "<sploint></em><sploint>")
+        .replaceAll("<u>", "<sploint><u><sploint>")
+        .replaceAll("</u>", "<sploint></u><sploint>")
+        .replaceAll("<a>", "<sploint><a><sploint>")
+        .replaceAll("</a>", "<sploint></a><sploint>");
     E["Texto"] = aux;
     return E;
   }
 
-  TextStyle _titleStyle() => TextStyle(
-    fontSize: 17
-  );
+  TextStyle _titleStyle() => TextStyle(fontSize: 17);
 
-  TextStyle _subtitleStyle() => TextStyle(
-    fontSize: 13,
-    color: Colors.black26
-  );
+  TextStyle _subtitleStyle() => TextStyle(fontSize: 13, color: Colors.black26);
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +100,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
       margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
           future: getLinks('https://www2.ufscar.br/noticias'),
-          builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
+          builder: (BuildContext context,
+              AsyncSnapshot<List<Map<String, String>>> snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
@@ -117,28 +112,37 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                 return ListView.builder(
                   itemBuilder: (BuildContext context, int index) {
                     return FlatButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => NewsPage(
-                        snapshot.data[index]["Titulo"].trim(),
-                        snapshot.data[index]["Autor"].trim(),
-                        snapshot.data[index]["Data"].trim(),
-                        snapshot.data[index]["Texto"].trim(),
-                      ))),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NewsPage(
+                                    snapshot.data[index]["Titulo"].trim(),
+                                    snapshot.data[index]["Autor"].trim(),
+                                    snapshot.data[index]["Data"].trim(),
+                                    snapshot.data[index]["Texto"].trim(),
+                                  ))),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(10, 0, 10, 15),
                         padding: EdgeInsets.only(bottom: 15),
                         decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.black26
-                            )
-                          )
-                        ),
+                            border: Border(
+                                bottom: BorderSide(color: Colors.black26))),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(snapshot.data[index]["Titulo"].trim(), style: _titleStyle(),),
-                            SizedBox(height: 5,),
-                            Text(snapshot.data[index]["Data"].trim() + " | " + snapshot.data[index]["Autor"].trim(), style: _subtitleStyle(),)
+                            Text(
+                              snapshot.data[index]["Titulo"].trim(),
+                              style: _titleStyle(),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              snapshot.data[index]["Data"].trim() +
+                                  " | " +
+                                  snapshot.data[index]["Autor"].trim(),
+                              style: _subtitleStyle(),
+                            )
                           ],
                         ),
                       ),
