@@ -91,43 +91,63 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return E;
   }
 
+  TextStyle _titleStyle() => TextStyle(
+    fontSize: 17
+  );
+
+  TextStyle _subtitleStyle() => TextStyle(
+    fontSize: 13,
+    color: Colors.black26
+  );
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getLinks('https://www2.ufscar.br/noticias'),
-        builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            default:
-              return ListView.builder(
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                      margin: EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 3)]),
-                      alignment: Alignment.center,
-                      child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: ListTile(
-                            title: Text(snapshot.data[index]["Titulo"]),
-                            subtitle: Text(snapshot.data[index]["Data"].trim() + " | " + snapshot.data[index]["Autor"].trim()),
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => NewsPage(
-                                          snapshot.data[index]["Titulo"],
-                                          snapshot.data[index]["Autor"].trim(),
-                                          snapshot.data[index]["Data"].trim(),
-                                          snapshot.data[index]["Texto"],
-                                        ))),
-                          )));
-                },
-                itemCount: snapshot.data.length - 1,
-              );
-          }
-        });
+    return Container(
+      margin: EdgeInsets.only(top: 15),
+      child: FutureBuilder(
+          future: getLinks('https://www2.ufscar.br/noticias'),
+          builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              default:
+                return ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return FlatButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => NewsPage(
+                        snapshot.data[index]["Titulo"].trim(),
+                        snapshot.data[index]["Autor"].trim(),
+                        snapshot.data[index]["Data"].trim(),
+                        snapshot.data[index]["Texto"].trim(),
+                      ))),
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(10, 0, 10, 15),
+                        padding: EdgeInsets.only(bottom: 15),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.black26
+                            )
+                          )
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(snapshot.data[index]["Titulo"].trim(), style: _titleStyle(),),
+                            SizedBox(height: 5,),
+                            Text(snapshot.data[index]["Data"].trim() + " | " + snapshot.data[index]["Autor"].trim(), style: _subtitleStyle(),)
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  itemCount: snapshot.data.length - 1,
+                );
+            }
+          }),
+    );
   }
 }
