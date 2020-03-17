@@ -68,7 +68,11 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     http.Response response = await http.get(url);
 
     Map<String, String> E = {"Autor": "", "Texto": ""};
-    E["Autor"] = response.body.split('<div class="autor">')[1].split("</" + "i>")[0].replaceAll("<i>", "").replaceAll("\n", "");
+    E["Autor"] = response.body
+        .split('<div class="autor">')[1]
+        .split("</" + "i>")[0]
+        .replaceAll("<i>", "")
+        .replaceAll("\n", "");
     var aux = response.body
         .split('<div class="texto">')[1]
         .split("</" + "div>")[0]
@@ -79,21 +83,15 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         .replaceAll("</" + "strong>", "")
         .replaceAll("</" + "em>", "")
         .replaceAll("<u>", "")
-        .replaceAll("</u>", "")
-        .replaceAll('<a href="', "<sploint>")
-        .replaceAll("</a>", "")
-        .split("<sploint>");
-    var ax = "";
-    for (int i = 0; i < aux.length; i++) {
-      if (aux[i].contains("<a")) {
-        ax += aux[i].split("<a")[0];
-        for (int j = 1; j < aux[i].split("<a")[1].split(">").length; j++) ax += aux[i].split("<a")[1].split(">")[j];
-      } else {
-        ax += aux[i];
-      }
-    }
-    E["Texto"] = ax;
+        .replaceAll("</u>", "");
+    String ax = aux;
+    do {
+      ax = aux;
+      if (aux.contains("<" + "/a>"))
+        aux = aux.replaceAll("<a"+aux.split("<" + "/a>")[0].split("<a")[1]+"<" + "/a>", aux.split("<" + "/a>")[0].split("<a")[1].split(">")[1]);
+    } while (aux != ax);
 
+    E["Texto"] = aux;
     return E;
   }
 
@@ -101,7 +99,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: getLinks('https://www2.ufscar.br/noticias'),
-        builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<List<Map<String, String>>> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
@@ -109,20 +108,24 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                 child: CircularProgressIndicator(),
               );
             default:
-              return ListView.builder(itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NewsPage(
-                                snapshot.data[index]["Titulo"],
-                                snapshot.data[index]["Autor"].trim(),
-                                snapshot.data[index]["Data"].trim(),
-                                snapshot.data[index]["Texto"],
-                              ))),
-                  child: ListTile(title: Text(snapshot.data[index]["Titulo"])),
-                );
-              });
+              return ListView.builder(
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NewsPage(
+                                  snapshot.data[index]["Titulo"],
+                                  snapshot.data[index]["Autor"].trim(),
+                                  snapshot.data[index]["Data"].trim(),
+                                  snapshot.data[index]["Texto"],
+                                ))),
+                    child:
+                        ListTile(title: Text(snapshot.data[index]["Titulo"])),
+                  );
+                },
+                itemCount: snapshot.data.length - 1,
+              );
           }
         });
   }

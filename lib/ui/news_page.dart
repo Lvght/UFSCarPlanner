@@ -15,12 +15,15 @@ class NewsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(this.titulo),
       ),
-      body: Column(
-        children: <Widget>[
-          Text("Autor: $autor"),
-          Text("Data: $data"),
-          Text(corpo)
-        ],
+
+      body:SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Text("Autor: $autor"),
+            Text("Data: $data"),
+            Text(corpo)
+          ],
+        ),
       ),
     );
   }
