@@ -31,7 +31,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
 
    // print("s -   "+S.toString());
     for (int i = 0; i < S.length; i++) {
-      B = C;
+      B =  {"Data": "", "Link": "", "Titulo": ""};
       if(S[i]!="") {
         B[A[0]] = S[i].split("TD")[1];
         B[A[1]] = S[i].split("TD")[2].split('"')[1];
@@ -47,9 +47,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
           B["Autor"].replaceAll("  ", " ");
           B["Texto"].replaceAll("  ", " ");
         }while(B!=F);
-        if (B != C) {
+        if (B !=  {"Data": "", "Link": "", "Titulo": ""}) {
           D.add(B);
-          debugPrint("D :"+D.toString());
         }else{
 
           debugPrint("B: "+B.toString());
