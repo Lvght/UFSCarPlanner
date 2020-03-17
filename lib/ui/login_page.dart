@@ -165,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
     output.nome = "";
     output.materias = mapList;
    /* print("===============>"+mapList.toString());*/
-    output.agendamento(output);
+    output.agendamento();
     return output;
   }
 

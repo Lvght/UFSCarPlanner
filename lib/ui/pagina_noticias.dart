@@ -49,6 +49,11 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         }while(B!=F);
         if (B != C) {
           D.add(B);
+          debugPrint("D :"+D.toString());
+        }else{
+
+          debugPrint("B: "+B.toString());
+          debugPrint("C :"+C.toString());
         }
        debugPrint(B.toString());
       }
