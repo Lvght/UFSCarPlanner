@@ -15,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
-  final List<Widget> _pages = [
+  List<Widget> _pages = [
     PaginaRu(),
     PaginaAgenda(),
     PaginaNoticias(),
@@ -31,7 +31,10 @@ class _HomePageState extends State<HomePage> {
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
       ),
-      body: _pages[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages
+      ),
       bottomNavigationBar: BottomNavigationBar(
         unselectedIconTheme: IconThemeData(
           color: Color.fromRGBO(200, 200, 200, 1),
