@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
+import 'package:async/async.dart';
 
 class PaginaRu extends StatefulWidget {
   @override
@@ -8,6 +9,9 @@ class PaginaRu extends StatefulWidget {
 }
 
 class _PaginaRuState extends State<PaginaRu> {
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
   DataScrapper d1 = DataScrapper(
 
       //TODO TRATAR FALTA DE INTERNET
@@ -91,8 +95,8 @@ class _PaginaRuState extends State<PaginaRu> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: d1.initiate(),
-      builder: (context, AsyncSnapshot<List<Meal>> snapshot) {
+      future: _memoizer.runOnce(() => d1.initiate()),
+      builder: (context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
           case ConnectionState.none:
