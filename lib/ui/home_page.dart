@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
-import 'package:ufscarplanner/ui/pagina_configuracoes.dart';
 import 'package:ufscarplanner/ui/pagina_noticias.dart';
-
+import 'package:ufscarplanner/ui/login_page.dart';
+import 'login_page.dart';
+import 'package:ufscarplanner/helpers/UserData.dart';
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -19,7 +20,6 @@ class _HomePageState extends State<HomePage> {
     PaginaRu(),
     PaginaAgenda(),
     PaginaNoticias(),
-    PaginaConfiguracoes()
 
   ];
 
@@ -30,6 +30,38 @@ class _HomePageState extends State<HomePage> {
         title: Text("UFSCar Planner"),
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
+      ),
+      drawer: new Drawer(
+
+            child:Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(top: 15, bottom: 60),
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Image.asset("_assets/brasil.png", width: MediaQuery.of(context).size.width * 25 / 100,),
+                      SizedBox(height: 10,),
+                      Text("Defenda a ciência brasileira.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
+                    ],
+                  ),
+                ),
+                RaisedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
+                  child: Text("Fazer login"),
+                ),
+                RaisedButton(
+                  child: Text("Imprimir texto do arquivo"),
+                  onPressed: () async {
+                    final userHelper = UserHelper();
+                    debugPrint(await userHelper.readRawData());
+                  },
+                )
+              ],
+        ),
       ),
       body: IndexedStack(
         index: _currentIndex,
@@ -58,10 +90,7 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.assignment),
               title: Text("Notícias")
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              title: Text("Configurações")
-          ),
+
         ],
       ),
     );

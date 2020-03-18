@@ -100,6 +100,7 @@ class NewsPage extends StatelessWidget {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 5 / 100),
         child: Column(
+
           children: <Widget>[
             Text(
               titulo,
