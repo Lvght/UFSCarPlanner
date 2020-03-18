@@ -36,6 +36,7 @@ class User {
         aux.add(a);
       }
     }
+
     aux.sort((Materia A,Materia B){
       return   A.toint()>B.toint()?1:0;
     });
@@ -50,23 +51,19 @@ class User {
       "Saturday"
     ];
     var y = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
-    DateTime today = DateTime.now();
-    String f = new DateFormat('EEEE').format(today);
+
 
     List<List<Materia>> list =  [new List<Materia>(),new List<Materia>(),new List<Materia>(),new List<Materia>()
       ,new List<Materia>(),new List<Materia>(),new List<Materia>() ];
 
     for(int i=0;i<aux.length;i++) {
-      list[ y.indexOf(aux[i].dia)- x.indexOf(f)<0? y.indexOf(aux[i].dia)- x.indexOf(f)+7: y.indexOf(aux[i].dia)- x.indexOf(f)].add(aux[i]);
-
+      list[ y.indexOf(aux[i].dia)].add(aux[i]);
       // print(aux[i].toString());
     }
 
     MateriaHelper.lista_materias=list;
     MateriaHelper.lista_dias = new List<String>();
-    MateriaHelper.lista_dias.addAll(y.sublist( x.indexOf(f),7));
-    if(x.indexOf(f)>0);
-    MateriaHelper.lista_dias.addAll(y.sublist(0, x.indexOf(f)));
+    MateriaHelper.lista_dias.addAll(y.sublist( 0,7));
     MateriaHelper.lista_materias.removeAt(MateriaHelper.lista_dias.indexOf("Dom"));
     MateriaHelper.lista_dias.remove("Dom");
     return list;
