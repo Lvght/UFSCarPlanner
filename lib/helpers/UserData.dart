@@ -9,9 +9,10 @@ class User {
   String nome;
   String ira;
   String ra;
+  String senha;
   List<Map<String, String>> materias;
 
-  String _toJson() => {
+  String toJson() => {
         "Nome": this.nome,
         "IRA": this.ira,
         "RA": this.ra,

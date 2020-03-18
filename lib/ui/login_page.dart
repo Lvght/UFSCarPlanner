@@ -13,6 +13,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // User
+  User user = User();
+
   // Controladores
   final TextEditingController _loginTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
@@ -41,7 +44,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onPageFinishedFunct(String url) async {
-    User user = User();
     final userHelper = UserHelper();
 
     // Primeira página: o login acontece aqui.
@@ -49,17 +51,17 @@ class _LoginPageState extends State<LoginPage> {
       this._mensagem = "pode logar";
     }
 
+    // ETAPA DE SALVAMENTO DOS DADOS
     // Esta condição indica o fim do processo das páginas
     // Este é o ÚLTIMO CASO!
     else if (url == "https://sistemas.ufscar.br/siga/login.xhtml") {
-      //TODO GRAVAR DADOS DE B
-      //TODO VOLTAR PARA PAGINA DE CONFIGURAÇÕES
       this._cleanData = this._rawData;
       _coleta(this._cleanData);
       _done = true;
 
       print("Escrevendo...\n");
-      await userHelper.writeRawData(_coleta(_cleanData).toString());
+      await userHelper.writeRawData(_coleta(_cleanData).toJson());
+      debugPrint("Hahaha : ${user.toJson()}");
       print("Os dados foram escritos\n");
       Navigator.pop(this.context);
     }
@@ -75,15 +77,15 @@ class _LoginPageState extends State<LoginPage> {
     if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
       this._webViewController.evaluateJavascript("document.getElementById('acoes-matriculas-form:solicitacao-inscricao-link').click();");
     if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml?")) {
-
       String rawData = await this._webViewController.evaluateJavascript("document.documentElement.innerHTML;");
-      user.ira=rawData.split("IRA")[1].split(">")[2].split(contrabarra+"u003C"+"/span")[0];
+      user.ira = rawData.split("IRA")[1].split(">")[2].split(contrabarra + "u003C" + "/span")[0];
       debugPrint("VALOR DO IRA = ${user.ira}");
 
-      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra+"u003C"+"/span>")[0];
+      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra + "u003C" + "/span>")[0];
       debugPrint("Valor do nome = ${user.nome}");
 
-      this._webViewController
+      this
+          ._webViewController
           .evaluateJavascript("document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
     }
 
@@ -147,26 +149,29 @@ class _LoginPageState extends State<LoginPage> {
 
     // O for se inicia no '7' para que conteúdo desnecessário da página seja pulado.
     // Este valor não possui significado lógico e sim estrutural.
-    cleanData+="\nTR";
+    cleanData += "\nTR";
     for (int j = 7; j < cleanData.split("\n").length; j++) {
       if (cleanData.split("\n")[j] == "TR") {
-        if (mapaDasAulas != mapaDeChecagem){
-        
-          mapList.add(mapaDasAulas);}
+        if (mapaDasAulas != mapaDeChecagem) {
+          mapList.add(mapaDasAulas);
+        }
         mapaDasAulas = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
       } else if (cleanData.split("\n")[j] == "TD") {
         td++;
       } else {
         mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j] + "\n";
       }
-
     }
 
-    output.nome = "";
     output.materias = mapList;
-   /* print("===============>"+mapList.toString());*/
+    this.user.materias = mapList;
+    /* print("===============>"+mapList.toString());*/
+    this.user.agendamento();
     output.agendamento();
-    return output;
+
+    debugPrint("SAIDA DA COLETA = ${output.materias.toString()}");
+
+    return this.user;
   }
 
   @override
@@ -195,19 +200,15 @@ class _LoginPageState extends State<LoginPage> {
               print("Botão pressionado");
 
               // Ativa o WebView
-              this
-                  ._webViewController
-                  .evaluateJavascript("document.getElementById('login:usuario').value = '" + _loginTextController.text + "';");
-              this
-                  ._webViewController
-                  .evaluateJavascript("document.getElementById('login:password').value = '" + _passwordTextController.text + "';");
+              this._webViewController.evaluateJavascript("document.getElementById('login:usuario').value = '" + _loginTextController.text + "';");
+              this._webViewController.evaluateJavascript("document.getElementById('login:password').value = '" + _passwordTextController.text + "';");
               this._webViewController.evaluateJavascript("document.getElementById('login:loginButton').click();");
             },
           ),
           Visibility(
             child: Container(
-              // O tamanho definido é arbitrário
-              // efetivamente, nada será mostrado na tela
+                // O tamanho definido é arbitrário
+                // efetivamente, nada será mostrado na tela
                 height: 20,
                 width: 20,
                 child: this._createWebView("https://sistemas.ufscar.br/siga/login.xhtml", this._onPageStartedFunct, this._onPageFinishedFunct)),
