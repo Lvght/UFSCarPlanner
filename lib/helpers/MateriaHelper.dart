@@ -1,6 +1,11 @@
 import 'package:intl/intl.dart';
 
-
+class MateriaHelper{
+  static final MateriaHelper _instance = MateriaHelper.internal();
+  static List<List<Materia>> lista_materias = new List<List<Materia>>();
+  static List<String> lista_dias=new List<String>();
+  MateriaHelper.internal();
+}
 
 class Materia {
   Materia(Map<String, String> map, int indiceDia) {
@@ -15,7 +20,6 @@ class Materia {
     this.horaF = aux.split(" às ")[1].split(" (")[0].replaceAll(" ", "").replaceAll("\n", "");
     this.local = aux.split("(")[1].split(")")[0].replaceAll("\n", "");
   }
-
 
   String codigo, nome, dia, horaI, horaF, turma, ministrantes, local;
 
@@ -41,19 +45,19 @@ class Materia {
     // TODO: implement toString
     return codigo +
         " - " +
-        nome +
+        nome.trim() +
         "\n" +
-        dia +
+        dia.trim() +
         " - " +
-        horaI +
+        horaI.trim() +
         " às " +
-        horaF +
+        horaF.trim() +
         "\nlocal: " +
-        local +
-        "\n turma " +
-        turma +
-        "\n ministrantes :\n" +
-        ministrantes +
+        local.trim() +
+        "\nTurma " +
+        turma.trim() +
+        "\nMinistrantes :\n" +
+        ministrantes.trim() +
         "\n";
   }
 

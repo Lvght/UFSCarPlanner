@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:intl/intl.dart';
+import 'package:ufscarplanner/ui/pagina_agenda.dart';
 
 const String userDataFilename = "userdata.json";
 
@@ -61,9 +62,13 @@ class User {
       // print(aux[i].toString());
     }
 
-    print(list.toString());
-
-
+    MateriaHelper.lista_materias=list;
+    MateriaHelper.lista_dias = new List<String>();
+    MateriaHelper.lista_dias.addAll(y.sublist( x.indexOf(f),7));
+    if(x.indexOf(f)>0);
+    MateriaHelper.lista_dias.addAll(y.sublist(0, x.indexOf(f)));
+    MateriaHelper.lista_materias.removeAt(MateriaHelper.lista_dias.indexOf("Dom"));
+    MateriaHelper.lista_dias.remove("Dom");
     return list;
   }
 }
