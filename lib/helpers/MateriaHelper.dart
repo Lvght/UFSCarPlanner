@@ -34,12 +34,15 @@ class Materia {
       "Saturday"
     ];
     var y = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
-    DateTime today = DateTime.now();
-    String f = new DateFormat('EEEE').format(today);
-    return  (y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f)<0?y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f)+7:y.indexOf(this.dia.replaceAll(" ", ""))- x.indexOf(f))*10000+int.parse(this.horaI.split(":")[0]) * 100 +
+    return  (y.indexOf(this.dia.replaceAll(" ", "")))*10000+int.parse(this.horaI.split(":")[0]) * 100 +
         int.parse(this.horaI.split(":")[1]);
   }
-
+  int hI() {
+    return int.parse(this.horaI.split(":")[0]) * 100 +
+        int.parse(this.horaI.split(":")[1]);
+  }
+  int hF(){    return int.parse(this.horaF.split(":")[0]) * 100 +
+  int.parse(this.horaF.split(":")[1]);}
   @override
   String toString() {
     // TODO: implement toString
