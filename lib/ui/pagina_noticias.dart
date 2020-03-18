@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart'; //
 import 'package:http/http.dart' as http;
 import 'package:ufscarplanner/ui/news_page.dart';
+import 'package:async/async.dart';
 
 class PaginaNoticias extends StatefulWidget {
   @override
@@ -9,6 +10,9 @@ class PaginaNoticias extends StatefulWidget {
 }
 
 class _PaginaNoticiaState extends State<PaginaNoticias> {
+
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
+
   Future<List<Map<String, String>>> getLinks(String url) async {
     List<String> S;
     String rawData;
@@ -105,8 +109,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return Container(
       margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
-          future: getLinks('https://www2.ufscar.br/noticias'),
-          builder: (BuildContext context, AsyncSnapshot<List<Map<String, String>>> snapshot) {
+          future: this._memoizer.runOnce(() => getLinks('https://www2.ufscar.br/noticias')),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
