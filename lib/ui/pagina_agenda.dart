@@ -15,9 +15,22 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: getTabs(),
+      child:FutureBuilder(
+        future: getTabs(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          default:
+            return snapshot.data;
+        }})
     );
   }
+
+
 
   TextStyle _titleTextStyle() => TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
@@ -41,8 +54,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   /*
    * Fornece as tabs para a página de agenda
    */
-  DefaultTabController getTabs() {
-    method();
+  Future<DefaultTabController> getTabs()async {
+    await method();
     List<Widget> labelDiasDaSemana = List<Widget>();
     List<List<Widget>> cardsDasMaterias = List<List<Widget>>();
     List<Widget> paginas = List<Widget>();
@@ -206,17 +219,17 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   }
 
   void method ()async{
-    String path = _file.toString();
+    User user = User.internal();
+    String path =( await _file).path;
+
     if(await io.File(path).exists()) {
-      readRawData().then((data) {
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        List<listlist> c = l.map((a) => listlist.fromJson(a)).toList();
-        MateriaHelper.lista_materias = new List<List<Materia>>();
-        for (int i = 0; i < c.length; i++)
-          MateriaHelper.lista_materias.add(c[i].list);
-        print(MateriaHelper.lista_materias.toString());
-      });
+      print("EXISTEEEEEEEEEEEEEEEEEEEEE");
+        await user.readRawData().then((valor){
+          MateriaHelper.lista_dias =["Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+          print("olha isso "+ MateriaHelper.lista_materias.toString());
+          print("\n\n"+path);
+        });
+
     }else{
       print("\n\n\n\n\n\n\n não existe");
     }
