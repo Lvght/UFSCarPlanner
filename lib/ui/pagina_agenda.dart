@@ -3,6 +3,7 @@ import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:async/async.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:io'as io;
+import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'dart:convert';
@@ -16,7 +17,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   Widget build(BuildContext context) {
     return Container(
       child:FutureBuilder(
-        future: getTabs(),
+        future: getTabs(context),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
@@ -25,7 +26,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
               child: CircularProgressIndicator(),
             );
           default:
-            return snapshot.data;
+            return snapshot.data==null?Text("none"):snapshot.data;
         }})
     );
   }
@@ -54,8 +55,9 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   /*
    * Fornece as tabs para a página de agenda
    */
-  Future<DefaultTabController> getTabs()async {
-    await method();
+  Future<DefaultTabController> getTabs(context)async {
+
+    await method(context);
     List<Widget> labelDiasDaSemana = List<Widget>();
     List<List<Widget>> cardsDasMaterias = List<List<Widget>>();
     List<Widget> paginas = List<Widget>();
@@ -197,6 +199,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
   String  userDataFilename = "Materiadata.json";
 
+  bool visited =false;
+
   Future<String> get _filePath async {
     var directory = await getApplicationDocumentsDirectory();
     return directory.path;
@@ -218,20 +222,20 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
     }
   }
 
-  void method ()async{
+  void method (context)async{
     User user = User.internal();
     String path =( await _file).path;
 
     if(await io.File(path).exists()) {
-      print("EXISTEEEEEEEEEEEEEEEEEEEEE");
-        await user.readRawData().then((valor){
+        await user.readMateriaHelper().then((valor){
           MateriaHelper.lista_dias =["Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
-          print("olha isso "+ MateriaHelper.lista_materias.toString());
-          print("\n\n"+path);
         });
 
     }else{
-      print("\n\n\n\n\n\n\n não existe");
+      if(visited==false){
+     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    visited=true;
+      }
     }
   }
 

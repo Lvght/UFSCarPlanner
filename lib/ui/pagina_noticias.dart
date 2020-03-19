@@ -42,7 +42,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     var future;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
-      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
+
       await getLinks(url).then((valor)async{
         await  writeRawData(json.encode(valor));
         await readRawData().then((data){
@@ -55,30 +55,24 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
             for(int i=0;i<aux.length;i++){
               future.add(aux[i].map);
             }
-            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
 
           });
         });
       });
 
-    }else{
-      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
-      await readRawData().then((data){
+    }else {
+      await readRawData().then((data) {
         Iterable l = json.decode(data);
         Map<String, dynamic> a = new Map<String, dynamic>();
         setState(() {
-          List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
-          future =new  List<Map<String,String>>();
-          for(int i=0;i<aux.length;i++){
+          List<AuxMap> aux = l.map((a) => AuxMap.fromJson(a)).toList();
+          future = new List<Map<String, String>>();
+          for (int i = 0; i < aux.length; i++) {
             future.add(aux[i].map);
           }
-          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-
         });
       });
-      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     }
-    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
     return await future;
   }
 
@@ -149,7 +143,6 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     }
     //TODO CHAMAR DECENTEMENTE ESSA FUNÇÃO
     //TODO ONSTRUIR OS WIDGETS
-    //debugPrint(D.toString());
     return await D;
   }
 

@@ -122,36 +122,26 @@ class _PaginaRuState extends State<PaginaRu> {
     List<Meal> future;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
-    print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
      await d1.initiate().then((valor)async{
         await  writeRawData(json.encode(valor));
         await readRawData().then((data){
           Iterable l = json.decode(data);
           Map<String, dynamic> a = new Map<String, dynamic>();
           setState(() {
-
-            future = l.map(( a)=> Meal.fromJson(a)).toList();
-            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-
+            future = l.map((a) => Meal.fromJson(a)).toList();
           });
         });
        });
 
     }else{
-      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
       await readRawData().then((data){
         Iterable l = json.decode(data);
         Map<String, dynamic> a = new Map<String, dynamic>();
         setState(() {
-
-          future = l.map(( a)=> Meal.fromJson(a)).toList();
-          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-
+          future = l.map((a) => Meal.fromJson(a)).toList();
         });
       });
-      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     }
-    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
     return await future;
   }
   @override

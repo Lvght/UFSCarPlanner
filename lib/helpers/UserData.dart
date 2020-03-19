@@ -23,13 +23,14 @@ class User {
 
   List<Map<String, String>> materias;
 
-  String toJson() => {"Nome": this.nome, "IRA": this.ira, "RA": this.ra, "Materias": this.materias.toString()}.toString();
+  String toJson() => {"Nome": this.nome, "IRA": this.ira, "RA": this.ra, "Materias": jsonEncode(materias)}.toString();
 
   User.fromJson(Map<String, dynamic> json)
       : nome = json['name'],
         ira = json['IRA'],
         ra = json['RA'],
-        materias = json['Materias'];
+        materias = (jsonDecode(json['Materias']) as List<dynamic>).cast<Map<String,String>>();
+
 
   List<List<Materia>> agendamento() {
     List<Materia> aux = new List<Materia>();
@@ -59,7 +60,6 @@ class User {
 
     for (int i = 0; i < aux.length; i++) {
       list[y.indexOf(aux[i].dia)].add(aux[i]);
-      // print(aux[i].toString());
     }
 
     MateriaHelper.lista_materias = list;
@@ -68,7 +68,6 @@ class User {
     MateriaHelper.lista_materias.removeAt(MateriaHelper.lista_dias.indexOf("Dom"));
     MateriaHelper.lista_dias.remove("Dom");
 
-    print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
 
     saveMateriaHelper();
     return list;
@@ -82,25 +81,22 @@ class User {
 
   readMateriaHelper()async{
 
-    print("---------------------------cheguei ate aqui-------------------------\n\n\n\n\n");
-    await readRawData().then((data) {
-      print("---------------------------não é isso-------------------------\n\n\n\n\n");
-      var x = json.decode(data);
 
-      print("---------------------------${x.toString()}-------------------------\n\n\n\n\n");
+    String y= (await readRawData());
+    var x = json.decode(y);
+
+
       Map<String, dynamic> a = new Map<String, dynamic>();
 
-      var c = (json.decode(data) as List<dynamic>).toList();
-      print("cccccccccccccccccccccccccccccccc${c.toString()}ccccccccccccccccccccccccccccccccc\n\n\n\n");
+      var c = (x as List<dynamic>).toList();
       MateriaHelper.lista_materias = new List<List<Materia>>();
       for (int i = 0; i < c.length; i++) {
         // String d =json.decode(c[i]);
 
         listlist d = listlist.fromString(c[i].toString());
-        print("ddddddddddddddddddddddddddddddddddd${d.toString()}ddddddddddddddddddddddddddddddddddddddd\n\n\n");
-        MateriaHelper.lista_materias.add(d.list);
+         MateriaHelper.lista_materias.add(d.list);
       }
-    });
+
   }
 
   String userDataFilename = "Materiadata.json";
@@ -120,18 +116,11 @@ class User {
   Future<String> readRawData() async {
     try {
 
-      print("---------------------------cheguei aqui-------------------------\n\n\n\n\n");
       final file = await _file;
 
-      print("---------------------------cheguei-------------------------\n\n\n\n\n");
-      await file.readAsString().then((s){
-
-        print("chegu "+s);
-        return s;
-      });
+      return (await file.readAsString());
     } catch (e) {
       print(e);
-      print("deu ruim amigao");
       return null;
     }
   }
