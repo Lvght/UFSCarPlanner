@@ -5,6 +5,8 @@ class MateriaHelper{
   static List<List<Materia>> lista_materias = new List<List<Materia>>();
   static List<String> lista_dias=new List<String>();
   MateriaHelper.internal();
+
+
 }
 
 class Materia {
@@ -21,8 +23,15 @@ class Materia {
     this.local = aux.split("(")[1].split(")")[0].replaceAll("\n", "");
   }
 
+  Materia.another(this.codigo, this.nome, this.dia, this.horaI, this.horaF, this.turma, this.ministrantes, this.local);
   String codigo, nome, dia, horaI, horaF, turma, ministrantes, local;
+  factory Materia.fromJson(Map<String, dynamic> json) {
+    return new Materia.another(json["codigo"],json["nome"], json["dia"],json["horaI"],json["horaF"],json["turma"],json["ministrantes"], json["local"]);
 
+  }
+
+  Map toJson() => {
+    "codigo":codigo,"nome": nome, "dia":dia,"horaI": horaI, "horaF":horaF,"turma": turma, "ministrantes":ministrantes, "local":local  };
   int toint() {
     var x = [
       "Sunday",

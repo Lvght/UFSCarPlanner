@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart'; // Contains a client for making API calls
-import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
+import 'package:html/parser.dart'; //
+import 'dart:convert';// Contains HTML parsers to generate a Document object
 
 class Meal {
   String day, date, type;
@@ -18,6 +19,14 @@ class Meal {
     for (int i = 0; i < lista.length; i++) listagem += lista[i] + '\n';
     return this.date + "\n" + this.day + "\n" + this.type + "\n" + listagem;
   }
+  factory Meal.fromJson(Map<String, dynamic> json) {
+  return new Meal(json['date'],json['day'],json['type'],(jsonDecode(json['lista']) as List<dynamic>).cast<String>());
+  }
+
+  Map toJson() => {
+  "day":day, "date":date,"type": type,
+  "lista": jsonEncode(lista)
+  };
 }
 
 class DataScrapper {

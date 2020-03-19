@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
-
+import 'package:async/async.dart';
+import 'package:connectivity/connectivity.dart';
+import 'dart:io'as io;
+import 'package:path_provider/path_provider.dart';
+import 'package:ufscarplanner/helpers/UserData.dart';
+import 'dart:convert';
 class PaginaAgenda extends StatefulWidget {
   @override
   _PaginaAgendaState createState() => _PaginaAgendaState();
@@ -37,6 +42,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
    * Fornece as tabs para a página de agenda
    */
   DefaultTabController getTabs() {
+    method();
     List<Widget> labelDiasDaSemana = List<Widget>();
     List<List<Widget>> cardsDasMaterias = List<List<Widget>>();
     List<Widget> paginas = List<Widget>();
@@ -174,4 +180,46 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
       ),
     );
   }
+
+
+  String  userDataFilename = "Materiadata.json";
+
+  Future<String> get _filePath async {
+    var directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+  Future<io.File> get _file async =>
+      io.File(await _filePath + "/" + userDataFilename);
+
+  Future<io.File> writeRawData(String rawData) async {
+    final file = await _file;
+    return await file.writeAsString(rawData);
+  }
+  Future<String> readRawData() async {
+    try {
+      final file = await _file;
+      return await file.readAsString();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  void method ()async{
+    String path = _file.toString();
+    if(await io.File(path).exists()) {
+      readRawData().then((data) {
+        Iterable l = json.decode(data);
+        Map<String, dynamic> a = new Map<String, dynamic>();
+        List<listlist> c = l.map((a) => listlist.fromJson(a)).toList();
+        MateriaHelper.lista_materias = new List<List<Materia>>();
+        for (int i = 0; i < c.length; i++)
+          MateriaHelper.lista_materias.add(c[i].list);
+        print(MateriaHelper.lista_materias.toString());
+      });
+    }else{
+      print("\n\n\n\n\n\n\n não existe");
+    }
+  }
+
 }

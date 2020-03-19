@@ -39,7 +39,7 @@ class NewsPage extends StatelessWidget {
         tags.add("a");
         text = x[i].split('href="')[1].split('">')[1];
         links[text] = x[i].split('href="')[1].split('"')[0];
-        print("\n\n\n\n\n\n\n\nlink:'" + links[text] + "'\n\n\n\n\n\n\n");
+      //  print("\n\n\n\n\n\n\n\nlink:'" + links[text] + "'\n\n\n\n\n\n\n");
       } else if (x[i].contains("</" + "i>")) {
         tags.remove("i");
       } else if (x[i].contains("</" + "em>")) {
@@ -68,11 +68,11 @@ class NewsPage extends StatelessWidget {
               ? (new TapGestureRecognizer()
                 ..onTap = () async {
                   String url = links[text];
-                  print("\n\n\n\n\n\n\n\nBRAAAAAAAAAAAAAAAABOOOOOOOOOOR\n\n\n\n\n\n\n\n\n\n\n\n");
+             //     print("\n\n\n\n\n\n\n\nBRAAAAAAAAAAAAAAAABOOOOOOOOOOR\n\n\n\n\n\n\n\n\n\n\n\n");
                   if (await canLaunch(url)) {
                     await launch(url);
                   } else {
-                    print("não deu pra lançar a braba :'" + url + "'");
+               //     print("não deu pra lançar a braba :'" + url + "'");
                   }
                 })
               : null);

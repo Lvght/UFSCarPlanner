@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
 import 'package:async/async.dart';
-
+import 'package:connectivity/connectivity.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
 class PaginaRu extends StatefulWidget {
   @override
   _PaginaRuState createState() => _PaginaRuState();
@@ -92,10 +95,69 @@ class _PaginaRuState extends State<PaginaRu> {
         ));
   }
 
+
+  String userDataFilename = "Mealsdata.json";
+
+  Future<String> get _filePath async {
+    var directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+  Future<File> get _file async =>
+      File(await _filePath + "/" + userDataFilename);
+
+  Future<File> writeRawData(String rawData) async {
+    final file = await _file;
+    return await file.writeAsString(rawData);
+  }
+  Future<String> readRawData() async {
+    try {
+      final file = await _file;
+      return await file.readAsString();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+  Future<List<Meal>> iniciar() async {
+    List<Meal> future;
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
+    print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
+     await d1.initiate().then((valor)async{
+        await  writeRawData(json.encode(valor));
+        await readRawData().then((data){
+          Iterable l = json.decode(data);
+          Map<String, dynamic> a = new Map<String, dynamic>();
+          setState(() {
+
+            future = l.map(( a)=> Meal.fromJson(a)).toList();
+            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+
+          });
+        });
+       });
+
+    }else{
+      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
+      await readRawData().then((data){
+        Iterable l = json.decode(data);
+        Map<String, dynamic> a = new Map<String, dynamic>();
+        setState(() {
+
+          future = l.map(( a)=> Meal.fromJson(a)).toList();
+          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+
+        });
+      });
+      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+    }
+    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
+    return await future;
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _memoizer.runOnce(() => d1.initiate()),
+      future: _memoizer.runOnce(() => iniciar() ),
       builder: (context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -106,7 +168,7 @@ class _PaginaRuState extends State<PaginaRu> {
 
           default:
             return ListView.builder(
-                itemCount: snapshot.data.length,
+                itemCount: snapshot.data==null?0:snapshot.data.length,
                 shrinkWrap: false,
                 itemBuilder: (context, index) => Container(
                       child: this._assembleText(snapshot.data[index]),

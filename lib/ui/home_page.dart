@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
 import 'package:ufscarplanner/ui/pagina_noticias.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
 import 'login_page.dart';
+import 'package:ufscarplanner/helpers/MateriaHelper.dart';
+import 'dart:convert';
+import 'package:connectivity/connectivity.dart';
+import 'dart:io' as io;
+import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 class HomePage extends StatefulWidget {
   @override

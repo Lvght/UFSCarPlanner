@@ -15,7 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   // User
-  User user = User();
+  User user = User.internal();
 
   // Controladores
   final TextEditingController _loginTextController = TextEditingController();
@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
    * List< Map<String, String> > _materias;
    */
   User _coleta(String s) {
-    User output = User();
+    User output = User.internal();
     //TODO ARRUMA ISSO AI
     String cleanData = "";
     String i = s

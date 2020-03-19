@@ -3,23 +3,108 @@ import 'package:html/parser.dart'; //
 import 'package:http/http.dart' as http;
 import 'package:ufscarplanner/ui/news_page.dart';
 import 'package:async/async.dart';
+import 'package:connectivity/connectivity.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
 
 class PaginaNoticias extends StatefulWidget {
   @override
   _PaginaNoticiaState createState() => _PaginaNoticiaState();
 }
+class AuxMap{
+  AuxMap(String data,String link,String titulo,String autor,String texto){
 
+    this.map= {"Data": data.trim(), "Link": link.trim(), "Titulo": titulo.trim(),"Autor":autor.trim(),"Texto":texto.trim()};
+  }
+  Map<String,String> map;
+  factory AuxMap.fromJson(Map<String, dynamic> json) {
+    return new AuxMap(json["Data"],json["Link"], json["Titulo"],json["Autor"],json["Texto"]);
+  }
+
+  Map toJson() => {
+    "Data": map["Data"], "Link": map["Link"], "Titulo": map["Titulo"],"Autor":map["Autor"],"Texto":map["Texto"]
+  };
+}
 class _PaginaNoticiaState extends State<PaginaNoticias> {
 
   final AsyncMemoizer _memoizer = AsyncMemoizer();
+  String userDataFilename = "Newsdata.json";
+
+  Future<String> get _filePath async {
+    var directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+  Future<File> get _file async =>
+      File(await _filePath + "/" + userDataFilename);
+
+  Future<List<Map<String, String>>> intermediate(String url) async{
+    var future;
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
+      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
+      await getLinks(url).then((valor)async{
+        await  writeRawData(json.encode(valor));
+        await readRawData().then((data){
+          Iterable l = json.decode(data);
+          Map<String, dynamic> a = new Map<String, dynamic>();
+          setState(() {
+
+            List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
+            future =new  List<Map<String,String>>();
+            for(int i=0;i<aux.length;i++){
+              future.add(aux[i].map);
+            }
+            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+
+          });
+        });
+      });
+
+    }else{
+      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
+      await readRawData().then((data){
+        Iterable l = json.decode(data);
+        Map<String, dynamic> a = new Map<String, dynamic>();
+        setState(() {
+          List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
+          future =new  List<Map<String,String>>();
+          for(int i=0;i<aux.length;i++){
+            future.add(aux[i].map);
+          }
+          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+
+        });
+      });
+      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+    }
+    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
+    return await future;
+  }
+
+  Future<File> writeRawData(String rawData) async {
+    final file = await _file;
+    return await file.writeAsString(rawData);
+  }
+
+  Future<String> readRawData() async {
+    try {
+      final file = await _file;
+      return await file.readAsString();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 
   Future<List<Map<String, String>>> getLinks(String url) async {
     List<String> S;
-    String rawData;
     http.Response response = await http.get(url);
+    String rawData;
+
     String a = "\u005C";
-    S = await response.body
-        .replaceAll(a + 'u003C', "<")
+
+      S=  response.body.replaceAll(a + 'u003C', "<")
         .split('<tbody>')[1]
         .split("</" + "tbody>")[0]
         .replaceAll("</" + "td>", "")
@@ -56,15 +141,15 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         if (B != {"Data": "", "Link": "", "Titulo": ""}) {
           D.add(B);
         } else {
-          debugPrint("B: " + B.toString());
-          debugPrint("C :" + C.toString());
+        //  debugPrint("B: " + B.toString());
+         // debugPrint("C :" + C.toString());
         }
         // debugPrint(B.toString());
       }
     }
     //TODO CHAMAR DECENTEMENTE ESSA FUNÇÃO
     //TODO ONSTRUIR OS WIDGETS
-    debugPrint(D.toString());
+    //debugPrint(D.toString());
     return await D;
   }
 
@@ -103,7 +188,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return Container(
       margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
-          future: this._memoizer.runOnce(() => getLinks('https://www2.ufscar.br/noticias')),
+          future: this._memoizer.runOnce(() => intermediate('https://www2.ufscar.br/noticias')),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -119,10 +204,10 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => NewsPage(
-                                    snapshot.data[index]["Titulo"].trim(),
-                                    snapshot.data[index]["Autor"].trim(),
-                                    snapshot.data[index]["Data"].trim(),
-                                    snapshot.data[index]["Texto"].trim(),
+                                    snapshot.data[index]["Titulo"],
+                                    snapshot.data[index]["Autor"],
+                                    snapshot.data[index]["Data"],
+                                    snapshot.data[index]["Texto"],
                                   ))),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(10, 0, 10, 15),
@@ -134,16 +219,16 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              snapshot.data[index]["Titulo"].trim(),
+                              snapshot.data[index]["Titulo"],
                               style: _titleStyle(),
                             ),
                             SizedBox(
                               height: 5,
                             ),
                             Text(
-                              snapshot.data[index]["Data"].trim() +
+                              snapshot.data[index]["Data"] +
                                   " | " +
-                                  snapshot.data[index]["Autor"].trim(),
+                                  snapshot.data[index]["Autor"],
                               style: _subtitleStyle(),
                             )
                           ],
@@ -151,7 +236,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                       ),
                     );
                   },
-                  itemCount: snapshot.data.length - 1,
+                  itemCount:snapshot.data==null? 0:snapshot.data.length - 1,
                 );
             }
           }),
