@@ -63,7 +63,6 @@ class _HomePageState extends State<HomePage> {
                   child: Text("Imprimir texto do arquivo"),
                   onPressed: () async {
                     final userHelper = UserHelper();
-                    debugPrint(await userHelper.readRawData());
                   },
                 )
               ],

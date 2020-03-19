@@ -3,6 +3,7 @@ import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:async/async.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:io'as io;
+import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'dart:convert';
@@ -15,9 +16,22 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: getTabs(),
+      child:FutureBuilder(
+        future: getTabs(context),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          default:
+            return snapshot.data==null?Text("none"):snapshot.data;
+        }})
     );
   }
+
+
 
   TextStyle _titleTextStyle() => TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
@@ -41,8 +55,9 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   /*
    * Fornece as tabs para a página de agenda
    */
-  DefaultTabController getTabs() {
-    method();
+  Future<DefaultTabController> getTabs(context)async {
+
+    await method(context);
     List<Widget> labelDiasDaSemana = List<Widget>();
     List<List<Widget>> cardsDasMaterias = List<List<Widget>>();
     List<Widget> paginas = List<Widget>();
@@ -184,6 +199,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
   String  userDataFilename = "Materiadata.json";
 
+  bool visited =false;
+
   Future<String> get _filePath async {
     var directory = await getApplicationDocumentsDirectory();
     return directory.path;
@@ -205,20 +222,20 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
     }
   }
 
-  void method ()async{
-    String path = _file.toString();
+  void method (context)async{
+    User user = User.internal();
+    String path =( await _file).path;
+
     if(await io.File(path).exists()) {
-      readRawData().then((data) {
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        List<listlist> c = l.map((a) => listlist.fromJson(a)).toList();
-        MateriaHelper.lista_materias = new List<List<Materia>>();
-        for (int i = 0; i < c.length; i++)
-          MateriaHelper.lista_materias.add(c[i].list);
-        print(MateriaHelper.lista_materias.toString());
-      });
+        await user.readMateriaHelper().then((valor){
+          MateriaHelper.lista_dias =["Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
+        });
+
     }else{
-      print("\n\n\n\n\n\n\n não existe");
+      if(visited==false){
+     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    visited=true;
+      }
     }
   }
 
