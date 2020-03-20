@@ -20,6 +20,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   int _currentIndex = 0;
+  User _currentUser;
+  UserHelper _userHelper;
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
   List<Widget> _pages = [
@@ -29,6 +31,16 @@ class _HomePageState extends State<HomePage> {
 
   ];
 
+
+  @override
+  void initState() {
+    super.initState();
+    _userHelper = UserHelper();
+    // _userHelper.readRawData().then((string) => debugPrint("Deu certo = " + string));
+
+    _userHelper.readUser().then((u) => _currentUser = u);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +48,14 @@ class _HomePageState extends State<HomePage> {
         title: Text("UFSCar Planner"),
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.bug_report),
+            onPressed: () async {
+              debugPrint("Botão: ${_currentUser.toString()}");
+            },
+          )
+        ],
       ),
       drawer: new Drawer(
 

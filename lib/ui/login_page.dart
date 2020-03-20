@@ -65,7 +65,8 @@ class _LoginPageState extends State<LoginPage> {
       _done = true;
 
       print("Escrevendo...\n");
-      await userHelper.writeRawData(_coleta(_cleanData).toJson());
+      // await userHelper.writeRawData(_coleta(_cleanData).toJson());
+      await userHelper.saveUser(user);
       debugPrint("Hahaha : ${user.toJson()}");
       print("Os dados foram escritos\n");
       Navigator.pop(this.context);
@@ -205,7 +206,7 @@ class _LoginPageState extends State<LoginPage> {
       } else if (cleanData.split("\n")[j] == "TD") {
         td++;
       } else {
-        mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j] + "\n";
+        mapaDasAulas[lista[td % 5]] += cleanData.split("\n")[j].trim() + "\n";
       }
     }
 
@@ -252,6 +253,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () {
                   print("Botão pressionado");
+
+                  this.user.ra = _loginTextController.text;
 
                   // Ativa o WebView
                   this._webViewController.evaluateJavascript(
