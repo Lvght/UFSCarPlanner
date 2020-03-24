@@ -136,14 +136,28 @@ class _LoginPageState extends State<LoginPage> {
    * List< Map<String, String> > _materias;
    */
   User _coleta(String s) {
+
     User output = User.internal();
     //TODO ARRUMA ISSO AI
     String cleanData = "";
-    String i = s
+    s=s.replaceAll(contrabarra + 'u003C', "<");
+    //buscando numero maximo de rows da tabela
+    int io = int.parse(s
+        .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
+    1]
+        .split(
+        "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:')[(s
+        .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
+    1]
+        .split(
+        "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:').length-2)].split(":j_idt")[0]);
+    //encontrando a tabela
+
+     String i = s
         .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
             1]
         .split(
-            "inscricao-resultados-form:atividades-inscritas-table:5:j_idt171")[0]
+            "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:${io}:j_idt171')[0]
         .replaceAll(contrabarra + 'u003C', "<")
         .replaceAll("<td", "<>TD<")
         .replaceAll("<tr", "<>TR<")
@@ -228,8 +242,8 @@ class _LoginPageState extends State<LoginPage> {
         body: Center(child: Card(
           color: Colors.white,
           child: Container(
-            width:  MediaQuery.of(context).size.width*0.80,
-            height:  MediaQuery.of(context).size.width*0.80,
+            width:  MediaQuery.of(context).size.width*1,
+            height:  MediaQuery.of(context).size.height*1,
             margin:EdgeInsets.fromLTRB(16, 16, 16,0) ,
           child: Column(
             children: <Widget>[
@@ -273,14 +287,14 @@ class _LoginPageState extends State<LoginPage> {
                 child: Container(
                     // O tamanho definido é arbitrário
                     // efetivamente, nada será mostrado na tela
-                    height: 20,
-                    width: 20,
+                    height: 400,
+                    width: 400,
                     child: this._createWebView(
                         "https://sistemas.ufscar.br/siga/login.xhtml",
                         this._onPageStartedFunct,
                         this._onPageFinishedFunct)),
                 maintainState: true,
-                visible: false,
+                visible: true,
               ),
             ],
           ),
