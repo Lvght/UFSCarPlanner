@@ -25,9 +25,6 @@ class _HomePageState extends State<HomePage> {
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
   List<Widget> _pages = [
-    PaginaRu(),
-    PaginaAgenda(),
-    PaginaNoticias(),
 
   ];
 
@@ -36,9 +33,17 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _userHelper = UserHelper();
-    // _userHelper.readRawData().then((string) => debugPrint("Deu certo = " + string));
 
-    _userHelper.readUser().then((u) => _currentUser = u);
+    _userHelper.readUser().then((u) {
+      _currentUser = u;
+
+      _pages = [
+        PaginaRu(),
+        PaginaAgenda(_currentUser.mat),
+        PaginaNoticias(),
+      ];
+
+    });
   }
 
   @override
