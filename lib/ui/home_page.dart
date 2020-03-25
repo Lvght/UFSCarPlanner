@@ -12,6 +12,7 @@ import 'package:connectivity/connectivity.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'about_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -59,47 +60,38 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       drawer: new Drawer(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(top: 15, bottom: 60),
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Image.asset(
-                    "_assets/brasil.png",
-                    width: MediaQuery.of(context).size.width * 25 / 100,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Defenda a ciência brasileira.",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  )
-                ],
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          child: ListView(
+            children: <Widget>[
+              ListTile(
+                title: Text("UFSCar App", textAlign: TextAlign.center,),
               ),
-            ),
-            RaisedButton(
-              onPressed: () {
-                Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()))
-                    .then((value) => Navigator.pop(context));
-              },
-              child: Text("Fazer login"),
-            ),
-            RaisedButton(
-              child: Text("Imprimir texto do arquivo"),
-              onPressed: () async {
-                final userHelper = UserHelper();
-                debugPrint(await userHelper.readRawData());
-              },
-            )
-          ],
-        ),
+              ListTile(
+                title: Text("Este app ainda está em desenvolvimento! Não compartilhe seu arquivo APK.", textAlign: TextAlign.center,),
+              ),
+              ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset("_assets/brasil.png", height: 10,),
+                    SizedBox(width: 5,),
+                    Text("Defenda a ciência brasileira")
+                  ],
+                ),
+              ),
+              Divider(),
+              ListTile(
+                title: Text("Fazer login no SIGA"),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage() )).then((value) => Navigator.pop(context)),
+              ),
+              ListTile(
+                title: Text("Sobre este app"),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage() )).then((value) => Navigator.pop(context)),
+              ),
+            ],
+          ),
+        )
       ),
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
