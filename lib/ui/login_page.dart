@@ -136,28 +136,36 @@ class _LoginPageState extends State<LoginPage> {
    * List< Map<String, String> > _materias;
    */
   User _coleta(String s) {
-
     User output = User.internal();
     //TODO ARRUMA ISSO AI
     String cleanData = "";
-    s=s.replaceAll(contrabarra + 'u003C', "<");
+    s = s.replaceAll(contrabarra + 'u003C', "<");
     //buscando numero maximo de rows da tabela
     int io = int.parse(s
         .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
-    1]
-        .split(
-        "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:')[(s
-        .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
-    1]
-        .split(
-        "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:').length-2)].split(":j_idt")[0]);
+            1]
+        .split("</" + "body>")[0]
+        .split('id=' +
+            contrabarra +
+            '"inscricao-resultados-form:atividades-inscritas-table:')[(s
+                .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
+                    1]
+                .split("</" + "body>")[0]
+                .split('id=' +
+                    contrabarra +
+                    '"inscricao-resultados-form:atividades-inscritas-table:')
+                .length -
+            2)]
+        .split(":j_idt")[0]);
     //encontrando a tabela
 
-     String i = s
+    String i = s
         .split("Segue abaixo a lista de inscrições e resultados neste periodo letivo.")[
             1]
-        .split(
-            "</"+"body>")[0].split('id='+contrabarra+'"inscricao-resultados-form:atividades-inscritas-table:${io}:j_idt171')[0]
+        .split("</" + "body>")[0]
+        .split('id=' +
+            contrabarra +
+            '"inscricao-resultados-form:atividades-inscritas-table:${io}:j_idt171')[0]
         .replaceAll(contrabarra + 'u003C', "<")
         .replaceAll("<td", "<>TD<")
         .replaceAll("<tr", "<>TR<")
@@ -239,65 +247,66 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           title: widgets.Text("Página de login"),
         ),
-        body: Center(child: Card(
-          color: Colors.white,
-          child: Container(
-            width:  MediaQuery.of(context).size.width*1,
-            height:  MediaQuery.of(context).size.height*1,
-            margin:EdgeInsets.fromLTRB(16, 16, 16,0) ,
-          child: Column(
-            children: <Widget>[
-              TextField(
-                decoration: _getInputDecoration('Login'),
-                controller: _loginTextController,
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                decoration: _getInputDecoration('Senha'),
-                obscureText: true,
-                controller: _passwordTextController,
-              ),
-              RaisedButton(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.check_circle),
-                    widgets.Text("Fazer login")
-                  ],
-                ),
-                onPressed: () {
-                  print("Botão pressionado");
-
-                  this.user.ra = _loginTextController.text;
-
-                  // Ativa o WebView
-                  this._webViewController.evaluateJavascript(
-                      "document.getElementById('login:usuario').value = '" +
-                          _loginTextController.text +
-                          "';");
-                  this._webViewController.evaluateJavascript(
-                      "document.getElementById('login:password').value = '" +
-                          _passwordTextController.text +
-                          "';");
-                  this._webViewController.evaluateJavascript(
-                      "document.getElementById('login:loginButton').click();");
-                },
-              ),
-              Visibility(
+        body: Center(
+            child: Card(
+                color: Colors.white,
                 child: Container(
-                    // O tamanho definido é arbitrário
-                    // efetivamente, nada será mostrado na tela
-                    height: 400,
-                    width: 400,
-                    child: this._createWebView(
-                        "https://sistemas.ufscar.br/siga/login.xhtml",
-                        this._onPageStartedFunct,
-                        this._onPageFinishedFunct)),
-                maintainState: true,
-                visible: true,
-              ),
-            ],
-          ),
-        ))));
+                  width: MediaQuery.of(context).size.width * 1,
+                  height: MediaQuery.of(context).size.height * 1,
+                  margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Column(
+                    children: <Widget>[
+                      TextField(
+                        decoration: _getInputDecoration('Login'),
+                        controller: _loginTextController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      TextField(
+                        decoration: _getInputDecoration('Senha'),
+                        obscureText: true,
+                        controller: _passwordTextController,
+                      ),
+                      RaisedButton(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.check_circle),
+                            widgets.Text("Fazer login")
+                          ],
+                        ),
+                        onPressed: () {
+                          print("Botão pressionado");
+
+                          this.user.ra = _loginTextController.text;
+
+                          // Ativa o WebView
+                          this._webViewController.evaluateJavascript(
+                              "document.getElementById('login:usuario').value = '" +
+                                  _loginTextController.text +
+                                  "';");
+                          this._webViewController.evaluateJavascript(
+                              "document.getElementById('login:password').value = '" +
+                                  _passwordTextController.text +
+                                  "';");
+                          this._webViewController.evaluateJavascript(
+                              "document.getElementById('login:loginButton').click();");
+                        },
+                      ),
+                      Visibility(
+                        child: Container(
+                            // O tamanho definido é arbitrário
+                            // efetivamente, nada será mostrado na tela
+                            height: 400,
+                            width: 400,
+                            child: this._createWebView(
+                                "https://sistemas.ufscar.br/siga/login.xhtml",
+                                this._onPageStartedFunct,
+                                this._onPageFinishedFunct)),
+                        maintainState: true,
+                        visible: true,
+                      ),
+                    ],
+                  ),
+                ))));
   }
 }
