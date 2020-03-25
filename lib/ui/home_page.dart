@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
 
       _pages = [
         PaginaRu(),
-        PaginaAgenda(_currentUser.mat),
+        PaginaAgenda(_currentUser != null ? _currentUser.mat : null),
         PaginaNoticias(),
       ];
     });
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text("UFSCar Planner"),
+        title: Text(_currentUser == null ? "UFSCar App" : "Olá, ${_currentUser.nome.split(" ")[0]}"),
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
         actions: <Widget>[
@@ -55,6 +55,16 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.bug_report),
             onPressed: () async {
               print("Botão pressionado :)");
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.restore_from_trash),
+            onPressed: () {
+              _userHelper.deleteFile();
+
+              setState(() {
+                _currentUser = null;
+              });
             },
           )
         ],
@@ -81,10 +91,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Divider(),
-              ListTile(
-                title: Text("Fazer login no SIGA"),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage() )).then((value) => Navigator.pop(context)),
-              ),
               ListTile(
                 title: Text("Sobre este app"),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage() )).then((value) => Navigator.pop(context)),

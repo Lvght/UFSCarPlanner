@@ -84,7 +84,10 @@ class User {
 
   void agendamento() {
 
-    List<Materia> listaDeMaterias = _stringToMateria();
+    print("Ponto AA");
+
+//    List<Materia> listaDeMaterias = _stringToMateria();
+    List<Materia> listaDeMaterias = List();
 
     listaDeMaterias
         .sort((Materia A, Materia B) => A.toint() > B.toint() ? 1 : 0);
@@ -101,10 +104,14 @@ class User {
       new List<Materia>()
     ];
 
+    print("Ponto A1");
+
     // Povoa a lista de matérias por dia da semana
     for (int i = 0; i < listaDeMaterias.length; i++)
       listaDeMateriasPorDiaDaSemana[weekDays.indexOf(listaDeMaterias[i].dia)]
           .add(listaDeMaterias[i]);
+
+    print("Ponto A2");
 
     MateriaHelper.lista_materias = listaDeMateriasPorDiaDaSemana;
     MateriaHelper.lista_dias = new List<String>();
@@ -179,6 +186,11 @@ class UserHelper {
   Future<File> get _file async {
     var directory = await getApplicationDocumentsDirectory();
     return File("${directory.path}/$userDataFilename");
+  }
+
+  Future<void> deleteFile() async {
+    File file = await _file;
+    file.delete();
   }
 
   Future<File> writeRawData(String rawData) async {

@@ -7,20 +7,88 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'dart:convert';
 
+import 'package:ufscarplanner/ui/login_page.dart';
+
 class PaginaAgenda extends StatefulWidget {
   PaginaAgenda(this._materias);
 
-  List<List<Materia>> _materias;
+  List<List<Materia>> _materias = [
+    new List<Materia>(),
+    new List<Materia>(),
+    new List<Materia>(),
+    new List<Materia>(),
+    new List<Materia>(),
+    new List<Materia>(),
+    new List<Materia>(),
+  ];
+
+  var msg = "Faça login no SIGA e veja a sua agenda acadêmica nesta tela.";
 
   @override
   _PaginaAgendaState createState() => _PaginaAgendaState();
 }
 
 class _PaginaAgendaState extends State<PaginaAgenda> {
+  UserHelper _userHelper = UserHelper();
+  User _currentUser;
+
+  @override
+  void initState() {
+    if (widget._materias == null) {
+      _userHelper.readUser().then((value) {
+        _currentUser = value;
+
+        if (_currentUser != null) widget._materias = _currentUser.mat;
+        setState(() {});
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: getTabs(),
+      child: widget._materias == null
+          ? Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(
+                      Icons.autorenew,
+                      size: 60,
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Text(
+                      widget.msg,
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    RaisedButton(
+                      onPressed: () {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()))
+                            .then((value) {
+                              print("Val: " + value.mat[1].toString());
+                              setState(() {
+                                widget._materias = value.mat;
+                              });
+                        });
+                      },
+                      child: Text("Entrar no SIGA"),
+                    )
+                  ],
+                ),
+              ),
+            )
+          : getTabs(),
     );
   }
 
@@ -84,18 +152,24 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
       // verifica se há matérias no dia
       if (widget._materias[i].length == 0)
-        cardsDasMaterias[i].add(
-            Container(
-              padding: EdgeInsets.only(top: 40),
-              child: Column(
-                children: <Widget>[
-                  Icon(Icons.wb_sunny, size: 80,),
-                  SizedBox(height: 25,),
-                  Text("Dia livre", style: TextStyle(fontSize: 30),)
-                ],
+        cardsDasMaterias[i].add(Container(
+          padding: EdgeInsets.only(top: 40),
+          child: Column(
+            children: <Widget>[
+              Icon(
+                Icons.wb_sunny,
+                size: 80,
               ),
-            )
-        );
+              SizedBox(
+                height: 25,
+              ),
+              Text(
+                "Dia livre",
+                style: TextStyle(fontSize: 30),
+              )
+            ],
+          ),
+        ));
       else
         for (int j = 0; j < widget._materias[i].length; j++) {
           cardsDasMaterias[i].add(Container(
@@ -228,13 +302,6 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
         ),
         body: TabBarView(
           children: paginas,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            print("Botão flutuante pressionado");
-          },
-          child: Icon(Icons.add),
-          backgroundColor: Colors.redAccent,
         ),
       ),
     );

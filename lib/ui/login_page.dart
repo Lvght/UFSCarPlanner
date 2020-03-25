@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:http/http.dart';
@@ -49,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _onPageFinishedFunct(String url) async {
     final userHelper = UserHelper();
+    String auxSubjectParser;
 
     // Primeira página: o login acontece aqui.
     if (url == "https://sistemas.ufscar.br/siga/login.xhtml" &&
@@ -61,15 +63,19 @@ class _LoginPageState extends State<LoginPage> {
     // Este é o ÚLTIMO CASO!
     else if (url == "https://sistemas.ufscar.br/siga/login.xhtml") {
       this._cleanData = this._rawData;
+
       _coleta(this._cleanData);
       _done = true;
 
       print("Escrevendo...\n");
-      // await userHelper.writeRawData(_coleta(_cleanData).toJson());
       await userHelper.saveUser(user);
-      debugPrint("Hahaha : ${user.toJson()}");
+
+      auxSubjectParser = json.encode(user.materias.toString()).replaceAll("\\n", "");
+      user.mat = userHelper.subjectParser(auxSubjectParser);
       print("Os dados foram escritos\n");
-      Navigator.pop(this.context);
+
+      // Retorna à tela anterior, retornando os dados do usuário
+      Navigator.pop(this.context, this.user);
     }
 
     // Aqui a página de Matrículas é carregada.
@@ -112,11 +118,8 @@ class _LoginPageState extends State<LoginPage> {
       _rawData = await this
           ._webViewController
           .evaluateJavascript("document.documentElement.innerHTML;");
-//      print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
-//          this._rawData.split(
-//              "inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
-//      this._webViewController.evaluateJavascript(
-//          "document.getElementById('logout-form:sair-link').click();");
+      this._webViewController.evaluateJavascript(
+          "document.getElementById('logout-form:sair-link').click();");
       this._done = true;
     }
 
@@ -128,15 +131,9 @@ class _LoginPageState extends State<LoginPage> {
         hintText: labelText,
       );
 
-  // List<Map<String, String>> _coleta(String s) {
-  /*
-   * String _nome;
-   * String _ira;
-   * String _ra;
-   * List< Map<String, String> > _materias;
-   */
   User _coleta(String s) {
     User output = User.internal();
+    UserHelper _userHelper = UserHelper();
     //TODO ARRUMA ISSO AI
     String cleanData = "";
     s = s.replaceAll(contrabarra + 'u003C', "<");
@@ -175,6 +172,7 @@ class _LoginPageState extends State<LoginPage> {
       if (j % 2 == 0)
         cleanData += "<sploint>" + i.replaceAll(">", "<").split("<")[j];
     }
+
     var aux;
     do {
       aux = cleanData;
@@ -234,9 +232,7 @@ class _LoginPageState extends State<LoginPage> {
 
     output.materias = mapList;
     this.user.materias = mapList;
-    /* print("===============>"+mapList.toString());*/
-    this.user.agendamento();
-    output.agendamento();
+    this.user.mat = _userHelper.subjectParser(mapList.toString());
 
     return this.user;
   }
@@ -253,14 +249,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text("Atenção"),
+                Text("Atenção", style: TextStyle(fontWeight: FontWeight.bold),),
                 SizedBox(height: 10,),
                 Text("Insira os seus dados de acesso do SIGA e então aperte o botão de LOGIN. Aguarde alguns segundos até que o aplicativo feche esta tela automaticamente. Caso isso não ocorra em até 20 segundos, verifique os seus dados e tente novamente.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
                 SizedBox(height: 10,),
-                Text("Aplicativo em desenvolvimento. Não redistribua o pacote de instalação deste aplicativo. Destinado a fins de teste apenas. Quando orientado, desinstale este aplicativo de seu aparelho.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
+                Text("Aplicativo em desenvolvimento. Não redistribua o pacote de instalação deste aplicativo. Destinado a fins de teste apenas. Quando orientado, desinstale (remova) este aplicativo de seu aparelho.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
                 SizedBox(height: 30,),
                 TextField(
-                  decoration: _getInputDecoration('Login'),
+                  decoration: _getInputDecoration('Login (CPF ou RA)'),
                   controller: _loginTextController,
                   keyboardType: TextInputType.number,
                 ),
@@ -273,6 +269,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text("Fazer login"),
                   onPressed: () {
                     print("Botão pressionado");
+                    FocusScope.of(context).requestFocus(FocusNode());
 
                     this.user.ra = _loginTextController.text;
 
