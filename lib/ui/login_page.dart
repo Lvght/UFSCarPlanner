@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   InputDecoration _getInputDecoration(String labelText) =>
-      InputDecoration.collapsed(
+      InputDecoration(
         hintText: labelText,
       );
 
@@ -248,65 +248,63 @@ class _LoginPageState extends State<LoginPage> {
           title: widgets.Text("Página de login"),
         ),
         body: Center(
-            child: Card(
-                color: Colors.white,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 1,
-                  height: MediaQuery.of(context).size.height * 1,
-                  margin: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  child: Column(
-                    children: <Widget>[
-                      TextField(
-                        decoration: _getInputDecoration('Login'),
-                        controller: _loginTextController,
-                        keyboardType: TextInputType.number,
-                      ),
-                      TextField(
-                        decoration: _getInputDecoration('Senha'),
-                        obscureText: true,
-                        controller: _passwordTextController,
-                      ),
-                      RaisedButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(Icons.check_circle),
-                            widgets.Text("Fazer login")
-                          ],
-                        ),
-                        onPressed: () {
-                          print("Botão pressionado");
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text("Atenção"),
+                SizedBox(height: 10,),
+                Text("Insira os seus dados de acesso do SIGA e então aperte o botão de LOGIN. Aguarde alguns segundos até que o aplicativo feche esta tela automaticamente. Caso isso não ocorra em até 20 segundos, verifique os seus dados e tente novamente.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
+                SizedBox(height: 10,),
+                Text("Aplicativo em desenvolvimento. Não redistribua o pacote de instalação deste aplicativo. Destinado a fins de teste apenas. Quando orientado, desinstale este aplicativo de seu aparelho.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
+                SizedBox(height: 30,),
+                TextField(
+                  decoration: _getInputDecoration('Login'),
+                  controller: _loginTextController,
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  decoration: _getInputDecoration('Senha'),
+                  obscureText: true,
+                  controller: _passwordTextController,
+                ),
+                RaisedButton(
+                  child: Text("Fazer login"),
+                  onPressed: () {
+                    print("Botão pressionado");
 
-                          this.user.ra = _loginTextController.text;
+                    this.user.ra = _loginTextController.text;
 
-                          // Ativa o WebView
-                          this._webViewController.evaluateJavascript(
-                              "document.getElementById('login:usuario').value = '" +
-                                  _loginTextController.text +
-                                  "';");
-                          this._webViewController.evaluateJavascript(
-                              "document.getElementById('login:password').value = '" +
-                                  _passwordTextController.text +
-                                  "';");
-                          this._webViewController.evaluateJavascript(
-                              "document.getElementById('login:loginButton').click();");
-                        },
-                      ),
-                      Visibility(
-                        child: Container(
-                            // O tamanho definido é arbitrário
-                            // efetivamente, nada será mostrado na tela
-                            height: 400,
-                            width: 400,
-                            child: this._createWebView(
-                                "https://sistemas.ufscar.br/siga/login.xhtml",
-                                this._onPageStartedFunct,
-                                this._onPageFinishedFunct)),
-                        maintainState: true,
-                        visible: true,
-                      ),
-                    ],
-                  ),
-                ))));
+                    // Ativa o WebView
+                    this._webViewController.evaluateJavascript(
+                        "document.getElementById('login:usuario').value = '" +
+                            _loginTextController.text +
+                            "';");
+                    this._webViewController.evaluateJavascript(
+                        "document.getElementById('login:password').value = '" +
+                            _passwordTextController.text +
+                            "';");
+                    this._webViewController.evaluateJavascript(
+                        "document.getElementById('login:loginButton').click();");
+                  },
+                ),
+                Visibility(
+                  child: Container(
+                      // O tamanho definido é arbitrário
+                      // efetivamente, nada será mostrado na tela
+                      height: 1,
+                      width: 1,
+                      child: this._createWebView(
+                          "https://sistemas.ufscar.br/siga/login.xhtml",
+                          this._onPageStartedFunct,
+                          this._onPageFinishedFunct)),
+                  maintainState: true,
+                  visible: false,
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }
