@@ -112,11 +112,11 @@ class _LoginPageState extends State<LoginPage> {
       _rawData = await this
           ._webViewController
           .evaluateJavascript("document.documentElement.innerHTML;");
-      print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
-          this._rawData.split(
-              "inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
-      this._webViewController.evaluateJavascript(
-          "document.getElementById('logout-form:sair-link').click();");
+//      print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" +
+//          this._rawData.split(
+//              "inscricao-resultados-form:atividades-inscritas-table:tb")[1]);
+//      this._webViewController.evaluateJavascript(
+//          "document.getElementById('logout-form:sair-link').click();");
       this._done = true;
     }
 

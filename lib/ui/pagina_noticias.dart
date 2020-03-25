@@ -42,7 +42,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     var future;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
-      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
+//      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
       await getLinks(url).then((valor)async{
         await  writeRawData(json.encode(valor));
         await readRawData().then((data){
@@ -55,14 +55,14 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
             for(int i=0;i<aux.length;i++){
               future.add(aux[i].map);
             }
-            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
 
           });
         });
       });
 
     }else{
-      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
+//      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
       await readRawData().then((data){
         Iterable l = json.decode(data);
         Map<String, dynamic> a = new Map<String, dynamic>();
@@ -72,13 +72,13 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
           for(int i=0;i<aux.length;i++){
             future.add(aux[i].map);
           }
-          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+//          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
 
         });
       });
-      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+//      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     }
-    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
+//    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
     return await future;
   }
 

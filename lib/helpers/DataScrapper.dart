@@ -44,8 +44,8 @@ class DataScrapper {
 
     print(document.querySelectorAll('#content'));
     meals = find(response);
-    debugPrint("Meals = ${meals.toString()}]");
-    debugPrint("Tamanho do meals = ${meals.length}");
+//    debugPrint("Meals = ${meals.toString()}]");
+//    debugPrint("Tamanho do meals = ${meals.length}");
     return meals;
   }
 
@@ -109,7 +109,7 @@ class DataScrapper {
       mealList[i] = new Meal(auxList[0], auxList[1], auxList[2], auxList.sublist(3, auxList.length - 1));
     }
 
-    print("Refeições has lenght of ${mealList.length}");
+//    print("Refeições has lenght of ${mealList.length}");
     return mealList;
   }
 }
