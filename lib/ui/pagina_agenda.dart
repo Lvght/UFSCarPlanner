@@ -221,6 +221,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
           child: AppBar(
             bottom: TabBar(
               tabs: labelDiasDaSemana,
+              indicatorColor: Colors.white,
+              indicatorWeight: 5,
             ),
           ),
         ),

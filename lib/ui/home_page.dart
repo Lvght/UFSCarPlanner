@@ -81,7 +81,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 RaisedButton(
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) => Navigator.pop(context));
+                  },
                   child: Text("Fazer login"),
                 ),
                 RaisedButton(
