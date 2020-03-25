@@ -12,22 +12,19 @@ import 'package:connectivity/connectivity.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _currentIndex = 0;
   User _currentUser;
   UserHelper _userHelper;
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
-  List<Widget> _pages = [
-
-  ];
-
+  List<Widget> _pages = [];
 
   @override
   void initState() {
@@ -42,7 +39,6 @@ class _HomePageState extends State<HomePage> {
         PaginaAgenda(_currentUser.mat),
         PaginaNoticias(),
       ];
-
     });
   }
 
@@ -63,43 +59,49 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       drawer: new Drawer(
-
-            child:Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(top: 15, bottom: 60),
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Image.asset("_assets/brasil.png", width: MediaQuery.of(context).size.width * 25 / 100,),
-                      SizedBox(height: 10,),
-                      Text("Defenda a ciência brasileira.", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),)
-                    ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 15, bottom: 60),
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image.asset(
+                    "_assets/brasil.png",
+                    width: MediaQuery.of(context).size.width * 25 / 100,
                   ),
-                ),
-                RaisedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) => Navigator.pop(context));
-                  },
-                  child: Text("Fazer login"),
-                ),
-                RaisedButton(
-                  child: Text("Imprimir texto do arquivo"),
-                  onPressed: () async {
-                    final userHelper = UserHelper();
-                    debugPrint(await userHelper.readRawData());
-                  },
-                )
-              ],
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Defenda a ciência brasileira.",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()))
+                    .then((value) => Navigator.pop(context));
+              },
+              child: Text("Fazer login"),
+            ),
+            RaisedButton(
+              child: Text("Imprimir texto do arquivo"),
+              onPressed: () async {
+                final userHelper = UserHelper();
+                debugPrint(await userHelper.readRawData());
+              },
+            )
+          ],
         ),
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         unselectedIconTheme: IconThemeData(
           color: Color.fromRGBO(200, 200, 200, 1),
@@ -112,18 +114,11 @@ class _HomePageState extends State<HomePage> {
         }),
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.fastfood),
-              title: Text("Cardápio RU")
-          ),
+              icon: Icon(Icons.fastfood), title: Text("Cardápio RU")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              title: Text("Agenda")
-          ),
+              icon: Icon(Icons.calendar_today), title: Text("Agenda")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              title: Text("Notícias")
-          ),
-
+              icon: Icon(Icons.assignment), title: Text("Notícias")),
         ],
       ),
     );
