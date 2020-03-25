@@ -281,6 +281,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
           ));
         }
       paginas.add(SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: 15),
         child: Column(
           children: cardsDasMaterias[i],
         ),

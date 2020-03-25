@@ -50,24 +50,24 @@ class _HomePageState extends State<HomePage> {
         title: Text(_currentUser == null ? "UFSCar App" : "Olá, ${_currentUser.nome.split(" ")[0]}"),
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.bug_report),
-            onPressed: () async {
-              print("Botão pressionado :)");
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.restore_from_trash),
-            onPressed: () {
-              _userHelper.deleteFile();
-
-              setState(() {
-                _currentUser = null;
-              });
-            },
-          )
-        ],
+//        actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.bug_report),
+//            onPressed: () async {
+//              print("Botão pressionado :)");
+//            },
+//          ),
+//          IconButton(
+//            icon: Icon(Icons.restore_from_trash),
+//            onPressed: () {
+//              _userHelper.deleteFile();
+//
+//              setState(() {
+//                _currentUser = null;
+//              });
+//            },
+//          )
+//        ],
       ),
       drawer: new Drawer(
         child: Container(

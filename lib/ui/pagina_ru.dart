@@ -168,7 +168,7 @@ class _PaginaRuState extends State<PaginaRu> {
 
           default:
             return ListView.builder(
-                itemCount: snapshot.data==null?0:snapshot.data.length,
+                itemCount: snapshot.data == null ? 0 : snapshot.data.length,
                 shrinkWrap: false,
                 itemBuilder: (context, index) => Container(
                       child: this._assembleText(snapshot.data[index]),
