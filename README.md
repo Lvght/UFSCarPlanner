@@ -1,16 +1,10 @@
-# ufscarplanner
+# UFSCar App
 
-Aplicativo para ver informações pertinentes à graduação na UFSCar.
+Aplicativo para ver informações pertinentes à graduação na UFSCar. Por enquanto o aplicativo exibe informações sobre o cardápio do RU (indisponível por conta da pândemia), agenda acadêmica e notícias do site da universidade.
 
-## Getting Started
+# Importante
+ESTE APP AINDA ESTÁ EM DESENVOLVIMENTO E PODE APRESENTAR FALHAS. Mais objetivamente, o comportamento do app quando o usuário faz login no SIGA em período de confirmação de matrícula ainda é desconhecido.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# To-do
+- Arrumar a tela branca que aparece ao abrir o app.
+- Implementar uma aba de rádio, com opções de "lo-fi hip-hop" e a rádio da universidade
