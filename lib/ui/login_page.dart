@@ -12,6 +12,8 @@ const String contrabarra = "\u005C";
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
+
+  String _displayMessage = "";
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -46,6 +48,10 @@ class _LoginPageState extends State<LoginPage> {
   void _onPageStartedFunct(String url) async {
     //TODO TRATAR FALTA DE INTERNET
     print("Carregando a página: $url");
+
+    setState(() {
+      widget._displayMessage = "Carregando a página: $url";
+    });
   }
 
   void _onPageFinishedFunct(String url) async {
@@ -124,6 +130,9 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     print("Esta página foi carregada: $url");
+    setState(() {
+      widget._displayMessage = "Esta página foi carregada: $url";
+    });
   }
 
   InputDecoration _getInputDecoration(String labelText) =>
@@ -286,6 +295,7 @@ class _LoginPageState extends State<LoginPage> {
                         "document.getElementById('login:loginButton').click();");
                   },
                 ),
+                Text(widget._displayMessage, style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
                 Visibility(
                   child: Container(
                       // O tamanho definido é arbitrário
