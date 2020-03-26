@@ -9,11 +9,29 @@ import 'package:ufscarplanner/helpers/UserData.dart';
 const String menorQue = "\\u003C";
 const String contrabarra = "\u005C";
 
+enum WebViewState {
+  LOGIN_FAILED,
+  REQ_LOGINPAGE,
+  ISAT_LOGINPAGE,
+  REQ_HOMEPAGE,
+  REQ_LISTMATRICULAS,
+  REQ_ACOESMATRICULAS,
+  REQ_INSCRICOESRESULTADOS,
+  REQ_RESUMOINSCRICOESRESULTADOS,
+  UNDEFINED_LOCATION,
+  INITIAL_VALUE
+}
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 
+  String _routeStr = "Init\n";
   String _displayMessage = "";
+  WebViewState _state = WebViewState.INITIAL_VALUE;
+  List<WebViewState> _route = List();
+
+  double _currentProgress = 0;
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -30,6 +48,7 @@ class _LoginPageState extends State<LoginPage> {
   String _mensagem;
   String _rawData;
   String _cleanData;
+  final _key = GlobalKey<FormState>();
 
   // Cria o WebView
   WebView _createWebView(
@@ -45,12 +64,40 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  bool isAtLoginFailed() {
+    int lastIndex = widget._route.length - 1;
+    if (lastIndex == 1 &&
+        (widget._route[lastIndex] == WebViewState.ISAT_LOGINPAGE)) {
+      widget._route.removeLast();
+      widget._state = WebViewState.LOGIN_FAILED;
+      return true;
+    }
+
+    return false;
+  }
+
   void _onPageStartedFunct(String url) async {
     //TODO TRATAR FALTA DE INTERNET
     print("Carregando a página: $url");
 
     setState(() {
-      widget._displayMessage = "Carregando a página: $url";
+      if (url.contains("https://sistemas.ufscar.br/siga/login.xhtml"))
+        widget._state = WebViewState.REQ_LOGINPAGE;
+      if (url.contains("https://sistemas.ufscar.br/siga/paginas/home.xhtml"))
+        widget._state = WebViewState.REQ_HOMEPAGE;
+      else if (url.contains(
+          "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml"))
+        widget._state = WebViewState.REQ_LISTMATRICULAS;
+      else if (url.contains(
+          "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml"))
+        widget._state = WebViewState.REQ_ACOESMATRICULAS;
+      else if (url.contains(
+          "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml"))
+        widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
+      else if (url.contains(
+          "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1"))
+        widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
+      widget._routeStr += "Carregando a página: $url\n";
     });
   }
 
@@ -76,7 +123,8 @@ class _LoginPageState extends State<LoginPage> {
       print("Escrevendo...\n");
       await userHelper.saveUser(user);
 
-      auxSubjectParser = json.encode(user.materias.toString()).replaceAll("\\n", "");
+      auxSubjectParser =
+          json.encode(user.materias.toString()).replaceAll("\\n", "");
       user.mat = userHelper.subjectParser(auxSubjectParser);
       print("Os dados foram escritos\n");
 
@@ -131,12 +179,65 @@ class _LoginPageState extends State<LoginPage> {
 
     print("Esta página foi carregada: $url");
     setState(() {
-      widget._displayMessage = "Esta página foi carregada: $url";
+      if (url.contains("https://sistemas.ufscar.br/siga/login.xhtml"))
+        widget._state = WebViewState.ISAT_LOGINPAGE;
+
+      widget._routeStr += "Esta página foi carregada: $url\n";
+      widget._route.add(widget._state);
     });
+
+    print("Tamanho da rota: ${widget._route.length}");
+
+    if (isAtLoginFailed()) print("LOGIN FRACASSADO");
   }
 
-  InputDecoration _getInputDecoration(String labelText) =>
-      InputDecoration(
+  double _getProgress() {
+    switch (widget._state) {
+      case WebViewState.ISAT_LOGINPAGE:
+      case WebViewState.INITIAL_VALUE:
+      case WebViewState.REQ_LOGINPAGE:
+      case WebViewState.UNDEFINED_LOCATION:
+      case WebViewState.LOGIN_FAILED:
+        return 0.0;
+      case WebViewState.REQ_HOMEPAGE:
+        return 0.1;
+      case WebViewState.REQ_LISTMATRICULAS:
+        return 0.2;
+      case WebViewState.REQ_ACOESMATRICULAS:
+        return 0.5;
+      case WebViewState.REQ_INSCRICOESRESULTADOS:
+        return 0.8;
+      case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
+        return 0.9;
+    }
+  }
+
+  String _getDisplayText() {
+    switch (widget._state) {
+      case WebViewState.LOGIN_FAILED:
+        return "Não foi possível fazer login. Verifique os seus dados e tente novamente.";
+      case WebViewState.INITIAL_VALUE:
+        return "Carregando...";
+      case WebViewState.REQ_LOGINPAGE:
+        return "Acessando a página inicial do SIGA...";
+      case WebViewState.ISAT_LOGINPAGE:
+        return "Insira os seus dados";
+      case WebViewState.REQ_HOMEPAGE:
+        return "Acessando o SIGA... [1/6]";
+      case WebViewState.REQ_LISTMATRICULAS:
+        return "Acessando o SIGA... [2/6]";
+      case WebViewState.REQ_ACOESMATRICULAS:
+        return "Acessando o SIGA... [3/6]";
+      case WebViewState.REQ_INSCRICOESRESULTADOS:
+        return "Acessando o SIGA [4/6]";
+      case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
+        return "Acessando o SIGA [5/6]";
+      case WebViewState.UNDEFINED_LOCATION:
+        return "Ocorreu um erro.";
+    }
+  }
+
+  InputDecoration _getInputDecoration(String labelText) => InputDecoration(
         hintText: labelText,
       );
 
@@ -252,64 +353,96 @@ class _LoginPageState extends State<LoginPage> {
         appBar: AppBar(
           title: widgets.Text("Página de login"),
         ),
-        body: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text("Atenção", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 10,),
-                Text("Insira os seus dados de acesso do SIGA e então aperte o botão de LOGIN. Aguarde alguns segundos até que o aplicativo feche esta tela automaticamente. Caso isso não ocorra em até 20 segundos, verifique os seus dados e tente novamente.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
-                SizedBox(height: 10,),
-                Text("Aplicativo em desenvolvimento. Não redistribua o pacote de instalação deste aplicativo. Destinado a fins de teste apenas. Quando orientado, desinstale (remova) este aplicativo de seu aparelho.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
-                SizedBox(height: 30,),
-                TextField(
-                  decoration: _getInputDecoration('Login (CPF ou RA)'),
-                  controller: _loginTextController,
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  decoration: _getInputDecoration('Senha'),
-                  obscureText: true,
-                  controller: _passwordTextController,
-                ),
-                RaisedButton(
-                  child: Text("Fazer login"),
-                  onPressed: () {
-                    print("Botão pressionado");
-                    FocusScope.of(context).requestFocus(FocusNode());
+        body: SingleChildScrollView(
+          padding: EdgeInsets.only(top: 25),
+          child: Center(
+            child: Form(
+              key: _key,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      _getDisplayText(),
+                      style: TextStyle(fontSize: 15),
+                      textAlign: TextAlign.center,
+                    ),
+                    LinearProgressIndicator(
+                      value: _getProgress(),
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation(Colors.red),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    TextFormField(
+                      validator: (str) =>
+                          str.isEmpty ? "Insira o seu RA ou CPF." : null,
+                      decoration: _getInputDecoration('Login (CPF ou RA)'),
+                      controller: _loginTextController,
+                      keyboardType: TextInputType.number,
+                      enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
+                          widget._state == WebViewState.LOGIN_FAILED,
+                    ),
+                    TextFormField(
+                      validator: (str) =>
+                          str.isEmpty ? "Insira a sua senha." : null,
+                      decoration: _getInputDecoration('Senha'),
+                      obscureText: true,
+                      controller: _passwordTextController,
+                      enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
+                          widget._state == WebViewState.LOGIN_FAILED,
+                    ),
+                    RaisedButton(
+                      child: Text("Fazer login"),
+                      onPressed:
+                          (widget._state == WebViewState.ISAT_LOGINPAGE ||
+                                  widget._state == WebViewState.LOGIN_FAILED)
+                              ? () {
+                                  if (_key.currentState.validate()) {
+                                    print("Botão pressionado");
+                                    FocusScope.of(context)
+                                        .requestFocus(FocusNode());
 
-                    this.user.ra = _loginTextController.text;
+                                    this.user.ra = _loginTextController.text;
 
-                    // Ativa o WebView
-                    this._webViewController.evaluateJavascript(
-                        "document.getElementById('login:usuario').value = '" +
-                            _loginTextController.text +
-                            "';");
-                    this._webViewController.evaluateJavascript(
-                        "document.getElementById('login:password').value = '" +
-                            _passwordTextController.text +
-                            "';");
-                    this._webViewController.evaluateJavascript(
-                        "document.getElementById('login:loginButton').click();");
-                  },
+                                    // Ativa o WebView
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:usuario').value = '" +
+                                            _loginTextController.text +
+                                            "';");
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:password').value = '" +
+                                            _passwordTextController.text +
+                                            "';");
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:loginButton').click();");
+                                  }
+                                }
+                              : null,
+                    ),
+//                  Text(
+//                    widget._routeStr,
+//                    style: TextStyle(fontSize: 10),
+//                    textAlign: TextAlign.center,
+//                  ),
+                    Visibility(
+                      child: Container(
+                          // O tamanho definido é arbitrário
+                          // efetivamente, nada será mostrado na tela
+                          height: 400,
+                          width: 400,
+                          child: this._createWebView(
+                              "https://sistemas.ufscar.br/siga/login.xhtml",
+                              this._onPageStartedFunct,
+                              this._onPageFinishedFunct)),
+                      maintainState: true,
+                      visible: false,
+                    ),
+                  ],
                 ),
-                Text(widget._displayMessage, style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
-                Visibility(
-                  child: Container(
-                      // O tamanho definido é arbitrário
-                      // efetivamente, nada será mostrado na tela
-                      height: 1,
-                      width: 1,
-                      child: this._createWebView(
-                          "https://sistemas.ufscar.br/siga/login.xhtml",
-                          this._onPageStartedFunct,
-                          this._onPageFinishedFunct)),
-                  maintainState: true,
-                  visible: false,
-                ),
-              ],
+              ),
             ),
           ),
         ));
