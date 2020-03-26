@@ -80,25 +80,25 @@ class _LoginPageState extends State<LoginPage> {
     //TODO TRATAR FALTA DE INTERNET
     print("Carregando a página: $url");
 
-    setState(() {
-      if (url.contains("https://sistemas.ufscar.br/siga/login.xhtml"))
-        widget._state = WebViewState.REQ_LOGINPAGE;
-      if (url.contains("https://sistemas.ufscar.br/siga/paginas/home.xhtml"))
-        widget._state = WebViewState.REQ_HOMEPAGE;
-      else if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml"))
-        widget._state = WebViewState.REQ_LISTMATRICULAS;
-      else if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml"))
-        widget._state = WebViewState.REQ_ACOESMATRICULAS;
-      else if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml"))
-        widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
-      else if (url.contains(
-          "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1"))
-        widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
-      widget._routeStr += "Carregando a página: $url\n";
-    });
+    if (url.contains("https://sistemas.ufscar.br/siga/login.xhtml"))
+      widget._state = WebViewState.REQ_LOGINPAGE;
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/home.xhtml"))
+      widget._state = WebViewState.REQ_HOMEPAGE;
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml"))
+      widget._state = WebViewState.REQ_LISTMATRICULAS;
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml"))
+      widget._state = WebViewState.REQ_ACOESMATRICULAS;
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml"))
+      widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1"))
+      widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
+    widget._routeStr += "Carregando a página: $url\n";
+
+    setState(() => null);
   }
 
   void _onPageFinishedFunct(String url) async {

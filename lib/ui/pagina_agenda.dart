@@ -142,7 +142,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
           // Este valor (fontSize), se fixo, pode ser facilmente quebrado pelas dimensões do dispositivo.
           // Disto parte a necessidade de calculá-lo com base no contexto.
           // O valor que se observa foi *obtido por experimentação*, e é arbitrário.
-          fontSize: MediaQuery.of(context).size.width * 0.029,
+          fontSize: MediaQuery.of(context).size.width * 0.24,
         ),
       ));
 
