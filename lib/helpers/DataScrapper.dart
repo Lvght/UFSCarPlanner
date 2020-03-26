@@ -1,24 +1,115 @@
-import 'dart:convert';             // Contains the JSON encoder
-import 'package:flutter/material.dart';
-import 'package:http/http.dart';   // Contains a client for making API calls
-import 'package:html/parser.dart'; // Contains HTML parsers to generate a Document object
-import 'package:html/dom.dart' as dom;    // Contains DOM related classes for extracting data from elements
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart'; // Contains a client for making API calls
+import 'package:html/parser.dart'; //
+import 'dart:convert';// Contains HTML parsers to generate a Document object
 
-class DataScrapper {
-  DataScrapper(String url) {
-    this._url = url;
+class Meal {
+  String day, date, type;
+  List<String> lista;
+  Map<String, dynamic> lista2;
+  bool isBreakfast;
+
+  Meal(this.date, this.day, this.type, this.lista) {
+    isBreakfast = !(this.type.contains("ALMOÇO") || this.type.contains("JANTAR"));
   }
 
+  @override
+  String toString() {
+    String listagem = "";
+    for (int i = 0; i < lista.length; i++) listagem += lista[i] + '\n';
+    return this.date + "\n" + this.day + "\n" + this.type + "\n" + listagem;
+  }
+  factory Meal.fromJson(Map<String, dynamic> json) {
+  return new Meal(json['date'],json['day'],json['type'],(jsonDecode(json['lista']) as List<dynamic>).cast<String>());
+  }
+
+  Map toJson() => {
+  "day":day, "date":date,"type": type,
+  "lista": jsonEncode(lista)
+  };
+}
+
+class DataScrapper {
+  DataScrapper(this._url);
+
+  List<Meal> meals;
   String _url;
 
   // Método para obter os dados
-  Future initiate() async {
+  Future<List<Meal>> initiate() async {
     var client = Client();
     Response response = await client.get(this._url);
 
     var document = parse(response.body);
 
     print(document.querySelectorAll('#content'));
-    print(document.querySelectorAll("#cardapio").toString().length);
+    meals = find(response);
+//    debugPrint("Meals = ${meals.toString()}]");
+//    debugPrint("Tamanho do meals = ${meals.length}");
+    return meals;
+  }
+
+  List<Meal> find(Response response) {
+    String aux;
+    String cleanData;
+    List<Meal> mealList;
+    List<String> auxList;
+    List<String> extractedMealStringList;
+    List<String> rawData = response.body.split('<div id="cardapio">');
+    rawData.removeAt(0);
+
+    // Remove todas as tags e símbolos indesejados
+    cleanData = rawData.toString().replaceAll("<b>", "");
+    cleanData = cleanData.toString().replaceAll("</b>", "");
+    cleanData = cleanData.toString().replaceAll("<div>", "");
+    cleanData = cleanData.toString().replaceAll("</div>", "");
+    cleanData = cleanData.toString().replaceAll('<div class="cardapio_titulo">', "");
+
+    /*
+     * Remove os espaços duplicados.
+     * Note que a remoção ocorre mais rapidamente na variável [aux], sendo que esta fica resposnável pela
+     * condição de parada.
+     */
+    do {
+      cleanData = cleanData.toString().replaceAll('  ', ' ');
+      aux = cleanData.toString().replaceAll('  ', ' ');
+    } while (cleanData != aux);
+
+    // Remove os símbolos indesejados remanescentes
+    cleanData = cleanData.toString().replaceAll("\n \n \n", "\n");
+    cleanData = cleanData.toString().replaceAll("\n - \n", "\n");
+    cleanData = cleanData.toString().replaceAll("\n : \n", "\n");
+    cleanData = cleanData.toString().replaceAll("<span>", "");
+    cleanData = cleanData.toString().replaceAll("</span>", "");
+
+    // Extrai a string de cada refeição
+    // note que o conteúdo do site está dentro de um único artigo
+    extractedMealStringList = cleanData.toString().split('</article>');
+    extractedMealStringList = extractedMealStringList.toString().split('<div class="col-lg-7 metade periodo">');
+
+    // Remove as informações posteriores ao cardápio
+    extractedMealStringList.removeLast();
+
+    // Limpa dados remanescentes
+    extractedMealStringList.removeAt(0);
+
+    mealList = List<Meal>(extractedMealStringList.length);
+
+    // Roda o loop uma vez para cada opção do cardápio
+    for (int i = 0; i < extractedMealStringList.length; i++) {
+      auxList = extractedMealStringList[i].split("\n");
+
+      // Alguns campos são compostos por apenas espaços
+      // Como há espaços repetidos, a condição para removê-los é o tamanho ser menor que 3.
+      // Isso não afetará os campos com informações relevantes.
+      for (int j = 0; j < auxList.length; j++)
+        if (auxList[j].length < 3)
+          auxList.removeAt(j);
+
+      mealList[i] = new Meal(auxList[0], auxList[1], auxList[2], auxList.sublist(3, auxList.length - 1));
+    }
+
+//    print("Refeições has lenght of ${mealList.length}");
+    return mealList;
   }
 }
