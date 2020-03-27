@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
@@ -5,6 +6,16 @@ import 'package:http/http.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+
+/*
+ * AS TELAS DO SIGA
+ *
+ * 1) Home
+ * 2) Lista de Matrículas (listMatriculas)
+ * 3) Ações de Matrícula (acoesMatricula)
+ * 4) Inscrições e resultados (inscricoesResultados)
+ * 5) Resumo de Inscrições e Resultados (tela com a tabela de horários)
+ */
 
 const String menorQue = "\\u003C";
 const String contrabarra = "\u005C";
@@ -76,26 +87,89 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
 
+  // Retorna TRUE se o click der certo
+  Future<bool> tryToClick(String elementIdentifier) async =>
+    await this._webViewController.evaluateJavascript("document.getElementById('$elementIdentifier').click()").then((value) {
+//      print("VALUE OF VAL: ${value.toString()}");
+      return !value.contains("null");
+    });
+
+  bool isContentAvaliable(String str, String content) => str.contains(content);
+
   void _onPageStartedFunct(String url) async {
+
+    bool isDone = false;
+
     //TODO TRATAR FALTA DE INTERNET
     print("Carregando a página: $url");
 
     if (url.contains("https://sistemas.ufscar.br/siga/login.xhtml"))
       widget._state = WebViewState.REQ_LOGINPAGE;
-    if (url.contains("https://sistemas.ufscar.br/siga/paginas/home.xhtml"))
+
+    // HOME -> Segunda Tela (Lista de Matrículas)
+    if (url.contains("https://sistemas.ufscar.br/siga/paginas/home.xhtml")) {
       widget._state = WebViewState.REQ_HOMEPAGE;
-    else if (url.contains(
-        "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml"))
+      this._webViewController.loadUrl(
+          "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml");
+    }
+
+    // Segunda tela -> Terceira tela
+    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")) {
+
+      print("Estamos nesta rota: Segunda tela -> Terceira tela");
+
       widget._state = WebViewState.REQ_LISTMATRICULAS;
-    else if (url.contains(
-        "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml"))
+
+      while (!isDone)
+//        isDone = true;
+        await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula").then((value) {
+          print("Inside async! A");
+          isDone = value;
+          Timer(Duration(seconds: 1), () => null);
+        });
+    }
+
+    // Terceira tela -> Quarta tela
+    // É preciso esperar que o IRA esteja disponível!
+    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml")) {
       widget._state = WebViewState.REQ_ACOESMATRICULAS;
-    else if (url.contains(
-        "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml"))
+
+      while (!isDone)
+//        isDone = true;
+        await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link").then((value) {
+          print("Inside async! B");
+          isDone = value;
+          Timer(Duration(seconds: 1), () => null);
+        });
+    }
+
+    // Quarta tela -> Quinta tela (Extração do IRA e do Nome)
+    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml")) {
+      String rawData;
       widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
-    else if (url.contains(
-        "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1"))
+      
+      rawData = await _webViewController.evaluateJavascript("document.documentElement.innerHTML");
+
+      user.ira = rawData.split("IRA")[1].split(">")[2].split(contrabarra + "u003C" + "/span")[0];
+      debugPrint("VALOR DO IRA = ${user.ira}");
+
+      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra + "u003C" + "/span>")[0];
+      debugPrint("Valor do nome = ${user.nome}");
+
+      while (!isDone)
+        await tryToClick("inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113").then((value) {
+          print("Inside async! C");
+          isDone = value;
+          Timer(Duration(milliseconds: 50), () => null);
+        });
+
+    }
+
+    // Quinta tela -> Logout (extração final dos dados)
+    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1")) {
       widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
+    }
+
     widget._routeStr += "Carregando a página: $url\n";
 
     setState(() => null);
@@ -141,8 +215,8 @@ class _LoginPageState extends State<LoginPage> {
     // Aqui executa-se o JS necessário na página de matrículas para que se possa avançar
     if (url ==
         "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
-      this._webViewController.evaluateJavascript(
-          "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();");
+      print("Valor do click = ${this._webViewController.evaluateJavascript(
+          "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();")}");
     if (url.contains(
         "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
       this._webViewController.evaluateJavascript(
@@ -447,4 +521,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ));
   }
+
+
 }
