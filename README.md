@@ -24,8 +24,30 @@ Os dados são salvos localmente em um arquivo.
 Um pergunta é: **o que aconteceria se o usuário fizesse login durante o período de confirmação de matrícula?** No estado atual do projeto, ainda está pendente uma verificação quanto a esta questão. A mesma pergunta se aplica caso o SIGA faça alguma notificação importante ao aluno.
 
 # Cardápio do RU
-Em razão da pandêmia de Covid-19, o RU não está disponibilizando o seu cardápio como de costume.
+Em razão da pandemia de Covid-19, o RU não está disponibilizando o seu cardápio como de costume.
 
+# Recursos futuros
+
+- Rádio
+  - Uma aba para escutar a rádio da UFSCar, ou uma rádio de *lo-fi hip-hop*.
+  
+- Tarefas customizadas
+  - Opção de adicionar eventos semanais recorrentes, ou tarefas e lembretes únicos (como trabalhos e provas).
+
+- Auto Update
+  - Permitir ao usuário baixar o APK da versão mais recente do app através do próprio app.
+
+- Sistema de pânico
+  - Não sabemos ainda o que acontece se o login for feito em período de rematrículas. A ideia é hospedar um arquivo JSON que diga ao APP se este pode ou não tentar fazer login.
+  
+- Roleta Russa
+  - Um botão que, ao ser pressionado, faz a rota adequada no SIGA e tranca o curso do aluno com chance 1 de 6;
+  
+# Instalação
+Com algumas alterações, este app pode também funcionar em dispositivos iOS, mas fica a cargo de quem se interessar alterar este código para dispositivos da Apple.
+
+Um pacote de instalação está disponível na raiz do diretório (UFSCarApp.apk). Contudo, é **fortemente** recomendado que você compile o projeto você mesmo. De tal modo, é desnecessário confiar em quem quer que tenha disponibilizado o arquivo.
+  
 # Autores
 
 - Matheus Ramos de Carvalho, BCC 019
