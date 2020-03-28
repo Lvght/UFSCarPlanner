@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
@@ -21,16 +22,49 @@ class _AboutPageState extends State<AboutPage> {
           width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start  ,
             children: <Widget>[
-              Text("Este aplicativo não possui nenhum vínculo com a UFSCar", textAlign: TextAlign.center,),
+              Text("Este aplicativo não possui nenhum vínculo com a UFSCar", textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
               SizedBox(height: 40,),
-              Text("App desenvolvido por:", style: TextStyle(fontWeight: FontWeight.bold),),
-              SizedBox(height: 10,),
-              Text("Matheus Ramos de Carvalho @BCC_019", style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
-              Text("Vinicius Quaresma da Luz @BCC_019", style: TextStyle(fontSize: 16), textAlign: TextAlign.center,),
-              SizedBox(height: 30,),
-              Text("Aplicativo em desenvolvimento! Não redistribua o pacote de instalação deste aplicativo. Destinado a fins de teste apenas. Quando orientado, desinstale este aplicativo de seu aparelho.", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,),
-            ],
+              Text("Autores", textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+              SizedBox(height: 5,),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("Matheus Ramos de Carvalho", style: TextStyle(fontSize: 22),),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: Colors.redAccent,
+                          ),
+                          padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
+                          child: Text("BCC 19", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 20,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("Vinicius Quaresma da Luz", style: TextStyle(fontSize: 22),),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: Colors.redAccent,
+                          ),
+                          padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
+                          child: Text("BCC 19", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+          ],
           ),
         ),
       ),

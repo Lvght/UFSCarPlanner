@@ -117,12 +117,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              title: Text(
-                "Este app ainda está em desenvolvimento! Não compartilhe seu arquivo APK.",
-                textAlign: TextAlign.center,
-              ),
-            ),
-            ListTile(
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
