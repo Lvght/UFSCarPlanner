@@ -108,7 +108,9 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
     // Coloca apenas a primeira letra como maiúscula e copia o resto
     for (int i = 0; i < splittedString.length; i++)
-      output += splittedString[i].substring(0, 1).toUpperCase() + splittedString[i].substring(1) + " ";
+      output += splittedString[i].length > 3
+        ? splittedString[i].substring(0, 1).toUpperCase() + splittedString[i].substring(1) + " "
+        : splittedString[i] + " ";
 
     // Remove o espaço desnecessário do final
     output = output.substring(0, output.length - 1);
