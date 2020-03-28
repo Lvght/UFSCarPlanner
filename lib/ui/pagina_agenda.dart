@@ -9,6 +9,8 @@ import 'dart:convert';
 
 import 'package:ufscarplanner/ui/login_page.dart';
 
+import 'home_page.dart';
+
 class PaginaAgenda extends StatefulWidget {
   PaginaAgenda(this._materias);
 
@@ -73,13 +75,9 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       onPressed: () {
                         Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginPage()))
-                            .then((value) {
-                              print("Val: " + value.mat[1].toString());
-                              setState(() {
-                                widget._materias = value.mat;
-                              });
+                                MaterialPageRoute(builder: (context) => LoginPage())).then((value) {
+                                  if (value != null)
+                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
                         });
                       },
                       child: Text("Entrar no SIGA"),

@@ -7,6 +7,8 @@ import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 
+import 'home_page.dart';
+
 /*
  * AS TELAS DO SIGA
  *
@@ -202,8 +204,8 @@ class _LoginPageState extends State<LoginPage> {
       user.mat = userHelper.subjectParser(auxSubjectParser);
       print("Os dados foram escritos\n");
 
-      // Retorna à tela anterior, retornando os dados do usuário
-      Navigator.pop(this.context, this.user);
+      // Retorna o app à tela inicial
+      Navigator.pop(context, this.user);
     }
 
     // Aqui a página de Matrículas é carregada.

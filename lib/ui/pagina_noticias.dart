@@ -194,7 +194,9 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
               case ConnectionState.none:
               case ConnectionState.waiting:
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
                 );
               default:
                 return ListView.builder(
