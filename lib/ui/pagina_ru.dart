@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
@@ -40,40 +41,53 @@ class _PaginaRuState extends State<PaginaRu> {
     List<String> titles = ["Prato principal", "Guarnição", "Arroz", "Feijão", "Saladas", "Sobremesa", "Bebida"];
 
     // Mostra informações sobre a data e refeição
-    output.add(RichText(
-        text: TextSpan(style: _regularText(), children: <TextSpan>[
-      TextSpan(text: m.type[1].toUpperCase() + m.type.substring(2).toLowerCase(), style: _boldTextStyle()),
-      TextSpan(text: " | " + m.day + "," + m.date)
-    ])));
+    output.add(Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Icon(m.type.contains("ALMOÇO") ? Icons.wb_sunny : Icons.brightness_3, color: m.type.contains("ALMOÇO") ? Colors.red : Color.fromRGBO(150, 150, 250, 1),),
+        SizedBox(width: 10,),
+        RichText(
+            text: TextSpan(style: _regularText(), children: <TextSpan>[
+          TextSpan(text: m.type[1].toUpperCase() + m.type.substring(2).toLowerCase(), style: _boldTextStyle()),
+          TextSpan(text: " | " + m.day + "," + m.date)
+        ])),
+      ],
+    ));
 
     // Adiciona uma linha divisória
     output.add(Container(
-      height: 15,
+      height: 5,
       margin: EdgeInsets.only(top: 10),
       decoration: m.type.contains("ALMOÇO")
           // FIXME As cores DEFINITIVAMENTE precisam ser alteradas
           ? BoxDecoration(
-              gradient: LinearGradient(colors: [Color.fromRGBO(210, 30, 30, 1), Color.fromRGBO(250, 80, 80, 1)]))
+              gradient: LinearGradient(colors: [Color.fromRGBO(210, 120, 120, 1), Color.fromRGBO(250, 150, 150, 1)]))
           : BoxDecoration(
-              gradient: LinearGradient(colors: [Color.fromRGBO(30, 30, 210, 1), Color.fromRGBO(80, 80, 250, 1)])),
+              gradient: LinearGradient(colors: [Color.fromRGBO(180, 180, 250, 1), Color.fromRGBO(150, 150, 250, 1)])),
     ));
 
     // Verifica se o cardápio ainda não está indefinido
     if (m.lista[1].contains("Não Definido")) {
       output.add(Container(
           margin: EdgeInsets.only(top: 15, bottom: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                Icons.error,
-                size: 30,
-              ),
-              Text(
-                "Cardápio ainda não informado!",
-                style: _regularText(),
-              )
-            ],
+          child: Container(
+            margin: EdgeInsets.only(top: 10, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.error_outline,
+                  color: m.type.contains("ALMOÇO") ? Colors.red : Color.fromRGBO(150, 150, 250, 1),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Cardápio ainda não informado",
+                  style: TextStyle(fontSize: 20),
+                )
+              ],
+            ),
           )));
     } else {
       // Caso haja duas opções, o app fará distinção entre convencional e vegano
