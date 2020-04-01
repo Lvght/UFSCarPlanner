@@ -3,6 +3,7 @@ import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'dart:io' as io;
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/ui/materia_editor.dart';
 import 'dart:convert';
 
 import 'package:ufscarplanner/ui/login_page.dart';
@@ -33,6 +34,19 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   User _currentUser;
   TabController _tabController;
 
+  Future<void> save_Data ()async {
+    _userHelper.readUser().then((value)async {
+      _currentUser = value;
+      _currentUser.mat = widget._materias;
+      _currentUser.UpdateSubjectMap();
+
+      await _userHelper.saveUser(_currentUser);
+
+      String auxSubjectParser =
+      json.encode(_currentUser.materias.toString()).replaceAll("\\n", "");
+      _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
+    });
+  }
   @override
   void initState() {
     if (widget._materias == null) {
@@ -154,7 +168,48 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
   Container _getCard(Materia materia) => Container(
         width: MediaQuery.of(context).size.width * 0.95,
-        child: Card(
+        child: new GestureDetector(
+          onLongPress: ()
+            {
+              // configura o button
+              Widget okButton = FlatButton(
+                child: Text("Remover"),
+                onPressed: ()async {
+                  print(materia.toString());
+                  widget._materias[_diasDaSemana.indexOf(materia.dia.trim())].remove(materia);
+                  await save_Data().then((onValue){
+                    setState(()=> null);
+                    Navigator.pop(context);
+                  });},
+              );
+              Widget cancelButton = FlatButton(
+                child: Text("Cancelar"),
+                onPressed: () { Navigator.pop(context);},
+              );
+
+              Widget editButton = FlatButton(
+                child: Text("Editar"),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => MateriaEditor(materia: materia))); },
+              );
+
+              // configura o  AlertDialog
+              AlertDialog alerta = AlertDialog(
+                actions: [
+                  okButton,cancelButton,editButton,
+                ],
+              );
+
+              // exibe o dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return alerta;
+                },
+              );
+
+          },child:Card(
+          // Change the color of the container beneath
           margin: EdgeInsets.only(top: 15),
           child: Padding(
             padding: EdgeInsets.all(12),
@@ -226,10 +281,11 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                   children: <Widget>[Icon(Icons.place), Text(materia.local)],
                 ),
               ],
-            ),
+            )
           ),
         ),
-      );
+
+      ));
 
   List<Widget> _getPages() {
     method();
@@ -279,9 +335,20 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
           ),
         ),
         body: TabBarView(
-          children: _getPages(),
-        ),
-      ),
+          children: _getPages()
+
+        ),floatingActionButton:  FloatingActionButton(
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MateriaEditor()));
+          setState(() {
+
+          });
+        },
+        child: Icon(Icons.add),
+
+        backgroundColor: Colors.red,
+      ),),
+
     );
 
   String userDataFilename = "Materiadata.json";

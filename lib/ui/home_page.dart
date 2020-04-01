@@ -4,6 +4,8 @@ import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
 import 'package:ufscarplanner/ui/pagina_noticias.dart';
+import 'package:ufscarplanner/ui/radio_page.dart';
+import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'about_page.dart';
 import 'package:async/async.dart';
@@ -20,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   AsyncMemoizer _memoizer = AsyncMemoizer();
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
-  List<Widget> _pages = [PaginaRu(), PaginaNoticias()];
+  List<Widget> _pages = [PaginaRu(), PaginaNoticias(),RadioPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +41,10 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Image.asset(
+                      /*Image.asset(
                         "_assets/ufscar.png",
                         height: 100,
-                      ),
+                      ),*/
                       SizedBox(
                         height: 20,
                       ),
@@ -62,7 +64,8 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     PaginaRu(),
                     PaginaAgenda(userData.data != null ? userData.data.mat : null),
-                    PaginaNoticias()
+                    PaginaNoticias(),
+                    RadioPage(),
                   ],
                 ),
                 bottomNavigationBar: _getBottomNavigationBar(),
@@ -136,6 +139,12 @@ class _HomePageState extends State<HomePage> {
               title: Text("Sobre este app"),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage()))
                   .then((value) => Navigator.pop(context)),
+            ),ListTile(
+              title: Text("Fazer Login"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) {
+                  if (value != null)
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));});}
             ),
           ],
         ),
@@ -153,6 +162,7 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.fastfood), title: Text("Cardápio RU")),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), title: Text("Agenda")),
           BottomNavigationBarItem(icon: Icon(Icons.assignment), title: Text("Notícias")),
+          BottomNavigationBarItem(icon: Icon(Icons.radio), title: Text("Rádio")),
         ],
       );
 }

@@ -62,7 +62,23 @@ class User {
         "RA": this.ra,
         "Materias": this.materias.toString()
       }.toString();
-
+  void UpdateSubjectMap(){
+    List<Map<String,String>> novaLista = new List<Map<String,String>>();
+    for(int i=0;i<this.mat.length;i++){
+      for(int j =0;j<this.mat[i].length;j++) {
+        Materia newMat =this.mat[i][j];
+        Map<String, String> aux = {
+          "Aula": newMat.codigo+" - "+newMat.nome,
+          "Turma":newMat.turma,
+          "Dias/Horarios": newMat.dia+". "+newMat.horaI+" às "+newMat.horaF +" ("+newMat.local+")",
+          "Ministrantes": newMat.ministrantes,
+          "Operacoes":""
+        };
+        novaLista.add(aux);
+      }
+    }
+    this.materias = novaLista;
+  }
   Map toMap() {
     return {
       nameField: this.nome,
@@ -331,6 +347,7 @@ class UserHelper {
       String rawDataFromFile = await file.readAsString();
 
       final jsonEncodedData = json.decode(rawDataFromFile);
+      //TODO ARRUMAR \N DOS MINISTRANTES
       final String rawMaterias =
           json.encode(jsonEncodedData[subjectsField]).replaceAll("\\n", "");
 

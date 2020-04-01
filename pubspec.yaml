@@ -27,7 +27,7 @@ dependencies:
   intl: ^0.16.1
   webview_flutter: ^0.3.19+9
   url_launcher: ^5.4.2
-
+  flutter_radio: ^0.1.7
   connectivity: ^0.4.8+2
 
   # The following adds the Cupertino Icons font to your application.

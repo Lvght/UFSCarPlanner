@@ -6,6 +6,7 @@ class MateriaHelper {
   static List<String> lista_dias = new List<String>();
 
   MateriaHelper.internal();
+
 }
 
 class Materia {
