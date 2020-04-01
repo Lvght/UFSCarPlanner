@@ -230,6 +230,7 @@ class UserHelper {
    * Retorna [FALSE], caso contrário.
    */
   Future<bool> saveUser(User user) async {
+
     String jsonEncodedData = json.encode(user.toMap());
     final file = await _file;
     return await file.writeAsString(jsonEncodedData) == null;
@@ -273,7 +274,7 @@ class UserHelper {
     ];
 
     List<Map<String, String>> output = List();
-    final int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw).length;
+    final int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw.replaceAll("\\n", "")).length;
     int ocorrenciaDaMateria;
 
     Materia materia = Materia.internal();
@@ -299,14 +300,14 @@ class UserHelper {
       for (int j = 0; j < ocorrenciaDaMateria; j++) {
         materia = Materia.internal();
 
-        materia.codigo = rawMateria[i].split(" - ")[0].split("Aula: ")[1];
-        materia.nome = _stringDecapitalizer(rawMateria[i].split(" - ")[1].split(",")[0]);
-        materia.turma = rawMateria[i].split("Turma: ")[1].split(",")[0];
+        materia.codigo = rawMateria[i].replaceAll("\\n", "").split(" - ")[0].split("Aula: ")[1];
+        materia.nome = _stringDecapitalizer(rawMateria[i].replaceAll("\\n", "").split(" - ")[1].split(",")[0]);
+        materia.turma = rawMateria[i].split("Turma: ")[1].replaceAll("\\n", "").split(",")[0];
         materia.ministrantes = rawMateria[i].split("Ministrantes: ")[1].split(",")[0].trim();
 
-        materia.dia = rawOcorrenciasDasMaterias[j].split(".")[0];
-        materia.horaI = rawOcorrenciasDasMaterias[j].split(". ")[1].split(" às ")[0];
-        materia.horaF = rawOcorrenciasDasMaterias[j].split(" às ")[1].split(" (")[0];
+        materia.dia = rawOcorrenciasDasMaterias[j].replaceAll("\\n", "").split(".")[0];
+        materia.horaI = rawOcorrenciasDasMaterias[j].replaceAll("\\n", "").split(". ")[1].split(" às ")[0];
+        materia.horaF = rawOcorrenciasDasMaterias[j].replaceAll("\\n", "").split(" às ")[1].split(" (")[0];
 
         // Normaliza o tamanho dos horários
         if (materia.horaI.length < 5)
@@ -348,8 +349,9 @@ class UserHelper {
 
       final jsonEncodedData = json.decode(rawDataFromFile);
       //TODO ARRUMAR \N DOS MINISTRANTES
+      //print("------------->"+jsonEncodedData[subjectsField]["ministrantes"]);
       final String rawMaterias =
-          json.encode(jsonEncodedData[subjectsField]).replaceAll("\\n", "");
+          json.encode(jsonEncodedData[subjectsField]);
 
       output = User.completeInit(
           jsonEncodedData[nameField],

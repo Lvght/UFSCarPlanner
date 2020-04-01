@@ -227,7 +227,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                   ),
                 ),
                 Text(
-                  materia.ministrantes.trim().isEmpty ? "(ministrante não informado)" : materia.ministrantes.trim(),
+                  materia.ministrantes.trim().replaceAll("\\n", "\n").isEmpty ? "(ministrante não informado)" : materia.ministrantes.replaceAll("\\n", "\n").trim(),
                   style: TextStyle(
                     fontSize: 17,
                     color: Color(0xAA000000),
