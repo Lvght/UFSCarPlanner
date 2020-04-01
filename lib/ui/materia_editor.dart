@@ -33,10 +33,6 @@ class _MateriaEditorState extends State<MateriaEditor> {
   final TextEditingController nomeTextController = TextEditingController();
   final TextEditingController turmaTextController = TextEditingController();
   final TextEditingController localTextController = TextEditingController();
-  final TextEditingController horaITextController = TextEditingController();
-  final TextEditingController horaFTextController = TextEditingController();
-  final TextEditingController minutoITextController = TextEditingController();
-  final TextEditingController minutoFTextController = TextEditingController();
   final TextEditingController ministrantesTextController = TextEditingController();
   int horaI, horaF, minI, minF;
   List<String> _diasDaSemana = [
@@ -65,10 +61,16 @@ class _MateriaEditorState extends State<MateriaEditor> {
         nomeTextController.text=materia.nome;
         turmaTextController.text=materia.turma;
         localTextController.text=materia.local;
-        horaITextController.text=(materia.hI()~/100).toString();
-        horaFTextController.text=(materia.hF()~/100).toString();
-        minutoITextController.text=(materia.hI()%100).toString();
-        minutoFTextController.text=(materia.hF()%100).toString() ;
+        //TODO PRECARREGAMENTO DAS VARIAVEIS DO DROPDOWNLIST
+        /*_chosenValue = materia.dia;
+
+        horaI=(materia.hI()~/100);
+        minI=(materia.hI()%100);
+        horaF=(materia.hF()~/100);
+
+        minF=(materia.hF()%100);
+         */
+
         ministrantesTextController.text=materia.ministrantes;
       }
     });
@@ -78,7 +80,9 @@ class _MateriaEditorState extends State<MateriaEditor> {
   void initState() {
     super.initState();
     initUser();
+    setState(() {
 
+    });
 
   }
 
@@ -358,23 +362,27 @@ class _MateriaEditorState extends State<MateriaEditor> {
                           setState(() {
 
                           });
-                          print(auxSubjectParser);
 
                           setState(() {
+                            print(newMateria.toString());
                             _chosenValue = null;
                             horaI = null;
                             minI=null;
                             horaF = null;
                             minF=null;
-                            Navigator.pop(context);
+                            while(Navigator.canPop(context))
+                              Navigator.pop(context);
+
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+
                           });
                         }
                       },
                     ),RaisedButton(
                       child: Text("Cancel"),
                       onPressed: () {
-                        Navigator.pop(context);
+                        while(Navigator.canPop(context))
+                          Navigator.pop(context);
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
 
                       },

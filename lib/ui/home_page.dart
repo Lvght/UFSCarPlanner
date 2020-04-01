@@ -100,10 +100,10 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Text(title),
             ),
-            Image.asset(
+           /* Image.asset(
               "_assets/ufscar.png",
               height: MediaQuery.of(context).size.height * 0.06,
-            )
+            )*/
           ],
         ),
       );
