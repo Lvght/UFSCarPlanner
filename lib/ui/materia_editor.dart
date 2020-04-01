@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
@@ -48,7 +49,6 @@ class _MateriaEditorState extends State<MateriaEditor> {
     "Dom",
   ];
 
-  DropdownButton<String> MakeDropDown() {}
 
   Future<void> initUser() async {
     await _userHelper.readUser().then((value) {
@@ -375,6 +375,8 @@ class _MateriaEditorState extends State<MateriaEditor> {
                       child: Text("Cancel"),
                       onPressed: () {
                         Navigator.pop(context);
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+
                       },
                     )
                   ],
