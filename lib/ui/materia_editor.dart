@@ -336,6 +336,7 @@ class _MateriaEditorState extends State<MateriaEditor> {
                       });
                       print(auxSubjectParser);
                         Navigator.pop(context);
+                        //TODO Remover histórico de navegação, impedindo retornar com a seta back
                         Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
                       },
                     ),RaisedButton(

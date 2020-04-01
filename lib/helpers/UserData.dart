@@ -303,7 +303,7 @@ class UserHelper {
         materia.codigo = rawMateria[i].replaceAll("\\n", "").split(" - ")[0].split("Aula: ")[1];
         materia.nome = _stringDecapitalizer(rawMateria[i].replaceAll("\\n", "").split(" - ")[1].split(",")[0]);
         materia.turma = rawMateria[i].split("Turma: ")[1].replaceAll("\\n", "").split(",")[0];
-        materia.ministrantes = rawMateria[i].split("Ministrantes: ")[1].split(",")[0].trim();
+        materia.ministrantes = rawMateria[i].split("Ministrantes: ")[1].replaceAll("\\n", "\n").split(",")[0].trim();
 
         materia.dia = rawOcorrenciasDasMaterias[j].replaceAll("\\n", "").split(".")[0];
         materia.horaI = rawOcorrenciasDasMaterias[j].replaceAll("\\n", "").split(". ")[1].split(" às ")[0];
@@ -348,8 +348,7 @@ class UserHelper {
       String rawDataFromFile = await file.readAsString();
 
       final jsonEncodedData = json.decode(rawDataFromFile);
-      //TODO ARRUMAR \N DOS MINISTRANTES
-      //print("------------->"+jsonEncodedData[subjectsField]["ministrantes"]);
+
       final String rawMaterias =
           json.encode(jsonEncodedData[subjectsField]);
 
