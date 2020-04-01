@@ -49,6 +49,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   }
   @override
   void initState() {
+    print("----------------------------------------------------------");
     if (widget._materias == null) {
       _userHelper.readUser().then((value) {
         _currentUser = value;
@@ -339,9 +340,9 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
         ),floatingActionButton:  FloatingActionButton(
         onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => MateriaEditor()));
           setState(() {
-
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => MateriaEditor()));
           });
         },
         child: Icon(Icons.add),

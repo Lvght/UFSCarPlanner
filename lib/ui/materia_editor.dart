@@ -116,6 +116,14 @@ class _MateriaEditorState extends State<MateriaEditor> {
           }
         }
       }
+      if(0==materias[diaDaSemana].length){
+        for (int hora =0; hora < 24; hora++) {
+          if (mapa[hora] == null) mapa[hora] = new List<int>();
+          for (int minuto = 0;minuto<( 60);minuto+=15){
+            if (!mapa[hora].contains(minuto)) mapa[hora].add(minuto);
+          }
+        }
+      }
     }
     return mapa;
   }
@@ -171,6 +179,14 @@ class _MateriaEditorState extends State<MateriaEditor> {
               }
             }
 
+          }
+        }
+      }
+      if(0==materias[diaDaSemana].length){
+        for (int hora = horaI ~/ 100; hora < 24; hora++) {
+          if (mapa[hora] == null) mapa[hora] = new List<int>();
+          for (int minuto = (hora == horaI ~/ 100 ? horaI % 100 : 0);minuto<( 60);minuto+=15){
+            if (!mapa[hora].contains(minuto)) mapa[hora].add(minuto);
           }
         }
       }
@@ -319,25 +335,41 @@ class _MateriaEditorState extends State<MateriaEditor> {
                     RaisedButton(
                       child: Text("Ok"),
                       onPressed: () {
-                        Materia newMateria = new Materia.another(codigoTextController.text, nomeTextController.text, _chosenValue, horaI.toString().padLeft(2, '0')+":"+minI.toString().padLeft(2, '0'),horaF.toString().padLeft(2, '0')+":"+minF.toString().padLeft(2, '0') ,
-      turmaTextController.text,ministrantesTextController.text , localTextController.text);
+                        if(minF!=null) {
+                          Materia newMateria = new Materia.another(
+                              codigoTextController.text,
+                              nomeTextController.text,
+                              _chosenValue,
+                              horaI.toString().padLeft(2, '0') + ":" + minI.toString().padLeft(2, '0'),
+                              horaF.toString().padLeft(2, '0') + ":" + minF.toString().padLeft(2, '0'),
+                              turmaTextController.text,
+                              ministrantesTextController.text,
+                              localTextController.text);
 
-                        print(newMateria.toString());
-                      if(materia!= null)
-                        _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].remove(materia);
-                      _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].add(newMateria);
-                      _currentUser.UpdateSubjectMap();
-                      _userHelper.saveUser(_currentUser);
-                        String auxSubjectParser =
-                        json.encode(_currentUser.materias.toString()).replaceAll("\\n", "");
-                        _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
-                      setState(() {
+                          print(newMateria.toString());
+                          if (materia != null)
+                            _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].remove(materia);
+                          _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].add(newMateria);
+                          _currentUser.UpdateSubjectMap();
+                          _userHelper.saveUser(_currentUser);
+                          String auxSubjectParser =
+                          json.encode(_currentUser.materias.toString()).replaceAll("\\n", "");
+                          _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
+                          setState(() {
 
-                      });
-                      print(auxSubjectParser);
-                        Navigator.pop(context);
-                        //TODO Remover histórico de navegação, impedindo retornar com a seta back
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                          });
+                          print(auxSubjectParser);
+
+                          setState(() {
+                            _chosenValue = null;
+                            horaI = null;
+                            minI=null;
+                            horaF = null;
+                            minF=null;
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+                          });
+                        }
                       },
                     ),RaisedButton(
                       child: Text("Cancel"),
