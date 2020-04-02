@@ -7,95 +7,68 @@ import 'package:connectivity/connectivity.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
-
+import 'package:hive/hive.dart';
 class PaginaNoticias extends StatefulWidget {
   @override
   _PaginaNoticiaState createState() => _PaginaNoticiaState();
 }
 class AuxMap{
   AuxMap(String data,String link,String titulo,String autor,String texto){
-
     this.map= {"Data": data.trim(), "Link": link.trim(), "Titulo": titulo.trim(),"Autor":autor.trim(),"Texto":texto.trim()};
   }
   Map<String,String> map;
-  factory AuxMap.fromJson(Map<String, dynamic> json) {
-    return new AuxMap(json["Data"],json["Link"], json["Titulo"],json["Autor"],json["Texto"]);
-  }
 
-  Map toJson() => {
-    "Data": map["Data"], "Link": map["Link"], "Titulo": map["Titulo"],"Autor":map["Autor"],"Texto":map["Texto"]
-  };
+
 }
 class _PaginaNoticiaState extends State<PaginaNoticias> {
 
   final AsyncMemoizer _memoizer = AsyncMemoizer();
-  String userDataFilename = "Newsdata.json";
-
-  Future<String> get _filePath async {
-    var directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-  Future<File> get _file async =>
-      File(await _filePath + "/" + userDataFilename);
 
   Future<List<Map<String, String>>> intermediate(String url) async{
+    final newsBox = await Hive.openBox("news");
     var future;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
 //      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
       await getLinks(url).then((valor)async{
-        await  writeRawData(json.encode(valor));
-        await readRawData().then((data){
-          Iterable l = json.decode(data);
-          Map<String, dynamic> a = new Map<String, dynamic>();
-          setState(() {
+        for(int i=0 ;i<valor.length;i++) {
+          newsBox.put(i,valor[i]);
+        }
 
-            List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
-            future =new  List<Map<String,String>>();
-            for(int i=0;i<aux.length;i++){
-              future.add(aux[i].map);
-            }
+        print("\n\n\n\n");
+
+          future =new  List<Map<String,String>>();
+          print(newsBox.length.toString()+"  "+valor.length.toString());
+          for (int i = 0; i < newsBox.length; i++) {
+            Map<String, String> map1 = Map.from(newsBox.get(i));
+            future.add(map1);
+          }
 //            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
 
-          });
-        });
+
       });
 
     }else{
-//      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
-      await readRawData().then((data){
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        setState(() {
-          List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
-          future =new  List<Map<String,String>>();
-          for(int i=0;i<aux.length;i++){
-            future.add(aux[i].map);
+      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
+
+        if(newsBox.length!=0) {
+          future = new List<Map<String, String>>();
+          for (int i = 0; i < newsBox.length; i++) {
+            Map<String, String> map1 = Map.from(newsBox.get(i));
+            future.add(map1);
+            print(future[i].toString());
           }
-//          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+        }else{
+          future = new List<Map<String, String>>();
+          future.add(new Map<String,String>());
+        }
 
-        });
-      });
-//      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+
     }
-//    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
-    return await future;
+    await setState(() {newsBox.close();});
+    return await  future;
   }
 
-  Future<File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
 
   Future<List<Map<String, String>>> getLinks(String url) async {
     List<String> S;
@@ -228,9 +201,9 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                               height: 5,
                             ),
                             Text(
-                              snapshot.data[index]["Data"] +
+                              snapshot.data[index]["Data"].trim() +
                                   " | " +
-                                  snapshot.data[index]["Autor"],
+                                  snapshot.data[index]["Autor"].trim(),
                               style: _subtitleStyle(),
                             )
                           ],
