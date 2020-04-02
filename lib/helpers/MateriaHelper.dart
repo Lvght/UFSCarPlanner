@@ -37,7 +37,10 @@ class Materia {
       this.turma, this.ministrantes, this.local);
 
   String codigo, nome, dia, horaI, horaF, turma, ministrantes, local;
-
+  bool compare(Materia other){
+    return codigo == other.codigo &&other.nome== nome && dia==other.dia && other.horaI==horaI &&
+        other.horaF== horaF &&other.turma== turma && other.ministrantes ==ministrantes &&other.local== local;
+  }
   factory Materia.fromJson(Map<String, dynamic> json) {
     return new Materia.another(
         json["codigo"],

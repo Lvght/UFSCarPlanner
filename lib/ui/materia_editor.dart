@@ -55,23 +55,27 @@ class _MateriaEditorState extends State<MateriaEditor> {
       }
       materias = _currentUser.mat;
       if (materia != null) {
-        materias[_diasDaSemana.indexOf(materia.dia.trim())].remove(materia);
+        print(_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
+        for(int i=0 ;i< materias[_diasDaSemana.indexOf(materia.dia)].length ;i++ )
+          if(materia.compare(materias[_diasDaSemana.indexOf(materia.dia)][i])) {
+            materias[_diasDaSemana.indexOf(materia.dia)].removeAt(i);
+
+          }
+
+          print("\n-\n-\n-\n-\n-\n\-n\n-\n\n-\n\n\n"+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
 
         codigoTextController.text = materia.codigo;
         nomeTextController.text = materia.nome;
         turmaTextController.text = materia.turma;
         localTextController.text = materia.local;
-        //TODO PRECARREGAMENTO DAS VARIAVEIS DO DROPDOWNLIST
-        /*_chosenValue = materia.dia;
-
-        horaI=(materia.hI()~/100);
-        minI=(materia.hI()%100);
-        horaF=(materia.hF()~/100);
-
-        minF=(materia.hF()%100);
-         */
 
         ministrantesTextController.text = materia.ministrantes;
+        //TODO PRECARREGAMENTO DAS VARIAVEIS DO DROPDOWNLIST
+        /*
+        _chosenValue = materia.dia;
+        horaI=(materia.horaI);
+        horaF=(materia.horaF);
+        */
       }
     });
   }
@@ -80,7 +84,7 @@ class _MateriaEditorState extends State<MateriaEditor> {
   void initState() {
     super.initState();
     initUser();
-    setState(() {});
+
   }
 
   List<String> getInitHour(String dia) {
@@ -309,26 +313,33 @@ class _MateriaEditorState extends State<MateriaEditor> {
                     ),
                     RaisedButton(
                       child: Text("Ok"),
-                      onPressed: () {
+                      onPressed: () async{
                         Materia newMateria = new Materia.another(codigoTextController.text, nomeTextController.text, _chosenValue, horaI, horaF,
                             turmaTextController.text, ministrantesTextController.text, localTextController.text);
+                        print((materia != null).toString()+"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
+                        if (materia != null) {
+                          for(int i=0 ;i< _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].length ;i++ )
+                            if(materia.compare(_currentUser.mat[_diasDaSemana.indexOf(materia.dia)][i]))
+                              _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].removeAt(i);
+                        }
+                        print("\n\n"+(materia != null).toString() +"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
 
-                        if (materia != null) _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].remove(materia);
                         _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].add(newMateria);
                         _currentUser.UpdateSubjectMap();
                         _userHelper.saveUser(_currentUser);
-                        String auxSubjectParser = json.encode(_currentUser.materias.toString()).replaceAll("\\n", "");
-                        _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
-                        setState(() {});
-                        setState(() {
-                          print(newMateria.toString());
-                          _chosenValue = null;
-                          horaI = null;
-                          horaF = null;
-                          while (Navigator.canPop(context)) Navigator.pop(context);
 
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+                          setState(() {
+                            print("\n\n"+(materia != null).toString() +"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
+
+                            _chosenValue = null;
+                            horaI = null;
+                            horaF = null;
+                            while (Navigator.canPop(context)) Navigator.pop(context);
+
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
+
                         });
+
                       },
                     ),
                     RaisedButton(
