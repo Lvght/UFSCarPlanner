@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
+import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'package:ufscarplanner/ui/home_page.dart';
+import 'package:ufscarplanner/models/user.dart';
 
 class MateriaEditor extends StatefulWidget {
   @override

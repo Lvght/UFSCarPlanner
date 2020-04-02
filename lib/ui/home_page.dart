@@ -9,6 +9,7 @@ import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'about_page.dart';
 import 'package:async/async.dart';
+import 'package:ufscarplanner/models/user.dart';
 
 class HomePage extends StatefulWidget {
   @override

@@ -5,9 +5,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'package:ufscarplanner/ui/materia_editor.dart';
 import 'dart:convert';
-
+import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
-
+import 'package:ufscarplanner/models/user.dart';
 import 'home_page.dart';
 
 class PaginaAgenda extends StatefulWidget {

@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:http/http.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
+import 'package:ufscarplanner/models/materia.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/models/user.dart';
 
 import 'home_page.dart';
 
