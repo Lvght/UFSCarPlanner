@@ -20,19 +20,12 @@ class Meal {
   List<String> lista;
 
   Meal(this.date, this.day, this.type, this.lista);
-
+  Meal.internal();
   @override
   String toString() {
     String listagem = "";
     for (int i = 0; i < lista.length; i++) listagem += lista[i] + '\n';
     return this.date + "\n" + this.day + "\n" + this.type + "\n" + listagem;
   }
-  factory Meal.fromJson(Map<String, dynamic> json) {
-  return new Meal(json['date'],json['day'],json['type'],(jsonDecode(json['lista']) as List<dynamic>).cast<String>());
-  }
 
-  Map toJson() => {
-  "day":day, "date":date,"type": type,
-  "lista": jsonEncode(lista)
-  };
 }

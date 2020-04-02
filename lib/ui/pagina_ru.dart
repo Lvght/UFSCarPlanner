@@ -8,6 +8,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:ufscarplanner/models/meal.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class PaginaRu extends StatefulWidget {
   @override
@@ -121,53 +123,33 @@ class _PaginaRuState extends State<PaginaRu> {
     return directory.path;
   }
 
-  Future<File> get _file async => File(await _filePath + "/" + userDataFilename);
 
-  Future<File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
 
   Future<List<Meal>> iniciar() async {
-    List<Meal> future;
+    List<Meal> listMeals =  new  List<Meal>();
+    final mealsBox = Hive.box("meals");
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
       await d1.initiate().then((valor) async {
-        await writeRawData(json.encode(valor));
-        await readRawData().then((data) {
-          Iterable l = json.decode(data);
-          Map<String, dynamic> a = new Map<String, dynamic>();
-          setState(() {
-            future = l.map((a) => Meal.fromJson(a)).toList();
-//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-          });
-        });
+        await mealsBox.clear();
+        await mealsBox.addAll(valor);
+        listMeals.addAll(valor);
+
       });
     } else {
 //      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
-      await readRawData().then((data) {
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        setState(() {
-          future = l.map((a) => Meal.fromJson(a)).toList();
-//          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-        });
-      });
-//      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+      if(mealsBox.length!=0)
+      for(int i=0;i<mealsBox.length;i++){
+        Meal meal = await mealsBox.getAt(i);
+        listMeals.add(meal);
+      }
+      else{
+        listMeals.add(new Meal.internal());
+      }
     }
 //    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
-    return await future;
+    await setState (() {});
+    return await listMeals;
   }
 
   @override

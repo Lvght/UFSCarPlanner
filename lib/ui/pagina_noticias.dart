@@ -24,9 +24,9 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
 
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
-  Future<List<Map<String, String>>> intermediate(String url) async{
-    final newsBox = await Hive.openBox("news");
-    var future;
+  Future<List<Map<String, String>>> get_news(String url) async{
+    final newsBox = await Hive.box("news");
+    var listOfNews;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
 //      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
@@ -37,13 +37,13 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
 
         print("\n\n\n\n");
 
-          future =new  List<Map<String,String>>();
+          listOfNews =new  List<Map<String,String>>();
           print(newsBox.length.toString()+"  "+valor.length.toString());
           for (int i = 0; i < newsBox.length; i++) {
-            Map<String, String> map1 = Map.from(newsBox.get(i));
-            future.add(map1);
+            Map<String, String> auxNews = Map.from(newsBox.get(i));
+            listOfNews.add(auxNews);
           }
-//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
+//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ listOfNews.toString()} ");
 
 
       });
@@ -52,21 +52,21 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
       print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
 
         if(newsBox.length!=0) {
-          future = new List<Map<String, String>>();
+          listOfNews = new List<Map<String, String>>();
           for (int i = 0; i < newsBox.length; i++) {
-            Map<String, String> map1 = Map.from(newsBox.get(i));
-            future.add(map1);
-            print(future[i].toString());
+            Map<String, String> auxNews = Map.from(newsBox.get(i));
+            listOfNews.add(auxNews);
+            print(listOfNews[i].toString());
           }
         }else{
-          future = new List<Map<String, String>>();
-          future.add(new Map<String,String>());
+          listOfNews = new List<Map<String, String>>();
+          listOfNews.add(new Map<String,String>());
         }
 
 
     }
-    await setState(() {newsBox.close();});
-    return await  future;
+    await setState(() {});
+    return await  listOfNews;
   }
 
 
@@ -161,7 +161,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return Container(
       margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
-          future: this._memoizer.runOnce(() => intermediate('https://www2.ufscar.br/noticias')),
+          future: this._memoizer.runOnce(() => get_news('https://www2.ufscar.br/noticias')),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
