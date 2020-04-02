@@ -14,7 +14,7 @@ description: Aplicativo para ver informações pertinentes à graduação na UFS
 version: 0.0.70+alpha
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.5.2 <3.0.0"
 
 dependencies:
   gradient_app_bar: ^0.0.1

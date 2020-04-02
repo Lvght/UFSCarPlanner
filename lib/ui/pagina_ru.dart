@@ -7,6 +7,7 @@ import 'package:connectivity/connectivity.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
+import 'package:ufscarplanner/models/meal.dart';
 
 class PaginaRu extends StatefulWidget {
   @override
