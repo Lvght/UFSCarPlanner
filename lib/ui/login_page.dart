@@ -126,7 +126,6 @@ class _LoginPageState extends State<LoginPage> {
       while (!isDone)
 //        isDone = true;
         await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula").then((value) {
-          print("Inside async! A");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
@@ -140,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
       while (!isDone)
 //        isDone = true;
         await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link").then((value) {
-          print("Inside async! B");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
@@ -161,7 +159,6 @@ class _LoginPageState extends State<LoginPage> {
 
       while (!isDone)
         await tryToClick("inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113").then((value) {
-          print("Inside async! C");
           isDone = value;
           Timer(Duration(milliseconds: 50), () => null);
         });
@@ -198,9 +195,7 @@ class _LoginPageState extends State<LoginPage> {
       _done = true;
 
       print("Escrevendo...\n");
-      await userHelper.saveUser(user).then((value){
-        user= value;
-      });
+      await userHelper.saveUser(user);
 
       print("Os dados foram escritos\n");
 
@@ -232,12 +227,10 @@ class _LoginPageState extends State<LoginPage> {
           .split("IRA")[1]
           .split(">")[2]
           .split(contrabarra + "u003C" + "/span")[0];
-      debugPrint("VALOR DO IRA = ${user.ira}");
 
       user.nome = rawData
           .split("${this._loginTextController.text} - ")[1]
           .split(contrabarra + "u003C" + "/span>")[0];
-      debugPrint("Valor do nome = ${user.nome}");
 
       this._webViewController.evaluateJavascript(
           "document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
@@ -422,7 +415,8 @@ class _LoginPageState extends State<LoginPage> {
     this.user.mat = _userHelper.subjectParser(mapList.toString());
 
    // print("-------------------------------------->>>>>>>>>>>>>>>>>>>>>"+user.materias.toString());
-
+   // print("\n\n\nuser: \n\n" + user.mat.toString());
+  
     return this.user;
   }
 

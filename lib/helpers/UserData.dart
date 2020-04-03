@@ -1,4 +1,5 @@
-import 'package:hive/hive.dart';import 'dart:io';
+import 'package:hive/hive.dart';
+import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
@@ -11,7 +12,6 @@ import 'package:ufscarplanner/models/user.dart';
  * As string abaixo são definidas como constantes para evitar problemas
  * envolvendo erros de digitação.
  */
-const String userDataFilename = "userdata.json";
 const String nameField = "Nome";
 const String iraField = "IRA";
 const String raField = "RA";
@@ -108,15 +108,18 @@ class UserHelper {
     ];
 
     List<Map<String, String>> output = List();
-    print("raw"+raw.replaceAll("\\n", ""));
-    final int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw.replaceAll("\\n", "")).length;
-    print("total"+totalDeMaterias.toString());
+
+    raw = raw.replaceAll("\n", "");
+    raw = raw.replaceAll("\\n", "");
+
+    int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw).length;
+
     int ocorrenciaDaMateria;
 
     Materia materia = Materia.internal();
     List<String> rawMateria = raw.split("}");
     List<String> rawOcorrenciasDasMaterias = List();
-    print("total"+totalDeMaterias.toString());
+
     for (int i = 0; i < totalDeMaterias; i++) {
 
       // Reinicia a matéria
@@ -131,7 +134,6 @@ class UserHelper {
       ocorrenciaDaMateria = RegExp("(.*?)\\,")
           .allMatches(rawOcorrenciasDasMaterias.toString())
           .length;
-      print("queijo"+ocorrenciaDaMateria.toString());
       // Algumas matérias se repetem em mais de um dia da semana.
       for (int j = 0; j < ocorrenciaDaMateria; j++) {
         materia = Materia.internal();
@@ -154,7 +156,6 @@ class UserHelper {
         materia.local = rawOcorrenciasDasMaterias[j]
             .substring(rawOcorrenciasDasMaterias[j].toString().indexOf("("))
             .replaceAll("(", "");
-        print("pao"+materia.local);
         // Insere na lista, no índice adequado ao dia da semana
         outList[_weekDecode(materia.dia)].add(materia);
       }
@@ -166,7 +167,6 @@ class UserHelper {
         return int.parse(a.horaI.substring(0, 2)) > int.parse(b.horaI.substring(0, 2)) ? 1 : 0;
       } );
     }
-    print("batata"+outList.toString());
     return outList;
   }
 
@@ -192,5 +192,11 @@ class UserHelper {
       return  userBox.getAt(0);
     });
 
+  }
+  Future<void> deleteFile() async {
+    final userBox = await Hive.box("user");
+    await userBox.clear().then((value){
+      return;
+    });
   }
 }

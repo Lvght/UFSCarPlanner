@@ -76,24 +76,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   GradientAppBar _getAppBar(String title) => GradientAppBar(
-//        actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.bug_report),
-//            onPressed: () async {
-//              print("Botão pressionado :)");
-//            },
-//          ),
-//          IconButton(
-//            icon: Icon(Icons.delete),
-//            onPressed: () {
-//              _userHelper.deleteFile();
-//
-//              setState(() {
-//                _currentUser = null;
-//              });
-//            },
-//          )
-//        ],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.bug_report),
+            onPressed: () async {
+              print("Botão pressionado :)");
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              _userHelper.deleteFile();
+
+              setState(() {
+                _currentUser = null;
+              });
+            },
+          )
+        ],
         backgroundColorStart: Colors.red,
         backgroundColorEnd: Colors.redAccent,
         title: Row(
