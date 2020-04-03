@@ -109,10 +109,8 @@ class UserHelper {
 
     List<Map<String, String>> output = List();
 
-    raw = raw.replaceAll("\n", "");
-    raw = raw.replaceAll("\\n", "");
-
-    int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw).length;
+    raw = raw.replaceAll("\n", "\\n");
+    int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw.replaceAll("\\n", "")).length;
 
     int ocorrenciaDaMateria;
 
@@ -170,6 +168,8 @@ class UserHelper {
     return outList;
   }
 
+
+
   /*
    * Lê os dados do usuário a partir do arquivo de dados.
    * Retorna [null] caso seja encontrado algum erro.
@@ -187,6 +187,7 @@ class UserHelper {
   Future<User> saveUser(User user)async{
     final userBox = await Hive.box("user");
     await userBox.clear();
+    //user.mat =
     await userBox.add(user).then((onValue)
     {
       return  userBox.getAt(0);

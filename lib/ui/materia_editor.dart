@@ -53,16 +53,15 @@ class _MateriaEditorState extends State<MateriaEditor> {
         _currentUser = new User.internal();
         _currentUser.mat = new List<List<Materia>>();
       }
-      materias = _currentUser.mat;
+      materias = new List<List<Materia>>();
+      materias.addAll( _currentUser.mat);
       if (materia != null) {
-        print(_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
         for(int i=0 ;i< materias[_diasDaSemana.indexOf(materia.dia)].length ;i++ )
           if(materia.compare(materias[_diasDaSemana.indexOf(materia.dia)][i])) {
             materias[_diasDaSemana.indexOf(materia.dia)].removeAt(i);
 
           }
 
-          print("\n-\n-\n-\n-\n-\n\-n\n-\n\n-\n\n\n"+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
 
         codigoTextController.text = materia.codigo;
         nomeTextController.text = materia.nome;
@@ -217,7 +216,9 @@ class _MateriaEditorState extends State<MateriaEditor> {
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
+                  children: <Widget>[materia!=null?Row(
+                    children: <Widget>[Text("Informações antigas :  ${materia.dia} das ${materia.horaI} às ${materia.horaF}")],
+                  ):Text(""),
                     Row(
                       children: <Widget>[
                         DropdownButton<String>(
@@ -316,35 +317,45 @@ class _MateriaEditorState extends State<MateriaEditor> {
                       onPressed: () async{
                         Materia newMateria = new Materia.another(codigoTextController.text, nomeTextController.text, _chosenValue, horaI, horaF,
                             turmaTextController.text, ministrantesTextController.text, localTextController.text);
-                        print((materia != null).toString()+"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
+                       // print((materia != null).toString()+"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
                         if (materia != null) {
                           for(int i=0 ;i< _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].length ;i++ )
                             if(materia.compare(_currentUser.mat[_diasDaSemana.indexOf(materia.dia)][i]))
                               _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].removeAt(i);
                         }
-                        print("\n\n"+(materia != null).toString() +"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
 
                         _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].add(newMateria);
+                        _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].sort((a,b){
+                          return a.hI() > b.hI()?1:0;
+                        });
                         _currentUser.UpdateSubjectMap();
                         _userHelper.saveUser(_currentUser);
+                        setState(() {
+                          _chosenValue = null;
+                          horaI = null;
+                          horaF = null;
+                          while (Navigator.canPop(context)) Navigator.pop(context);
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
 
-                          setState(() {
-                            print("\n\n"+(materia != null).toString() +"   "+_currentUser.mat[_diasDaSemana.indexOf(materia.dia)].toString());
-
-                            _chosenValue = null;
-                            horaI = null;
-                            horaF = null;
-                            while (Navigator.canPop(context)) Navigator.pop(context);
-
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
-
-                        });
+                      });
 
                       },
                     ),
                     RaisedButton(
                       child: Text("Cancel"),
                       onPressed: () {
+                        if (materia != null) {
+
+                          for (int i = 0; i < _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].length; i++)
+                            if (materia.compare(_currentUser.mat[_diasDaSemana.indexOf(materia.dia)][i]))
+                              _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].removeAt(i);
+                          _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].add(materia);
+                          _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].sort((a, b) {
+                            return a.hI() > b.hI() ? 1 : 0;
+                          });
+                          _currentUser.UpdateSubjectMap();
+                          _userHelper.saveUser(_currentUser);
+                        }
                         while (Navigator.canPop(context)) Navigator.pop(context);
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => HomePage()));
                       },
