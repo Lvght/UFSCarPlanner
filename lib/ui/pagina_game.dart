@@ -24,6 +24,7 @@ class Player extends PositionComponent with Tapable {
     Tx=0;
     Ty=0;
     step=400.4;
+
   }
 
 
