@@ -1,17 +1,12 @@
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/models/materia.dart';
-import 'package:intl/intl.dart';
-import 'package:ufscarplanner/ui/pagina_agenda.dart';
+import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'dart:convert';
-import 'package:connectivity/connectivity.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:ufscarplanner/helpers/constants.dart';
 import 'package:ufscarplanner/models/user.dart';
-
-import 'package:async/async.dart';
-
 /*
  * As string abaixo são definidas como constantes para evitar problemas
  * envolvendo erros de digitação.
@@ -34,6 +29,7 @@ const String horaTerminoMateria = "horaF";
 const String turmaMateria = "turma";
 const String ministrantesMateria = "ministrantes";
 const String localMateria = "local";
+
 
 class listlist {
   List<Materia> list;
@@ -73,42 +69,6 @@ class UserHelper {
     return output;
   }
 
-  Future<File> get _file async {
-    var directory = await getApplicationDocumentsDirectory();
-    return File("${directory.path}/$userDataFilename");
-  }
-
-  Future<void> deleteFile() async {
-    File file = await _file;
-    file.delete();
-  }
-
-  Future<File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  /*
-   * Salva os dados do usuário como uma string codificada em JSON.
-   * Retorna [TRUE] se a operação for bem-sucedida
-   * Retorna [FALSE], caso contrário.
-   */
-  Future<bool> saveUser(User user) async {
-
-    String jsonEncodedData = json.encode(user.toMap());
-    final file = await _file;
-    return await file.writeAsString(jsonEncodedData) == null;
-  }
 
   int _weekDecode(String s) {
     switch (s.toLowerCase()) {
@@ -148,13 +108,15 @@ class UserHelper {
     ];
 
     List<Map<String, String>> output = List();
+    print("raw"+raw.replaceAll("\\n", ""));
     final int totalDeMaterias = RegExp("\\{(.*?)\\}").allMatches(raw.replaceAll("\\n", "")).length;
+    print("total"+totalDeMaterias.toString());
     int ocorrenciaDaMateria;
 
     Materia materia = Materia.internal();
     List<String> rawMateria = raw.split("}");
     List<String> rawOcorrenciasDasMaterias = List();
-
+    print("total"+totalDeMaterias.toString());
     for (int i = 0; i < totalDeMaterias; i++) {
 
       // Reinicia a matéria
@@ -169,7 +131,7 @@ class UserHelper {
       ocorrenciaDaMateria = RegExp("(.*?)\\,")
           .allMatches(rawOcorrenciasDasMaterias.toString())
           .length;
-
+      print("queijo"+ocorrenciaDaMateria.toString());
       // Algumas matérias se repetem em mais de um dia da semana.
       for (int j = 0; j < ocorrenciaDaMateria; j++) {
         materia = Materia.internal();
@@ -192,7 +154,7 @@ class UserHelper {
         materia.local = rawOcorrenciasDasMaterias[j]
             .substring(rawOcorrenciasDasMaterias[j].toString().indexOf("("))
             .replaceAll("(", "");
-
+        print("pao"+materia.local);
         // Insere na lista, no índice adequado ao dia da semana
         outList[_weekDecode(materia.dia)].add(materia);
       }
@@ -204,7 +166,7 @@ class UserHelper {
         return int.parse(a.horaI.substring(0, 2)) > int.parse(b.horaI.substring(0, 2)) ? 1 : 0;
       } );
     }
-
+    print("batata"+outList.toString());
     return outList;
   }
 
@@ -214,28 +176,21 @@ class UserHelper {
    */
   Future<User> readUser() async {
     User output;
-
-    try {
-      final file = await _file;
-      if (file == null) return null;
-
-      String rawDataFromFile = await file.readAsString();
-
-      final jsonEncodedData = json.decode(rawDataFromFile);
-
-      final String rawMaterias =
-          json.encode(jsonEncodedData[subjectsField]);
-
-      output = User.completeInit(
-          jsonEncodedData[nameField],
-          jsonEncodedData[iraField],
-          jsonEncodedData[raField],
-          jsonEncodedData[passwordField],
-          subjectParser(rawMaterias));
-
+    final userBox = await Hive.box("user");
+    if(userBox.length!=0){
+      output = userBox.get(0);
       return output;
-    } catch (e) {
+    }else {
       return null;
     }
+  }
+  Future<User> saveUser(User user)async{
+    final userBox = await Hive.box("user");
+    await userBox.clear();
+    await userBox.add(user).then((onValue)
+    {
+      return  userBox.getAt(0);
+    });
+
   }
 }

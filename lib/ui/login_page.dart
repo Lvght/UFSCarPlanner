@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:http/http.dart';
+import 'package:ufscarplanner/helpers/constants.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
@@ -198,11 +198,10 @@ class _LoginPageState extends State<LoginPage> {
       _done = true;
 
       print("Escrevendo...\n");
-      await userHelper.saveUser(user);
+      await userHelper.saveUser(user).then((value){
+        user= value;
+      });
 
-      auxSubjectParser =
-          json.encode(user.materias.toString()).replaceAll("\\n", "");
-      user.mat = userHelper.subjectParser(auxSubjectParser);
       print("Os dados foram escritos\n");
 
       // Retorna o app à tela inicial
@@ -419,7 +418,10 @@ class _LoginPageState extends State<LoginPage> {
 
     output.materias = mapList;
     this.user.materias = mapList;
+
     this.user.mat = _userHelper.subjectParser(mapList.toString());
+
+   // print("-------------------------------------->>>>>>>>>>>>>>>>>>>>>"+user.materias.toString());
 
     return this.user;
   }

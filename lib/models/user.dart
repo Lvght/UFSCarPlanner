@@ -1,17 +1,12 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
-import 'package:intl/intl.dart';
-import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'dart:convert';
-import 'package:connectivity/connectivity.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-
-import 'package:async/async.dart';
-
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:ufscarplanner/helpers/constants.dart';
+part 'user.g.dart';
 /*
  * As string abaixo são definidas como constantes para evitar problemas
  * envolvendo erros de digitação.
@@ -36,20 +31,25 @@ const String ministrantesMateria = "ministrantes";
 const String localMateria = "local";
 
 
+@HiveType(typeId: userTypeId)
 class User {
-
+  @HiveField(0)
   String nome;
+  @HiveField(1)
   String ira;
+  @HiveField(2)
   String ra;
+  @HiveField(3)
   String senha;
+  @HiveField(4)
+  List<Map<String, String>> materias;
+  @HiveField(5)
+  List<List<Materia>> mat;
 
   // Define os construtores
   User.internal();
-
+  User();
   User.completeInit(this.nome, this.ira, this.ra, this.senha, this.mat);
-
-  List<Map<String, String>> materias;
-  List<List<Materia>> mat;
 
   @override
   String toString() => "Instance of user\n"
@@ -58,12 +58,7 @@ class User {
       "RA:       $ra\n"
       "Materias: ${materias.toString()}\n";
 
-  String toJson() => {
-    "Nome": this.nome,
-    "IRA": this.ira,
-    "RA": this.ra,
-    "Materias": this.materias.toString()
-  }.toString();
+
   void UpdateSubjectMap(){
     List<Map<String,String>> novaLista = new List<Map<String,String>>();
     for(int i=0;i<this.mat.length;i++){
@@ -81,6 +76,7 @@ class User {
     }
     this.materias = novaLista;
   }
+
   Map toMap() {
     return {
       nameField: this.nome,
@@ -139,26 +135,5 @@ class User {
     MateriaHelper.lista_dias.remove("Dom");
   }
 
-  Future<String> get _filePath async {
-    var directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
 
-  Future<File> get _file async =>
-      File(await _filePath + "/" + userDataFilename);
-
-  Future<File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
 }

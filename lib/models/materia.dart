@@ -56,29 +56,6 @@ class Materia {
         other.horaF== horaF &&other.turma== turma && other.ministrantes ==ministrantes &&other.local== local;
   }
 
-  factory Materia.fromJson(Map<String, dynamic> json) {
-    return new Materia.another(
-        json["codigo"],
-        json["nome"],
-        json["dia"],
-        json["horaI"],
-        json["horaF"],
-        json["turma"],
-        json["ministrantes"],
-        json["local"]);
-  }
-
-  Map toJson() => {
-        "codigo": codigo,
-        "nome": nome,
-        "dia": dia,
-        "horaI": horaI,
-        "horaF": horaF,
-        "turma": turma,
-        "ministrantes": ministrantes,
-        "local": local
-      };
-
   int toint() {
     var x = [
       "Sunday",

@@ -9,6 +9,7 @@ import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/models/user.dart';
 import 'home_page.dart';
+import 'package:hive/hive.dart';
 
 class PaginaAgenda extends StatefulWidget {
   PaginaAgenda(this._materias);
@@ -40,11 +41,12 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
       _currentUser.mat = widget._materias;
       _currentUser.UpdateSubjectMap();
 
-      await _userHelper.saveUser(_currentUser);
+      await _userHelper.saveUser(_currentUser).then((value){
 
-      String auxSubjectParser =
-      json.encode(_currentUser.materias.toString()).replaceAll("\\n", "");
-      _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
+        String auxSubjectParser = value.materias.toString() ;
+        _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
+      });
+
     });
   }
   @override
@@ -352,41 +354,15 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
     );
 
-  String userDataFilename = "Materiadata.json";
-
-  Future<String> get _filePath async {
-    var directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<io.File> get _file async => io.File(await _filePath + "/" + userDataFilename);
-
-  Future<io.File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
 
   void method() async {
-    String path = _file.toString();
-    if (await io.File(path).exists()) {
-      readRawData().then((data) {
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        List<listlist> c = l.map((a) => listlist.fromJson(a)).toList();
+    final userBox = await Hive.box("user");
+    if (userBox.length!=0) {
+        List<List<Materia>> c = userBox.getAt(0).mat;
         widget._materias = new List<List<Materia>>();
-        for (int i = 0; i < c.length; i++) widget._materias.add(c[i].list);
+        for (int i = 0; i < c.length; i++) widget._materias.add( c[i] ) ;
         print(widget._materias.toString());
-      });
+
     } else {
       print("\n\n\n\n\n\n\n não existe");
     }

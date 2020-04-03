@@ -4,6 +4,7 @@ import 'package:ufscarplanner/ui/home_page.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:hive/hive.dart';
+import 'package:ufscarplanner/models/user.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/models/meal.dart';
 void main() async {
@@ -12,9 +13,10 @@ void main() async {
   Hive.init(appDocumentDirectory.path);
   Hive.registerAdapter(MealAdapter());
   Hive.registerAdapter(MateriaAdapter());
+  Hive.registerAdapter(UserAdapter());
   final newsBox = Hive.openBox("news");
   final mealsBox = Hive.openBox("meals");
-  final subjectsBox = Hive.openBox("subjects");
+  final userBox = Hive.openBox("user");
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
