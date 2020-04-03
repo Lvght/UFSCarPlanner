@@ -12,73 +12,74 @@ class PaginaNoticias extends StatefulWidget {
   @override
   _PaginaNoticiaState createState() => _PaginaNoticiaState();
 }
-class AuxMap{
-  AuxMap(String data,String link,String titulo,String autor,String texto){
 
-    this.map= {"Data": data.trim(), "Link": link.trim(), "Titulo": titulo.trim(),"Autor":autor.trim(),"Texto":texto.trim()};
+class AuxMap {
+  AuxMap(String data, String link, String titulo, String autor, String texto) {
+    this.map = {
+      "Data": data.trim(),
+      "Link": link.trim(),
+      "Titulo": titulo.trim(),
+      "Autor": autor.trim(),
+      "Texto": texto.trim()
+    };
   }
-  Map<String,String> map;
+  Map<String, String> map;
   factory AuxMap.fromJson(Map<String, dynamic> json) {
-    return new AuxMap(json["Data"],json["Link"], json["Titulo"],json["Autor"],json["Texto"]);
+    return new AuxMap(json["Data"], json["Link"], json["Titulo"], json["Autor"],
+        json["Texto"]);
   }
 
   Map toJson() => {
-    "Data": map["Data"], "Link": map["Link"], "Titulo": map["Titulo"],"Autor":map["Autor"],"Texto":map["Texto"]
-  };
+        "Data": map["Data"],
+        "Link": map["Link"],
+        "Titulo": map["Titulo"],
+        "Autor": map["Autor"],
+        "Texto": map["Texto"]
+      };
 }
-class _PaginaNoticiaState extends State<PaginaNoticias> {
 
+class _PaginaNoticiaState extends State<PaginaNoticias> {
   final AsyncMemoizer _memoizer = AsyncMemoizer();
   String userDataFilename = "Newsdata.json";
 
   Future<String> get _filePath async {
-    var directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
+
   Future<File> get _file async =>
       File(await _filePath + "/" + userDataFilename);
 
-  Future<List<Map<String, String>>> intermediate(String url) async{
+  Future<List<Map<String, String>>> intermediate(String url) async {
     var future;
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
-//      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
-      await getLinks(url).then((valor)async{
-        await  writeRawData(json.encode(valor));
-        await readRawData().then((data){
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      await getLinks(url).then((valor) async {
+        await writeRawData(json.encode(valor));
+        await readRawData().then((data) {
           Iterable l = json.decode(data);
-          Map<String, dynamic> a = new Map<String, dynamic>();
           setState(() {
-
-            List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
-            future =new  List<Map<String,String>>();
-            for(int i=0;i<aux.length;i++){
+            List<AuxMap> aux = l.map((a) => AuxMap.fromJson(a)).toList();
+            future = new List<Map<String, String>>();
+            for (int i = 0; i < aux.length; i++) {
               future.add(aux[i].map);
             }
-//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-
           });
         });
       });
-
-    }else{
-//      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
-      await readRawData().then((data){
+    } else {
+      await readRawData().then((data) {
         Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
         setState(() {
-          List<AuxMap> aux = l.map(( a)=> AuxMap.fromJson(a)).toList();
-          future =new  List<Map<String,String>>();
-          for(int i=0;i<aux.length;i++){
+          List<AuxMap> aux = l.map((a) => AuxMap.fromJson(a)).toList();
+          future = new List<Map<String, String>>();
+          for (int i = 0; i < aux.length; i++) {
             future.add(aux[i].map);
           }
-//          print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hey\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ future.toString()} ");
-
         });
       });
-//      print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     }
-//    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
     return await future;
   }
 
@@ -100,11 +101,11 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
   Future<List<Map<String, String>>> getLinks(String url) async {
     List<String> S;
     http.Response response = await http.get(url);
-    String rawData;
 
     String a = "\u005C";
 
-      S=  response.body.replaceAll(a + 'u003C', "<")
+    S = response.body
+        .replaceAll(a + 'u003C', "<")
         .split('<tbody>')[1]
         .split("</" + "tbody>")[0]
         .replaceAll("</" + "td>", "")
@@ -120,7 +121,6 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     List<String> A = ["Data", "Link", "Titulo"];
     List<Map<String, String>> D = new List<Map<String, String>>();
 
-    // print("s -   "+S.toString());
     for (int i = 0; i < S.length; i++) {
       B = {"Data": "", "Link": "", "Titulo": ""};
       if (S[i] != "") {
@@ -140,17 +140,10 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         } while (B != F);
         if (B != {"Data": "", "Link": "", "Titulo": ""}) {
           D.add(B);
-        } else {
-        //  debugPrint("B: " + B.toString());
-         // debugPrint("C :" + C.toString());
         }
-        // debugPrint(B.toString());
       }
     }
-    //TODO CHAMAR DECENTEMENTE ESSA FUNÇÃO
-    //TODO ONSTRUIR OS WIDGETS
-    //debugPrint(D.toString());
-    return await D;
+    return D;
   }
 
   Future<Map<String, String>> LoadNews(String url) async {
@@ -186,20 +179,21 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 15),
+      // margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
-          future: this._memoizer.runOnce(() => intermediate('https://www2.ufscar.br/noticias')),
+          future: this
+              ._memoizer
+              .runOnce(() => intermediate('https://www2.ufscar.br/noticias')),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
                 return Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                  ),
+                  child: CircularProgressIndicator(),
                 );
               default:
                 return ListView.builder(
+                  padding: EdgeInsets.only(top: 15),
                   itemBuilder: (BuildContext context, int index) {
                     return FlatButton(
                       onPressed: () => Navigator.push(
@@ -210,13 +204,18 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                                     snapshot.data[index]["Autor"],
                                     snapshot.data[index]["Data"],
                                     snapshot.data[index]["Texto"],
+                                    snapshot.data[index]["Link"]
                                   ))),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(10, 0, 10, 15),
                         padding: EdgeInsets.only(bottom: 15),
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.black26))),
+                        decoration: index == snapshot.data.length - 1
+                            ? BoxDecoration()
+                            : BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: Colors.black26),
+                                ),
+                              ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -238,7 +237,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                       ),
                     );
                   },
-                  itemCount:snapshot.data==null? 0:snapshot.data.length - 1,
+                  itemCount: snapshot.data == null ? 0 : snapshot.data.length,
                 );
             }
           }),

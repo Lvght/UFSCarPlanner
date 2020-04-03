@@ -77,8 +77,6 @@ class User {
     Map m = json.decode(this.materias.toString());
     List<Materia> output = List();
 
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
     return output;
   }
 

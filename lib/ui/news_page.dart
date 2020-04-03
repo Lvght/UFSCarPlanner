@@ -4,12 +4,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:share/share.dart';
+
 class NewsPage extends StatelessWidget {
-  NewsPage(titulo, autor, data, corpo) {
+  NewsPage(titulo, autor, data, corpo, link) {
     this.titulo = titulo;
     this.autor = autor;
     this.data = data;
     this.corpo = corpo;
+    this.link = link;
     teste = copo(corpo);
   }
 
@@ -17,6 +20,7 @@ class NewsPage extends StatelessWidget {
   String autor;
   String data;
   String corpo;
+  String link;
   RichText teste;
 
   RichText copo(String src) {
@@ -68,11 +72,9 @@ class NewsPage extends StatelessWidget {
               ? (new TapGestureRecognizer()
                 ..onTap = () async {
                   String url = links[text];
-             //     print("\n\n\n\n\n\n\n\nBRAAAAAAAAAAAAAAAABOOOOOOOOOOR\n\n\n\n\n\n\n\n\n\n\n\n");
                   if (await canLaunch(url)) {
                     await launch(url);
                   } else {
-               //     print("não deu pra lançar a braba :'" + url + "'");
                   }
                 })
               : null);
@@ -93,7 +95,7 @@ class NewsPage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: () => print("hahaha"),
+            onPressed: () => Share.share("Olha essa notícia da UFSCar:\n$link"),
           )
         ],
       ),
@@ -122,7 +124,10 @@ class NewsPage extends StatelessWidget {
             Container(
               child: teste,
               width: MediaQuery.of(context).size.width,
-            )
+            ),
+            SizedBox(
+              height: 8,
+            ),
           ],
         ),
       ),
