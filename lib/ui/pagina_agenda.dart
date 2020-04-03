@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'dart:convert';
 
+import 'package:ufscarplanner/components/button.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
 
 import 'home_page.dart';
@@ -70,7 +71,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                     SizedBox(
                       height: 15,
                     ),
-                    RaisedButton(
+                    Button(
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) {
                           if (value != null)

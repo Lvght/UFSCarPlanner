@@ -2,12 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
-import 'package:http/http.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
-
-import 'home_page.dart';
+import 'package:ufscarplanner/components/button.dart';
 
 /*
  * AS TELAS DO SIGA
@@ -90,16 +87,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // Retorna TRUE se o click der certo
-  Future<bool> tryToClick(String elementIdentifier) async =>
-    await this._webViewController.evaluateJavascript("document.getElementById('$elementIdentifier').click()").then((value) {
+  Future<bool> tryToClick(String elementIdentifier) async => await this
+          ._webViewController
+          .evaluateJavascript(
+              "document.getElementById('$elementIdentifier').click()")
+          .then((value) {
 //      print("VALUE OF VAL: ${value.toString()}");
-      return !value.contains("null");
-    });
+        return !value.contains("null");
+      });
 
   bool isContentAvaliable(String str, String content) => str.contains(content);
 
   void _onPageStartedFunct(String url) async {
-
     bool isDone = false;
 
     //TODO TRATAR FALTA DE INTERNET
@@ -116,15 +115,16 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Segunda tela -> Terceira tela
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")) {
-
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")) {
       print("Estamos nesta rota: Segunda tela -> Terceira tela");
 
       widget._state = WebViewState.REQ_LISTMATRICULAS;
 
       while (!isDone)
 //        isDone = true;
-        await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula").then((value) {
+        await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula")
+            .then((value) {
           print("Inside async! A");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
@@ -133,12 +133,14 @@ class _LoginPageState extends State<LoginPage> {
 
     // Terceira tela -> Quarta tela
     // É preciso esperar que o IRA esteja disponível!
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml")) {
       widget._state = WebViewState.REQ_ACOESMATRICULAS;
 
       while (!isDone)
 //        isDone = true;
-        await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link").then((value) {
+        await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link")
+            .then((value) {
           print("Inside async! B");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
@@ -146,29 +148,38 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Quarta tela -> Quinta tela (Extração do IRA e do Nome)
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml")) {
       String rawData;
       widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
-      
-      rawData = await _webViewController.evaluateJavascript("document.documentElement.innerHTML");
 
-      user.ira = rawData.split("IRA")[1].split(">")[2].split(contrabarra + "u003C" + "/span")[0];
+      rawData = await _webViewController
+          .evaluateJavascript("document.documentElement.innerHTML");
+
+      user.ira = rawData
+          .split("IRA")[1]
+          .split(">")[2]
+          .split(contrabarra + "u003C" + "/span")[0];
       debugPrint("VALOR DO IRA = ${user.ira}");
 
-      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra + "u003C" + "/span>")[0];
+      user.nome = rawData
+          .split("${this._loginTextController.text} - ")[1]
+          .split(contrabarra + "u003C" + "/span>")[0];
       debugPrint("Valor do nome = ${user.nome}");
 
       while (!isDone)
-        await tryToClick("inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113").then((value) {
+        await tryToClick(
+                "inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113")
+            .then((value) {
           print("Inside async! C");
           isDone = value;
           Timer(Duration(milliseconds: 50), () => null);
         });
-
     }
 
     // Quinta tela -> Logout (extração final dos dados)
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1")) {
       widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
     }
 
@@ -217,8 +228,8 @@ class _LoginPageState extends State<LoginPage> {
     // Aqui executa-se o JS necessário na página de matrículas para que se possa avançar
     if (url ==
         "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
-      print("Valor do click = ${this._webViewController.evaluateJavascript(
-          "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();")}");
+      print(
+          "Valor do click = ${this._webViewController.evaluateJavascript("document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();")}");
     if (url.contains(
         "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
       this._webViewController.evaluateJavascript(
@@ -315,6 +326,7 @@ class _LoginPageState extends State<LoginPage> {
 
   InputDecoration _getInputDecoration(String labelText) => InputDecoration(
         hintText: labelText,
+      
       );
 
   User _coleta(String s) {
@@ -427,17 +439,16 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: widgets.Text("Página de login"),
+          title: widgets.Text("Login"),
         ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.only(top: 25),
+        body: Container(
           child: Center(
             child: Form(
               key: _key,
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+
                   children: <Widget>[
                     Text(
                       _getDisplayText(),
@@ -456,6 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (str) =>
                           str.isEmpty ? "Insira o seu RA ou CPF." : null,
                       decoration: _getInputDecoration('Login (CPF ou RA)'),
+                      cursorColor: Colors.red,
                       controller: _loginTextController,
                       keyboardType: TextInputType.number,
                       enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
@@ -466,37 +478,41 @@ class _LoginPageState extends State<LoginPage> {
                           str.isEmpty ? "Insira a sua senha." : null,
                       decoration: _getInputDecoration('Senha'),
                       obscureText: true,
+                      cursorColor: Colors.red,
                       controller: _passwordTextController,
                       enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
                           widget._state == WebViewState.LOGIN_FAILED,
                     ),
-                    RaisedButton(
-                      child: Text("Fazer login"),
-                      onPressed:
-                          (widget._state == WebViewState.ISAT_LOGINPAGE ||
-                                  widget._state == WebViewState.LOGIN_FAILED)
-                              ? () {
-                                  if (_key.currentState.validate()) {
-                                    print("Botão pressionado");
-                                    FocusScope.of(context)
-                                        .requestFocus(FocusNode());
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Button(
+                        child: Text("Fazer login"),
+                        onPressed:
+                            (widget._state == WebViewState.ISAT_LOGINPAGE ||
+                                    widget._state == WebViewState.LOGIN_FAILED)
+                                ? () {
+                                    if (_key.currentState.validate()) {
+                                      print("Botão pressionado");
+                                      FocusScope.of(context)
+                                          .requestFocus(FocusNode());
 
-                                    this.user.ra = _loginTextController.text;
+                                      this.user.ra = _loginTextController.text;
 
-                                    // Ativa o WebView
-                                    this._webViewController.evaluateJavascript(
-                                        "document.getElementById('login:usuario').value = '" +
-                                            _loginTextController.text +
-                                            "';");
-                                    this._webViewController.evaluateJavascript(
-                                        "document.getElementById('login:password').value = '" +
-                                            _passwordTextController.text +
-                                            "';");
-                                    this._webViewController.evaluateJavascript(
-                                        "document.getElementById('login:loginButton').click();");
+                                      // Ativa o WebView
+                                      this._webViewController.evaluateJavascript(
+                                          "document.getElementById('login:usuario').value = '" +
+                                              _loginTextController.text +
+                                              "';");
+                                      this._webViewController.evaluateJavascript(
+                                          "document.getElementById('login:password').value = '" +
+                                              _passwordTextController.text +
+                                              "';");
+                                      this._webViewController.evaluateJavascript(
+                                          "document.getElementById('login:loginButton').click();");
+                                    }
                                   }
-                                }
-                              : null,
+                                : null,
+                      ),
                     ),
 //                  Text(
 //                    widget._routeStr,
@@ -523,6 +539,4 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ));
   }
-
-
 }
