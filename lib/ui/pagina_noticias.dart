@@ -194,7 +194,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              snapshot.data[index]["Titulo"],
+                              snapshot.data[index]["Titulo"].trim(),
                               style: _titleStyle(),
                             ),
                             SizedBox(

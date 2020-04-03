@@ -87,7 +87,7 @@ class NewsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          data + " | " + autor,
+          data.trim() + " | " + autor.trim(),
           style: TextStyle(fontSize: 15),
         ),
         actions: <Widget>[
@@ -103,7 +103,7 @@ class NewsPage extends StatelessWidget {
 
           children: <Widget>[
             Text(
-              titulo,
+              titulo.trim(),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
@@ -111,7 +111,7 @@ class NewsPage extends StatelessWidget {
               height: 10,
             ),
             Text(
-              data + " | " + autor,
+              data.trim() + " | " + autor.trim(),
               style: TextStyle(color: Colors.black26, fontSize: 15),
             ),
             Container(
