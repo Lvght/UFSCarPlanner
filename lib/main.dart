@@ -7,7 +7,9 @@ import 'package:hive/hive.dart';
 import 'package:ufscarplanner/models/user.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/models/meal.dart';
+import 'package:ufscarplanner/ui/pagina_game.dart';
 void main() async {
+  MyGame().widget;
   WidgetsFlutterBinding.ensureInitialized();
   final appDocumentDirectory = await path_provider.getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
@@ -17,6 +19,7 @@ void main() async {
   final newsBox = Hive.openBox("news");
   final mealsBox = Hive.openBox("meals");
   final userBox = Hive.openBox("user");
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(

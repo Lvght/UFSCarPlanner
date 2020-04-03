@@ -1,3 +1,4 @@
+import 'package:flame/game/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
@@ -9,6 +10,7 @@ import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'about_page.dart';
 import 'package:async/async.dart';
+import 'package:ufscarplanner/ui/pagina_game.dart';
 import 'package:ufscarplanner/models/user.dart';
 
 class HomePage extends StatefulWidget {
@@ -114,12 +116,16 @@ class _HomePageState extends State<HomePage> {
         width: MediaQuery.of(context).size.width,
         child: ListView(
           children: <Widget>[
+            GestureDetector(child:
             ListTile(
               title: Text(
                 "UFSCar App",
                 textAlign: TextAlign.center,
               ),
-            ),
+            ),onLongPress: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyGame().widget));
+              setState(() { });
+            },),
             ListTile(
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
