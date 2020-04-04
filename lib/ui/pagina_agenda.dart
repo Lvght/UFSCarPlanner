@@ -85,11 +85,12 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                     ),
                     RaisedButton(
                       onPressed: () async {
-                        await FlutterRadio.stop();
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()))
-                        .then((value) {
-                          if (value != null)
+                        .then((value) async {
+                          if (value != null) {
+                            await FlutterRadio.stop();
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+                          }
                         });
                       },
                       child: Text("Entrar no SIGA"),
