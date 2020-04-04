@@ -430,9 +430,6 @@ class _LoginPageState extends State<LoginPage> {
 
     this.user.mat = _userHelper.subjectParser(mapList.toString());
 
-    // print("-------------------------------------->>>>>>>>>>>>>>>>>>>>>"+user.materias.toString());
-    // print("\n\n\nuser: \n\n" + user.mat.toString());
-
     return this.user;
   }
 

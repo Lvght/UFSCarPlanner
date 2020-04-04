@@ -85,13 +85,13 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       color: Colors.red,
                       textColor: Colors.white,
                       onPressed: () async {
+                        await FlutterRadio.stop();
                         Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => LoginPage()))
                             .then((value) async {
                           if (value != null) {
-                            await FlutterRadio.stop();
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
