@@ -16,7 +16,7 @@ class _RadioPageState extends State<RadioPage> {
 
   // More radios can be added here
   final List<Map<String, String>> radios = [
-    {'radio': 'Rádio UFSCar', 'url': 'https://www.radio.ufscar.br:8443/radioufscar96.mp3'},
+    // FIXME Não funciona {'radio': 'Rádio UFSCar', 'url': 'https://www.radio.ufscar.br:8443/radioufscar96.mp3'},
     {'radio': 'Clássica', 'url': 'https://uk3.internet-radio.com/proxy/saglioc?mp=/stream;'},
     {'radio': 'EDM', 'url': 'https://uk6.internet-radio.com/proxy/realdanceradio?mp=/live'},
     {'radio': 'Jazz', 'url': 'https://us4.internet-radio.com/proxy/wsjf?mp=/stream;'},
@@ -24,7 +24,7 @@ class _RadioPageState extends State<RadioPage> {
     {'radio': 'Lo-fi 2', 'url': 'https://streaming.liveonline.radio/lofi-hiphop-radio'},
   ];
 
-  int _currentRadioIndex = 4;
+  int _currentRadioIndex = 3;
   bool isPlaying = false;
   bool awaiting = false;
 
@@ -65,7 +65,7 @@ class _RadioPageState extends State<RadioPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text("Escolha uma rádio para ouvir", style: TextStyle(color: Colors.white, fontSize: 18)),
+                Text("Escolha uma rádio para escutar", style: TextStyle(color: Colors.white, fontSize: 18)),
                 SizedBox(height: 20,),
                 Theme(
                   data: ThemeData(
