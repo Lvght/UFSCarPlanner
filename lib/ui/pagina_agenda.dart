@@ -30,13 +30,12 @@ class PaginaAgenda extends StatefulWidget {
 class _PaginaAgendaState extends State<PaginaAgenda> {
   UserHelper _userHelper = UserHelper();
   User _currentUser;
-  TabController _tabController;
 
-  Future<void> save_Data ()async {
+  Future<void> saveData ()async {
     _userHelper.readUser().then((value)async {
       _currentUser = value;
       _currentUser.mat = widget._materias;
-      _currentUser.UpdateSubjectMap();
+      _currentUser.updateSubjectMap();
 
       await _userHelper.saveUser(_currentUser).then((value){
 
@@ -179,7 +178,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                 onPressed: ()async {
                   print(materia.toString());
                   widget._materias[_diasDaSemana.indexOf(materia.dia.trim())].remove(materia);
-                  await save_Data().then((onValue){
+                  await saveData().then((onValue){
                     setState(()=> null);
                     Navigator.pop(context);
                   });},
@@ -355,7 +354,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
 
 
   void method() async {
-    final userBox = await Hive.box("user");
+    final userBox = Hive.box("user");
     if (userBox.length!=0) {
         List<List<Materia>> c = userBox.getAt(0).mat;
         widget._materias = new List<List<Materia>>();

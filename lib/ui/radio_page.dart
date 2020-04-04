@@ -1,9 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:core';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ufscarplanner/components/wave_background.dart';
 
 class RadioPage extends StatefulWidget {
   @override
@@ -11,109 +13,102 @@ class RadioPage extends StatefulWidget {
 }
 
 class _RadioPageState extends State<RadioPage> {
-  String radio;
 
-  String streamUrl = "https://stream.laut.fm/lofi?ref=radiode";
+  // More radios can be added here
+  final List<Map<String, String>> radios = [
+    {'radio': 'Rádio UFSCar', 'url': 'https://www.radio.ufscar.br:8443/radioufscar96.mp3'},
+    {'radio': 'Clássica', 'url': 'https://uk3.internet-radio.com/proxy/saglioc?mp=/stream;'},
+    {'radio': 'EDM', 'url': 'https://uk6.internet-radio.com/proxy/realdanceradio?mp=/live'},
+    {'radio': 'Jazz', 'url': 'https://us4.internet-radio.com/proxy/wsjf?mp=/stream;'},
+    {'radio': 'Lo-fi 1', 'url': 'https://stream.laut.fm/lofi?ref=radiode'},
+    {'radio': 'Lo-fi 2', 'url': 'https://streaming.liveonline.radio/lofi-hiphop-radio'},
+  ];
 
-  List<String> radioList = ["Radio Ufscar", "Lo fi"];
-  List<String> listaUrl = ["https://www.radio.ufscar.br:8443/radioufscar96.mp3", "https://stream.laut.fm/lofi?ref=radiode"];
-  bool isPlaying;
+  int _currentRadioIndex = 4;
+  bool isPlaying = false;
   bool awaiting = false;
 
   @override
   void initState() {
     super.initState();
-    audioStart();
-    playingStatus();
+    FlutterRadio.audioStart();
   }
 
-  Future<void> audioStart() async {
-    await FlutterRadio.audioStart();
-    print('Audio Start OK');
-  }
+  List<DropdownMenuItem<int>> _getItens() {
+    List<DropdownMenuItem<int>> itens = [];
 
-  double volume = 1;
+    for (int i = 0; i < radios.length; i++)
+      itens.add(DropdownMenuItem<int>(
+        child: Container(
+          margin: EdgeInsets.only(right: 7),
+          child: Text(
+            radios[i]['radio'],
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        value: i,
+      ));
+
+    return itens;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: new Scaffold(
-          body: new Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              DropdownButton<String>(
-                value: radio,
-                items: radioList.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String value) async {
-                  radio = value;
-                  FlutterRadio.stop();
-                  streamUrl = listaUrl[radioList.indexOf(radio)];
-                  await FlutterRadio.isPlaying().then((valor) {
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          Background(),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text("Escolha uma rádio para ouvir", style: TextStyle(color: Colors.white, fontSize: 18)),
+                SizedBox(height: 20,),
+                Theme(
+                  data: ThemeData(
+                    canvasColor: Color(0xDD000000),
+                  ),
+                  child: DropdownButton<int>(
+                    icon: Icon(Icons.radio),
+                    iconEnabledColor: Colors.white,
+                    underline: Container(color: Colors.white, height: 1.0),
+                    value: _currentRadioIndex,
+                    items: _getItens(),
+                    onChanged: (index) async {
+                      if (isPlaying) {
+                        await FlutterRadio.stop();
+                        await FlutterRadio.play(url: radios[index]['url']);
+                      }
+                      setState(() => _currentRadioIndex = index);
+                    },
+                  ),
+                ),
+                IconButton(
+                  iconSize: 60,
+                  icon: Icon(
+                    isPlaying ? Icons.pause : Icons.play_circle_filled,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    if (isPlaying)
+                      await FlutterRadio.stop();
+                    else
+                      await FlutterRadio.play(
+                          url: radios[_currentRadioIndex]['url']);
+
                     setState(() {
-                      isPlaying = valor;
+                      isPlaying = isPlaying ? false : true;
                     });
-                  });
-                },
-              ),
-              Center(
-                  child: Icon(
-                Icons.radio,
-                size: MediaQuery.of(context).size.width * 0.9,
-              )),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  isPlaying == null || isPlaying == false
-                      ? FlatButton(
-                          child: Icon(
-                            Icons.play_circle_filled,
-                            size: MediaQuery.of(context).size.width * 0.2,
-                          ),
-                          onPressed: () async {
-                            if (!await FlutterRadio.isPlaying()) {
-                              await FlutterRadio.play(url: streamUrl).then((value) {
-                                setState(() {
-                                  isPlaying = true;
-                                  print("Play");
-                                });
-                              });
-                            }
-                          },
-                        )
-                      : FlatButton(
-                          child: Icon(Icons.pause_circle_filled, size: MediaQuery.of(context).size.width * 0.2),
-                          onPressed: () async {
-                            if (await FlutterRadio.isPlaying()) {
-                              await FlutterRadio.stop().then((value) {
-                                setState(() {
-                                  isPlaying = false;
-                                  print("Pause");
-                                });
-                                //  playingStatus();
-                              });
-                            }
-                          },
-                        )
-                ],
-              ),
-            ]),
-          ),
-        ));
+                  },
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
   }
-
-  Future playingStatus() async {
-    setState(() {
-      print("------------------------------->" + isPlaying.toString());
-    });
-  }
-}
-
-Future<void> audioStart() async {
-  await FlutterRadio.audioStart();
-  print("deu bom o radio");
 }

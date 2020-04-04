@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ufscarplanner/models/materia.dart';
@@ -328,7 +327,7 @@ class _MateriaEditorState extends State<MateriaEditor> {
                         _currentUser.mat[_diasDaSemana.indexOf(newMateria.dia)].sort((a,b){
                           return a.hI() > b.hI()?1:0;
                         });
-                        _currentUser.UpdateSubjectMap();
+                        _currentUser.updateSubjectMap();
                         _userHelper.saveUser(_currentUser);
                         setState(() {
                           _chosenValue = null;
@@ -353,7 +352,7 @@ class _MateriaEditorState extends State<MateriaEditor> {
                           _currentUser.mat[_diasDaSemana.indexOf(materia.dia)].sort((a, b) {
                             return a.hI() > b.hI() ? 1 : 0;
                           });
-                          _currentUser.UpdateSubjectMap();
+                          _currentUser.updateSubjectMap();
                           _userHelper.saveUser(_currentUser);
                         }
                         while (Navigator.canPop(context)) Navigator.pop(context);
