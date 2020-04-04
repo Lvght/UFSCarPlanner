@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
-import 'dart:io' as io;
-import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'package:ufscarplanner/ui/materia_editor.dart';
-import 'dart:convert';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/models/user.dart';
 import 'home_page.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 
 class PaginaAgenda extends StatefulWidget {
   PaginaAgenda(this._materias);
@@ -51,11 +48,10 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
   }
   @override
   void initState() {
-    print("----------------------------------------------------------");
+    super.initState();
     if (widget._materias == null) {
       _userHelper.readUser().then((value) {
         _currentUser = value;
-
         if (_currentUser != null) widget._materias = _currentUser.mat;
         setState(() {});
       });
@@ -88,8 +84,10 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       height: 15,
                     ),
                     RaisedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) {
+                      onPressed: () async {
+                        await FlutterRadio.stop();
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()))
+                        .then((value) {
                           if (value != null)
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
                         });
