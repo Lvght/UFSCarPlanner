@@ -91,16 +91,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // Retorna TRUE se o click der certo
-  Future<bool> tryToClick(String elementIdentifier) async =>
-    await this._webViewController.evaluateJavascript("document.getElementById('$elementIdentifier').click()").then((value) {
+  Future<bool> tryToClick(String elementIdentifier) async => await this
+          ._webViewController
+          .evaluateJavascript(
+              "document.getElementById('$elementIdentifier').click()")
+          .then((value) {
 //      print("VALUE OF VAL: ${value.toString()}");
-      return !value.contains("null");
-    });
+        return !value.contains("null");
+      });
 
   bool isContentAvaliable(String str, String content) => str.contains(content);
 
   void _onPageStartedFunct(String url) async {
-
     bool isDone = false;
 
     //TODO TRATAR FALTA DE INTERNET
@@ -117,15 +119,16 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Segunda tela -> Terceira tela
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")) {
-
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")) {
       print("Estamos nesta rota: Segunda tela -> Terceira tela");
 
       widget._state = WebViewState.REQ_LISTMATRICULAS;
 
       while (!isDone)
 //        isDone = true;
-        await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula").then((value) {
+        await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula")
+            .then((value) {
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
@@ -133,40 +136,51 @@ class _LoginPageState extends State<LoginPage> {
 
     // Terceira tela -> Quarta tela
     // É preciso esperar que o IRA esteja disponível!
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml")) {
       widget._state = WebViewState.REQ_ACOESMATRICULAS;
 
       while (!isDone)
 //        isDone = true;
-        await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link").then((value) {
+        await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link")
+            .then((value) {
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
     }
 
     // Quarta tela -> Quinta tela (Extração do IRA e do Nome)
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/inscricoesResultados.xhtml")) {
       String rawData;
       widget._state = WebViewState.REQ_INSCRICOESRESULTADOS;
-      
-      rawData = await _webViewController.evaluateJavascript("document.documentElement.innerHTML");
 
-      user.ira = rawData.split("IRA")[1].split(">")[2].split(contrabarra + "u003C" + "/span")[0];
+      rawData = await _webViewController
+          .evaluateJavascript("document.documentElement.innerHTML");
+
+      user.ira = rawData
+          .split("IRA")[1]
+          .split(">")[2]
+          .split(contrabarra + "u003C" + "/span")[0];
       debugPrint("VALOR DO IRA = ${user.ira}");
 
-      user.nome = rawData.split("${this._loginTextController.text} - ")[1].split(contrabarra + "u003C" + "/span>")[0];
+      user.nome = rawData
+          .split("${this._loginTextController.text} - ")[1]
+          .split(contrabarra + "u003C" + "/span>")[0];
       debugPrint("Valor do nome = ${user.nome}");
 
       while (!isDone)
-        await tryToClick("inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113").then((value) {
+        await tryToClick(
+                "inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113")
+            .then((value) {
           isDone = value;
           Timer(Duration(milliseconds: 50), () => null);
         });
-
     }
 
     // Quinta tela -> Logout (extração final dos dados)
-    else if (url.contains("https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1")) {
+    else if (url.contains(
+        "https://sistemas.ufscar.br/siga/paginas/aluno/resumoInscricoesResultados.xhtml?cid=1")) {
       widget._state = WebViewState.REQ_RESUMOINSCRICOESRESULTADOS;
     }
 
@@ -212,8 +226,8 @@ class _LoginPageState extends State<LoginPage> {
     // Aqui executa-se o JS necessário na página de matrículas para que se possa avançar
     if (url ==
         "https://sistemas.ufscar.br/siga/paginas/aluno/listMatriculas.xhtml")
-      print("Valor do click = ${this._webViewController.evaluateJavascript(
-          "document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();")}");
+      print(
+          "Valor do click = ${this._webViewController.evaluateJavascript("document.getElementById('aluno-matriculas-form:matriculas-table:0:matricula').click();")}");
     if (url.contains(
         "https://sistemas.ufscar.br/siga/paginas/aluno/acoesMatricula.xhtml?"))
       this._webViewController.evaluateJavascript(
@@ -278,7 +292,8 @@ class _LoginPageState extends State<LoginPage> {
         return 0.8;
       case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
         return 0.9;
-      default: return 0.0;
+      default:
+        return 0.0;
     }
   }
 
@@ -299,9 +314,9 @@ class _LoginPageState extends State<LoginPage> {
       case WebViewState.REQ_ACOESMATRICULAS:
         return "Acessando o SIGA... [3/6]";
       case WebViewState.REQ_INSCRICOESRESULTADOS:
-        return "Acessando o SIGA [4/6]";
+        return "Acessando o SIGA... [4/6]";
       case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
-        return "Acessando o SIGA [5/6]";
+        return "Acessando o SIGA... [5/6]";
       case WebViewState.UNDEFINED_LOCATION:
         return "Ocorreu um erro.";
     }
@@ -415,9 +430,9 @@ class _LoginPageState extends State<LoginPage> {
 
     this.user.mat = _userHelper.subjectParser(mapList.toString());
 
-   // print("-------------------------------------->>>>>>>>>>>>>>>>>>>>>"+user.materias.toString());
-   // print("\n\n\nuser: \n\n" + user.mat.toString());
-  
+    // print("-------------------------------------->>>>>>>>>>>>>>>>>>>>>"+user.materias.toString());
+    // print("\n\n\nuser: \n\n" + user.mat.toString());
+
     return this.user;
   }
 
@@ -425,7 +440,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: widgets.Text("Página de login"),
+          title: Text("Entrar no SIGA"),
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.only(top: 25),
@@ -468,7 +483,10 @@ class _LoginPageState extends State<LoginPage> {
                       enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
                           widget._state == WebViewState.LOGIN_FAILED,
                     ),
+                    SizedBox(height: 30,),
                     RaisedButton(
+                      color: Colors.red,
+                      textColor: Colors.white,
                       child: Text("Fazer login"),
                       onPressed:
                           (widget._state == WebViewState.ISAT_LOGINPAGE ||
@@ -521,6 +539,4 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ));
   }
-
-
 }

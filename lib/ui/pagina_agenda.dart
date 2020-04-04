@@ -82,6 +82,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       height: 15,
                     ),
                     RaisedButton(
+                      color: Colors.red,
+                      textColor: Colors.white,
                       onPressed: () async {
                         Navigator.push(
                                 context,
