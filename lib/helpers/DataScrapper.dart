@@ -1,9 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart'; // Contains a client for making API calls
-import 'package:html/parser.dart'; //
-import 'dart:convert';// Contains HTML parsers to generate a Document object
-import 'package:hive/hive.dart';
-import 'package:ufscarplanner/helpers/constants.dart';
+import 'package:html/parser.dart';
 import 'package:ufscarplanner/models/meal.dart';
 
 

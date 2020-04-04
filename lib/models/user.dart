@@ -1,10 +1,6 @@
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/models/materia.dart';
 import 'package:ufscarplanner/helpers/MateriaHelper.dart';
-import 'dart:convert';
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ufscarplanner/helpers/constants.dart';
 part 'user.g.dart';
 /*
@@ -59,13 +55,13 @@ class User {
       "Materias: ${materias.toString()}\n";
 
 
-  void UpdateSubjectMap(){
+  void updateSubjectMap(){
     List<Map<String,String>> novaLista = new List<Map<String,String>>();
     for(int i=0;i<this.mat.length;i++){
       for(int j =0;j<this.mat[i].length;j++) {
         Materia newMat =this.mat[i][j];
         Map<String, String> aux = {
-          "Aula": newMat.codigo+" - "+newMat.nome,
+          "Aula": newMat.codigo+" - "+ newMat.nome,
           "Turma":newMat.turma,
           "Dias/Horarios": newMat.dia+". "+newMat.horaI+" às "+newMat.horaF +" ("+newMat.local+")",
           "Ministrantes": newMat.ministrantes,
@@ -87,20 +83,7 @@ class User {
     };
   }
 
-  List<Materia> _stringToMateria() {
-    Map m = json.decode(this.materias.toString());
-    List<Materia> output = List();
-
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-    return output;
-  }
-
   void agendamento() {
-
-    print("Ponto AA");
-
-//    List<Materia> listaDeMaterias = _stringToMateria();
     List<Materia> listaDeMaterias = List();
 
     listaDeMaterias

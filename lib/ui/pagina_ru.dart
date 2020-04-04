@@ -4,12 +4,9 @@ import 'package:flutter/rendering.dart';
 import 'package:ufscarplanner/helpers/DataScrapper.dart';
 import 'package:async/async.dart';
 import 'package:connectivity/connectivity.dart';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
 import 'package:ufscarplanner/models/meal.dart';
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class PaginaRu extends StatefulWidget {
   @override
@@ -148,8 +145,8 @@ class _PaginaRuState extends State<PaginaRu> {
       }
     }
 //    print("iiiiiiiii\ni\nii\niiii\niiii\niiiiiiiiii\n\n\n\n\n\n");
-    await setState (() {});
-    return await listMeals;
+    setState (() {});
+    return listMeals;
   }
 
   @override

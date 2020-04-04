@@ -1,83 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart'; //
 import 'package:http/http.dart' as http;
 import 'package:ufscarplanner/ui/news_page.dart';
 import 'package:async/async.dart';
 import 'package:connectivity/connectivity.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
 import 'package:hive/hive.dart';
+
 class PaginaNoticias extends StatefulWidget {
   @override
   _PaginaNoticiaState createState() => _PaginaNoticiaState();
 }
-class AuxMap{
-  AuxMap(String data,String link,String titulo,String autor,String texto){
-    this.map= {"Data": data.trim(), "Link": link.trim(), "Titulo": titulo.trim(),"Autor":autor.trim(),"Texto":texto.trim()};
+
+class AuxMap {
+  AuxMap(String data, String link, String titulo, String autor, String texto) {
+    this.map = {
+      "Data": data.trim(),
+      "Link": link.trim(),
+      "Titulo": titulo.trim(),
+      "Autor": autor.trim(),
+      "Texto": texto.trim()
+    };
   }
-  Map<String,String> map;
-
-
+  Map<String, String> map;
 }
-class _PaginaNoticiaState extends State<PaginaNoticias> {
 
+class _PaginaNoticiaState extends State<PaginaNoticias> {
   final AsyncMemoizer _memoizer = AsyncMemoizer();
 
-  Future<List<Map<String, String>>> get_news(String url) async{
-    final newsBox = await Hive.box("news");
+  Future<List<Map<String, String>>> getNews(String url) async {
+    final newsBox = Hive.box("news");
     var listOfNews;
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile||connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
 //      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
-      await getLinks(url).then((valor)async{
-        for(int i=0 ;i<valor.length;i++) {
-          newsBox.put(i,valor[i]);
+      await getLinks(url).then((valor) async {
+        for (int i = 0; i < valor.length; i++) {
+          newsBox.put(i, valor[i]);
         }
 
         print("\n\n\n\n");
 
-          listOfNews =new  List<Map<String,String>>();
-          print(newsBox.length.toString()+"  "+valor.length.toString());
-          for (int i = 0; i < newsBox.length; i++) {
-            Map<String, String> auxNews = Map.from(newsBox.get(i));
-            listOfNews.add(auxNews);
-          }
+        listOfNews = new List<Map<String, String>>();
+        print(newsBox.length.toString() + "  " + valor.length.toString());
+        for (int i = 0; i < newsBox.length; i++) {
+          Map<String, String> auxNews = Map.from(newsBox.get(i));
+          listOfNews.add(auxNews);
+        }
 //            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ listOfNews.toString()} ");
-
-
       });
-
-    }else{
+    } else {
       print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
 
-        if(newsBox.length!=0) {
-          listOfNews = new List<Map<String, String>>();
-          for (int i = 0; i < newsBox.length; i++) {
-            Map<String, String> auxNews = Map.from(newsBox.get(i));
-            listOfNews.add(auxNews);
-            print(listOfNews[i].toString());
-          }
-        }else{
-          listOfNews = new List<Map<String, String>>();
-          listOfNews.add(new Map<String,String>());
+      if (newsBox.length != 0) {
+        listOfNews = new List<Map<String, String>>();
+        for (int i = 0; i < newsBox.length; i++) {
+          Map<String, String> auxNews = Map.from(newsBox.get(i));
+          listOfNews.add(auxNews);
+          print(listOfNews[i].toString());
         }
-
-
+      } else {
+        listOfNews = new List<Map<String, String>>();
+        listOfNews.add(new Map<String, String>());
+      }
     }
-    await setState(() {});
-    return await  listOfNews;
+    setState(() {});
+    return await listOfNews;
   }
-
 
   Future<List<Map<String, String>>> getLinks(String url) async {
     List<String> S;
     http.Response response = await http.get(url);
-    String rawData;
 
     String a = "\u005C";
 
-      S=  response.body.replaceAll(a + 'u003C', "<")
+    S = response.body
+        .replaceAll(a + 'u003C', "<")
         .split('<tbody>')[1]
         .split("</" + "tbody>")[0]
         .replaceAll("</" + "td>", "")
@@ -89,7 +86,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         .replaceAll("</" + "a>", "")
         .split("TR");
     Map<String, String> B = {"Data": "", "Link": "", "Titulo": ""};
-    Map<String, String> E, C = B;
+    Map<String, String> E;
     List<String> A = ["Data", "Link", "Titulo"];
     List<Map<String, String>> D = new List<Map<String, String>>();
 
@@ -100,7 +97,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         B[A[0]] = S[i].split("TD")[1];
         B[A[1]] = S[i].split("TD")[2].split('"')[1];
         B[A[2]] = S[i].split("TD")[2].split('"')[2].replaceAll(">", "");
-        E = await LoadNews(B["Link"]);
+        E = await loadNews(B["Link"]);
         B.addAll(E);
         var F = B;
         do {
@@ -114,8 +111,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         if (B != {"Data": "", "Link": "", "Titulo": ""}) {
           D.add(B);
         } else {
-        //  debugPrint("B: " + B.toString());
-         // debugPrint("C :" + C.toString());
+          //  debugPrint("B: " + B.toString());
+          // debugPrint("C :" + C.toString());
         }
         // debugPrint(B.toString());
       }
@@ -123,10 +120,10 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     //TODO CHAMAR DECENTEMENTE ESSA FUNÇÃO
     //TODO ONSTRUIR OS WIDGETS
     //debugPrint(D.toString());
-    return await D;
+    return D;
   }
 
-  Future<Map<String, String>> LoadNews(String url) async {
+  Future<Map<String, String>> loadNews(String url) async {
     http.Response response = await http.get(url);
 
     Map<String, String> E = {"Autor": "", "Texto": ""};
@@ -161,7 +158,9 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return Container(
       margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
-          future: this._memoizer.runOnce(() => get_news('https://www2.ufscar.br/noticias')),
+          future: this
+              ._memoizer
+              .runOnce(() => getNews('https://www2.ufscar.br/noticias')),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -211,7 +210,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                       ),
                     );
                   },
-                  itemCount:snapshot.data==null? 0:snapshot.data.length - 1,
+                  itemCount:
+                      snapshot.data == null ? 0 : snapshot.data.length - 1,
                 );
             }
           }),

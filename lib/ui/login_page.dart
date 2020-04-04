@@ -278,6 +278,7 @@ class _LoginPageState extends State<LoginPage> {
         return 0.8;
       case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
         return 0.9;
+      default: return 0.0;
     }
   }
 
@@ -341,7 +342,7 @@ class _LoginPageState extends State<LoginPage> {
         .split("</" + "body>")[0]
         .split('id=' +
             contrabarra +
-            '"inscricao-resultados-form:atividades-inscritas-table:${io}:j_idt171')[0]
+            '"inscricao-resultados-form:atividades-inscritas-table:$io:j_idt171')[0]
         .replaceAll(contrabarra + 'u003C', "<")
         .replaceAll("<td", "<>TD<")
         .replaceAll("<tr", "<>TR<")

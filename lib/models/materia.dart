@@ -1,7 +1,5 @@
-import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 import 'package:ufscarplanner/helpers/constants.dart';
-import 'dart:convert';
 part 'materia.g.dart';
 
 @HiveType(typeId: subjectTypeId)
@@ -27,7 +25,6 @@ class Materia {
 
   Materia.internal();
   Materia(Map<String, String> map, int indiceDia) {
-    // mapaDasAulas = {"Aula": "", "Turma": "", "Dias/Horarios": "", "Ministrantes": "", "Operacoes": ""};
     this.codigo = map["Aula"].split("-")[0].replaceAll(' ', '');
     this.nome = map["Aula"].split("- ")[1].replaceAll("\n", "");
     this.turma = map["Turma"].replaceAll("\n", "").replaceAll(" ", "");
@@ -57,15 +54,6 @@ class Materia {
   }
 
   int toint() {
-    var x = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ];
     var y = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
     return (y.indexOf(this.dia.replaceAll(" ", ""))) * 10000 +
         int.parse(this.horaI.split(":")[0]) * 100 +

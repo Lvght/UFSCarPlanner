@@ -1,12 +1,6 @@
 import 'package:hive/hive.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/models/materia.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
 import 'dart:convert';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:ufscarplanner/helpers/constants.dart';
 import 'package:ufscarplanner/models/user.dart';
 /*
  * As string abaixo são definidas como constantes para evitar problemas
@@ -31,13 +25,13 @@ const String ministrantesMateria = "ministrantes";
 const String localMateria = "local";
 
 
-class listlist {
+class ListParser {
   List<Materia> list;
 
-  listlist(List<Materia> this.list);
+  ListParser(this.list);
 
-  factory listlist.fromJson(Map<String, dynamic> json) {
-    return new listlist(
+  factory ListParser.fromJson(Map<String, dynamic> json) {
+    return new ListParser(
         (jsonDecode(json['lista']) as List<dynamic>).cast<Materia>());
   }
 
@@ -185,7 +179,7 @@ class UserHelper {
     }
   }
   Future<User> saveUser(User user)async{
-    final userBox = await Hive.box("user");
+    final userBox = Hive.box("user");
     await userBox.clear();
     //user.mat =
     await userBox.add(user).then((onValue)
@@ -195,7 +189,7 @@ class UserHelper {
 
   }
   Future<void> deleteFile() async {
-    final userBox = await Hive.box("user");
+    final userBox = Hive.box("user");
     await userBox.clear().then((value){
       return;
     });
