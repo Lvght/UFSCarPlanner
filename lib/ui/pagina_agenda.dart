@@ -241,7 +241,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                     margin: EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
                         border: Border(
-                            bottom: BorderSide(color: Color(0xFF000000)))),
+                            bottom: BorderSide(color: Theme.of(context).dividerColor))),
                     child: Text(
                       this._stringDecapitalizer(materia.nome),
                       style: _titleTextStyle(),
@@ -254,7 +254,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                         : materia.ministrantes.replaceAll("\\n", "\n").trim(),
                     style: TextStyle(
                       fontSize: 17,
-                      color: Color(0xAA000000),
+                      color: Theme.of(context).textTheme.caption.color,
                     ),
                   ),
 
@@ -284,7 +284,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                           materia.horaI.length < 5
                               ? "0" + materia.horaI
                               : materia.horaI,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
                       SizedBox(
@@ -308,7 +308,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                           materia.horaF.length < 5
                               ? "0" + materia.horaF
                               : materia.horaF,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
                     ],
