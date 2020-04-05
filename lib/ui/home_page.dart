@@ -149,10 +149,11 @@ class _HomePageState extends State<HomePage> {
       ));
 
   BottomNavigationBar _getBottomNavigationBar() => BottomNavigationBar(
-        unselectedIconTheme: IconThemeData(
-          color: Color.fromRGBO(200, 200, 200, 1),
-        ),
         showSelectedLabels: true,
+        selectedItemColor: Theme.of(context).accentColor,
+        unselectedIconTheme: IconThemeData(
+          color: Theme.of(context).disabledColor
+        ),
         currentIndex: _currentIndex,
         onTap: (int index) => setState(() => _currentIndex = index),
         items: [

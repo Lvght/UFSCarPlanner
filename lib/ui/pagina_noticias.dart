@@ -174,6 +174,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                                     snapshot.data[index]["Autor"],
                                     snapshot.data[index]["Data"],
                                     snapshot.data[index]["Texto"],
+                                    snapshot.data[index]["Link"],
                                     Theme.of(context)
                                   ))),
                       child: Container(

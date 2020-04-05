@@ -5,7 +5,7 @@ ThemeData buildLightTheme() {
     primaryColor: Colors.red,
     accentColor: Colors.redAccent,
     iconTheme: IconThemeData(
-      color: Colors.red
+      color: Colors.redAccent,
     ),
   );
 }
