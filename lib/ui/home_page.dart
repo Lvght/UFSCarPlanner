@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.red, Colors.redAccent])),
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).primaryColor, Theme.of(context).accentColor])),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
