@@ -119,7 +119,7 @@ class NewsPage extends StatelessWidget {
             ),
             Container(
               height: 1,
-              color: Colors.black26,
+              color: _theme.dividerColor,
               margin: EdgeInsets.only(top: 10, bottom: 15),
             ),
             Container(

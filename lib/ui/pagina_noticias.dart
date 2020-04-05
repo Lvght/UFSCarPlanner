@@ -189,7 +189,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                         padding: EdgeInsets.only(bottom: 15),
                         decoration: BoxDecoration(
                             border: Border(
-                                bottom: BorderSide(color: Colors.black26))),
+                                bottom: BorderSide(color: Theme.of(context).dividerColor))),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[

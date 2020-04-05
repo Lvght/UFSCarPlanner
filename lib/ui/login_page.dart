@@ -457,7 +457,7 @@ class _LoginPageState extends State<LoginPage> {
                     LinearProgressIndicator(
                       value: _getProgress(),
                       backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation(Colors.red),
+                      valueColor: AlwaysStoppedAnimation(Theme.of(context).accentColor),
                     ),
                     SizedBox(
                       height: 30,
@@ -482,7 +482,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 30,),
                     RaisedButton(
-                      color: Colors.red,
+                      color: Theme.of(context).accentColor,
                       textColor: Colors.white,
                       child: Text("Fazer login"),
                       onPressed:

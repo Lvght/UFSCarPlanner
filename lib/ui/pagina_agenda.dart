@@ -82,7 +82,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       height: 15,
                     ),
                     RaisedButton(
-                      color: Colors.red,
+                      color: Theme.of(context).accentColor,
                       textColor: Colors.white,
                       onPressed: () async {
                         if (await FlutterRadio.isPlaying()) await FlutterRadio.stop();

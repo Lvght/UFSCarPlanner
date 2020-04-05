@@ -95,8 +95,8 @@ class _HomePageState extends State<HomePage> {
             },
           )
         ],*/
-        backgroundColorStart: Colors.red,
-        backgroundColorEnd: Colors.redAccent,
+        backgroundColorStart: Theme.of(context).primaryColor,
+        backgroundColorEnd: Theme.of(context).accentColor,
         title: Row(
           children: <Widget>[
             Expanded(
