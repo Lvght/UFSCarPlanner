@@ -57,7 +57,7 @@ class _RadioPageState extends State<RadioPage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          Background(),
+          Background(Theme.of(context)),
           Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,

@@ -3,21 +3,26 @@ import 'package:wave/wave.dart';
 import 'package:wave/config.dart';
 
 class Background extends StatelessWidget {
+
+  Background(this._theme);
+  final ThemeData _theme;
+
+
   @override
   Widget build(BuildContext context) {
     return WaveWidget(
       config: CustomConfig(
         gradients: [
           [
-            Color.fromRGBO(220, 220, 255, 1),
+            Color.fromRGBO(220, 220, 255, 0.6),
             Color.fromRGBO(180, 180, 255, 1),
           ],
           [
-            Color.fromRGBO(255, 210, 255, 1),
+            _theme.backgroundColor,
             Color.fromRGBO(220, 220, 255, 1),
           ],
           [
-            Color.fromRGBO(255, 50, 50, 1),
+            _theme.accentColor,
             Color.fromRGBO(255, 195, 255, .5),
           ],
         ],
