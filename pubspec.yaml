@@ -33,6 +33,10 @@ dependencies:
   flame: ^0.18.2
   hive_flutter: ^0.3.0+2
 
+  # This will be used to apply the BLoC Pattern
+  bloc: ^3.0.0
+  flutter_bloc: ^3.2.0
+
   # This will be used for the wave background seen in the Radio page
   wave: ^0.0.8
 
