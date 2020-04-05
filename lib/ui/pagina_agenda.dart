@@ -85,7 +85,7 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                       color: Colors.red,
                       textColor: Colors.white,
                       onPressed: () async {
-                        await FlutterRadio.stop();
+                        if (await FlutterRadio.isPlaying()) await FlutterRadio.stop();
                         Navigator.push(
                                 context,
                                 MaterialPageRoute(

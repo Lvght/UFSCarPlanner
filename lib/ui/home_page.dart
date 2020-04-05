@@ -5,8 +5,8 @@ import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
 import 'package:ufscarplanner/ui/pagina_noticias.dart';
 import 'package:ufscarplanner/ui/radio_page.dart';
-import 'package:ufscarplanner/ui/login_page.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/ui/settings_page.dart';
 import 'about_page.dart';
 import 'package:async/async.dart';
 import 'package:ufscarplanner/ui/pagina_game.dart';
@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 1;
+  int _currentIndex = 2;
   User _currentUser;
   UserHelper _userHelper = UserHelper();
   AsyncMemoizer _memoizer = AsyncMemoizer();
@@ -29,8 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _memoizer.runOnce(() => Future.delayed(Duration(seconds: 1))
-            .then((value) => _userHelper.readUser())),
+        future: _memoizer.runOnce(() => Future.delayed(Duration(seconds: 1)).then((value) => _userHelper.readUser())),
         builder: (context, userData) {
           switch (userData.connectionState) {
             case ConnectionState.none:
@@ -39,9 +38,7 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(
-                    gradient:
-                        LinearGradient(colors: [Colors.red, Colors.redAccent])),
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.red, Colors.redAccent])),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -62,18 +59,15 @@ class _HomePageState extends State<HomePage> {
               );
             default:
               return Scaffold(
-                appBar: _getAppBar(userData.data != null
-                    ? "Olá, ${userData.data.nome.split(" ")[0]}"
-                    : "UFSCar App"),
-                drawer: _getDrawer(),
+                appBar: _getAppBar(userData.data != null ? "Olá, ${userData.data.nome.split(" ")[0]}" : "UFSCar App"),
                 body: IndexedStack(
                   index: _currentIndex,
                   children: <Widget>[
                     PaginaRu(),
-                    PaginaAgenda(
-                        userData.data != null ? userData.data.mat : null),
                     PaginaNoticias(),
+                    PaginaAgenda(userData.data != null ? userData.data.mat : null),
                     RadioPage(),
+                    SettingsPage(userData.data != null ? true : false)
                   ],
                 ),
                 bottomNavigationBar: _getBottomNavigationBar(),
@@ -108,10 +102,6 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Text(title),
             ),
-            /* Image.asset(
-              "_assets/ufscar.png",
-              height: MediaQuery.of(context).size.height * 0.06,
-            )*/
           ],
         ),
       );
@@ -129,8 +119,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               onLongPress: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MyGame().widget));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MyGame().widget));
                 setState(() {});
               },
             ),
@@ -152,8 +141,7 @@ class _HomePageState extends State<HomePage> {
             Divider(),
             ListTile(
               title: Text("Sobre este app"),
-              onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AboutPage()))
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage()))
                   .then((value) => Navigator.pop(context)),
             ),
           ],
@@ -169,14 +157,11 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         onTap: (int index) => setState(() => _currentIndex = index),
         items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.fastfood), title: Text("Cardápio RU")),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today), title: Text("Agenda")),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.assignment), title: Text("Notícias")),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.radio), title: Text("Rádio")),
+          BottomNavigationBarItem(icon: Icon(Icons.fastfood), title: Text("Cardápio RU")),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment), title: Text("Notícias")),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), title: Text("Agenda")),
+          BottomNavigationBarItem(icon: Icon(Icons.radio), title: Text("Rádio")),
+          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), title: Text("Configurações")),
         ],
       );
 }

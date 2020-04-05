@@ -19,6 +19,7 @@ void main() async {
   Hive.openBox("news");
   Hive.openBox("meals");
   Hive.openBox("user");
+  Hive.openBox('preferences');
 
   runApp(UfscarApp());
 }
