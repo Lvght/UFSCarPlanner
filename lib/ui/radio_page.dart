@@ -16,15 +16,15 @@ class _RadioPageState extends State<RadioPage> {
 
   // More radios can be added here
   final List<Map<String, String>> radios = [
-    // FIXME Não funciona {'radio': 'Rádio UFSCar', 'url': 'https://www.radio.ufscar.br:8443/radioufscar96.mp3'},
+    {'radio': 'Rádio UFSCar', 'url': 'https://www.radio.ufscar.br:8443/radioufscar96.mp3'},
     {'radio': 'Clássica', 'url': 'https://uk3.internet-radio.com/proxy/saglioc?mp=/stream;'},
     {'radio': 'EDM', 'url': 'https://uk6.internet-radio.com/proxy/realdanceradio?mp=/live'},
     {'radio': 'Jazz', 'url': 'https://us4.internet-radio.com/proxy/wsjf?mp=/stream;'},
-    {'radio': 'Lo-fi 1', 'url': 'https://stream.laut.fm/lofi?ref=radiode'},
-    {'radio': 'Lo-fi 2', 'url': 'https://streaming.liveonline.radio/lofi-hiphop-radio'},
+    {'radio': 'Lo-fi', 'url': 'https://stream.laut.fm/lofi?ref=radiode'},
+    // Não está funcionando {'radio': 'Lo-fi 2', 'url': 'https://streaming.liveonline.radio/lofi-hiphop-radio'},
   ];
 
-  int _currentRadioIndex = 3;
+  int _currentRadioIndex = 4;
   bool isPlaying = false;
   bool awaiting = false;
 
