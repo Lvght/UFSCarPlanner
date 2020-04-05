@@ -4,9 +4,13 @@ import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:ufscarplanner/ui/pagina_agenda.dart';
 import 'package:ufscarplanner/ui/pagina_ru.dart';
 import 'package:ufscarplanner/ui/pagina_noticias.dart';
+import 'package:ufscarplanner/ui/radio_page.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/ui/settings_page.dart';
 import 'about_page.dart';
 import 'package:async/async.dart';
+import 'package:ufscarplanner/ui/pagina_game.dart';
+import 'package:ufscarplanner/models/user.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,13 +18,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 1;
+  int _currentIndex = 2;
   User _currentUser;
   UserHelper _userHelper = UserHelper();
   AsyncMemoizer _memoizer = AsyncMemoizer();
 
   // A lista abaixo guarda os Widgets que serão usados como páginas
-  List<Widget> _pages = [PaginaRu(), PaginaNoticias()];
+  List<Widget> _pages = [PaginaRu(), PaginaNoticias(), RadioPage()];
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +38,15 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.red, Colors.redAccent])),
+                decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).primaryColor, Theme.of(context).accentColor])),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Image.asset(
+                      /*Image.asset(
                         "_assets/ufscar.png",
                         height: 100,
-                      ),
+                      ),*/
                       SizedBox(
                         height: 20,
                       ),
@@ -56,13 +60,14 @@ class _HomePageState extends State<HomePage> {
             default:
               return Scaffold(
                 appBar: _getAppBar(userData.data != null ? "Olá, ${userData.data.nome.split(" ")[0]}" : "UFSCar App"),
-                drawer: _getDrawer(),
                 body: IndexedStack(
                   index: _currentIndex,
                   children: <Widget>[
                     PaginaRu(),
+                    PaginaNoticias(),
                     PaginaAgenda(userData.data != null ? userData.data.mat : null),
-                    PaginaNoticias()
+                    RadioPage(),
+                    SettingsPage(userData.data != null ? true : false)
                   ],
                 ),
                 bottomNavigationBar: _getBottomNavigationBar(),
@@ -72,35 +77,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   GradientAppBar _getAppBar(String title) => GradientAppBar(
-//        actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.bug_report),
-//            onPressed: () async {
-//              print("Botão pressionado :)");
-//            },
-//          ),
-//          IconButton(
-//            icon: Icon(Icons.delete),
-//            onPressed: () {
-//              _userHelper.deleteFile();
-//
-//              setState(() {
-//                _currentUser = null;
-//              });
-//            },
-//          )
-//        ],
-        backgroundColorStart: Colors.red,
-        backgroundColorEnd: Colors.redAccent,
+        /* MANTENHA PARA FINS DE DEPURAÇÃO! actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.bug_report),
+            onPressed: () async {
+              print("Botão pressionado :)");
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              _userHelper.deleteFile();
+
+              setState(() {
+                _currentUser = null;
+              });
+            },
+          )
+        ],*/
+        backgroundColorStart: Theme.of(context).primaryColor,
+        backgroundColorEnd: Theme.of(context).accentColor,
         title: Row(
           children: <Widget>[
             Expanded(
               child: Text(title),
             ),
-            Image.asset(
-              "_assets/ufscar.png",
-              height: MediaQuery.of(context).size.height * 0.06,
-            )
           ],
         ),
       );
@@ -110,11 +111,17 @@ class _HomePageState extends State<HomePage> {
         width: MediaQuery.of(context).size.width,
         child: ListView(
           children: <Widget>[
-            ListTile(
-              title: Text(
-                "UFSCar App",
-                textAlign: TextAlign.center,
+            GestureDetector(
+              child: ListTile(
+                title: Text(
+                  "UFSCar App",
+                  textAlign: TextAlign.center,
+                ),
               ),
+              onLongPress: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MyGame().widget));
+                setState(() {});
+              },
             ),
             ListTile(
               title: Row(
@@ -150,8 +157,10 @@ class _HomePageState extends State<HomePage> {
         onTap: (int index) => setState(() => _currentIndex = index),
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.fastfood), title: Text("Cardápio RU")),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), title: Text("Agenda")),
           BottomNavigationBarItem(icon: Icon(Icons.assignment), title: Text("Notícias")),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), title: Text("Agenda")),
+          BottomNavigationBarItem(icon: Icon(Icons.radio), title: Text("Rádio")),
+          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), title: Text("Configurações")),
         ],
       );
 }

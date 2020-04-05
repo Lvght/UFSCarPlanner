@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:ufscarplanner/helpers/MateriaHelper.dart';
-import 'dart:io' as io;
-import 'package:path_provider/path_provider.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/ui/materia_editor.dart';
+import 'package:ufscarplanner/models/materia.dart';
 import 'dart:convert';
 
 import 'package:ufscarplanner/components/button.dart';
 import 'package:ufscarplanner/ui/login_page.dart';
-
+import 'package:ufscarplanner/models/user.dart';
 import 'home_page.dart';
+import 'package:hive/hive.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 
 class PaginaAgenda extends StatefulWidget {
   PaginaAgenda(this._materias);
@@ -32,14 +33,26 @@ class PaginaAgenda extends StatefulWidget {
 class _PaginaAgendaState extends State<PaginaAgenda> {
   UserHelper _userHelper = UserHelper();
   User _currentUser;
-  TabController _tabController;
+
+  Future<void> saveData() async {
+    _userHelper.readUser().then((value) async {
+      _currentUser = value;
+      _currentUser.mat = widget._materias;
+      _currentUser.updateSubjectMap();
+
+      await _userHelper.saveUser(_currentUser).then((value) {
+        String auxSubjectParser = value.materias.toString();
+        _currentUser.mat = _userHelper.subjectParser(auxSubjectParser);
+      });
+    });
+  }
 
   @override
   void initState() {
+    super.initState();
     if (widget._materias == null) {
       _userHelper.readUser().then((value) {
         _currentUser = value;
-
         if (_currentUser != null) widget._materias = _currentUser.mat;
         setState(() {});
       });
@@ -71,11 +84,22 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
                     SizedBox(
                       height: 15,
                     ),
-                    Button(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())).then((value) {
-                          if (value != null)
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+                    RaisedButton(
+                      color: Theme.of(context).accentColor,
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        if (await FlutterRadio.isPlaying()) await FlutterRadio.stop();
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()))
+                            .then((value) async {
+                          if (value != null) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()));
+                          }
                         });
                       },
                       child: Text("Entrar no SIGA"),
@@ -88,7 +112,8 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
     );
   }
 
-  TextStyle _titleTextStyle() => TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+  TextStyle _titleTextStyle() =>
+      TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   List<String> _diasDaSemana = [
     "Seg",
     "Ter",
@@ -110,8 +135,10 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
     // Coloca apenas a primeira letra como maiúscula e copia o resto
     for (int i = 0; i < splittedString.length; i++)
       output += splittedString[i].length > 3
-        ? splittedString[i].substring(0, 1).toUpperCase() + splittedString[i].substring(1) + " "
-        : splittedString[i] + " ";
+          ? splittedString[i].substring(0, 1).toUpperCase() +
+              splittedString[i].substring(1) +
+              " "
+          : splittedString[i] + " ";
 
     // Remove o espaço desnecessário do final
     output = output.substring(0, output.length - 1);
@@ -154,83 +181,154 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
       );
 
   Container _getCard(Materia materia) => Container(
-        width: MediaQuery.of(context).size.width * 0.95,
+      width: MediaQuery.of(context).size.width * 0.95,
+      child: new GestureDetector(
+        onLongPress: () {
+          // configura o button
+          Widget okButton = FlatButton(
+            child: Text("Remover"),
+            onPressed: () async {
+              print(materia.toString());
+              widget._materias[_diasDaSemana.indexOf(materia.dia.trim())]
+                  .remove(materia);
+              await saveData().then((onValue) {
+                setState(() => null);
+                Navigator.pop(context);
+              });
+            },
+          );
+          Widget cancelButton = FlatButton(
+            child: Text("Cancelar"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+
+          Widget editButton = FlatButton(
+            child: Text("Editar"),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MateriaEditor(materia: materia)));
+            },
+          );
+
+          // configura o  AlertDialog
+          AlertDialog alerta = AlertDialog(
+            actions: [
+              okButton,
+              cancelButton,
+              editButton,
+            ],
+          );
+
+          // exibe o dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alerta;
+            },
+          );
+        },
         child: Card(
+          // Change the color of the container beneath
           margin: EdgeInsets.only(top: 15),
           child: Padding(
-            padding: EdgeInsets.all(12),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.only(bottom: 10),
-                  margin: EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFF000000)))),
-                  child: Text(
-                    this._stringDecapitalizer(materia.nome),
-                    style: _titleTextStyle(),
-                    textAlign: TextAlign.center,
+              padding: EdgeInsets.all(12),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.only(bottom: 10),
+                    margin: EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(color: Theme.of(context).dividerColor))),
+                    child: Text(
+                      this._stringDecapitalizer(materia.nome),
+                      style: _titleTextStyle(),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                Text(
-                  materia.ministrantes.trim().isEmpty ? "(ministrante não informado)" : materia.ministrantes.trim(),
-                  style: TextStyle(
-                    fontSize: 17,
-                    color: Color(0xAA000000),
+                  Text(
+                    materia.ministrantes.trim().replaceAll("\\n", "\n").isEmpty
+                        ? "(ministrante não informado)"
+                        : materia.ministrantes.replaceAll("\\n", "\n").trim(),
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Theme.of(context).textTheme.caption.color,
+                    ),
                   ),
-                ),
 
-                SizedBox(
-                  height: 20,
-                ),
+                  SizedBox(
+                    height: 20,
+                  ),
 
-                // Horários
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          boxShadow: [BoxShadow(color: Color(0x22000000), blurRadius: 1, offset: Offset(0, 1))],
-                          gradient: LinearGradient(
-                              colors: [Color.fromRGBO(150, 255, 150, 1), Color.fromRGBO(175, 255, 175, 1)]),
-                          borderRadius: BorderRadius.circular(2)),
-                      child: Text(
-                        materia.horaI.length < 5 ? "0" + materia.horaI : materia.horaI,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  // Horários
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 1,
+                                  offset: Offset(0, 1))
+                            ],
+                            gradient: LinearGradient(colors: [
+                              Color.fromRGBO(150, 255, 150, 1),
+                              Color.fromRGBO(175, 255, 175, 1)
+                            ]),
+                            borderRadius: BorderRadius.circular(2)),
+                        child: Text(
+                          materia.horaI.length < 5
+                              ? "0" + materia.horaI
+                              : materia.horaI,
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 13,
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          boxShadow: [BoxShadow(color: Color(0x22000000), blurRadius: 1, offset: Offset(0, 1))],
-                          gradient: LinearGradient(
-                              colors: [Color.fromRGBO(255, 150, 150, 1), Color.fromRGBO(255, 175, 175, 1)]),
-                          borderRadius: BorderRadius.circular(2)),
-                      child: Text(
-                        materia.horaF.length < 5 ? "0" + materia.horaF : materia.horaF,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      SizedBox(
+                        width: 13,
                       ),
-                    ),
-                  ],
-                ),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 1,
+                                  offset: Offset(0, 1))
+                            ],
+                            gradient: LinearGradient(colors: [
+                              Color.fromRGBO(255, 150, 150, 1),
+                              Color.fromRGBO(255, 175, 175, 1)
+                            ]),
+                            borderRadius: BorderRadius.circular(2)),
+                        child: Text(
+                          materia.horaF.length < 5
+                              ? "0" + materia.horaF
+                              : materia.horaF,
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
 
-                SizedBox(
-                  height: 30,
-                ),
+                  SizedBox(
+                    height: 30,
+                  ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[Icon(Icons.place), Text(materia.local)],
-                ),
-              ],
-            ),
-          ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[Icon(Icons.place), Text(materia.local)],
+                  ),
+                ],
+              )),
         ),
-      );
+      ));
 
   List<Widget> _getPages() {
     method();
@@ -253,9 +351,10 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
             children: cardsDasMaterias[i],
           ),
         ));
-      }
-      else {
-        paginas.add(Center(child: _getFreeDayIndicator(),));
+      } else {
+        paginas.add(Center(
+          child: _getFreeDayIndicator(),
+        ));
       }
     }
 
@@ -266,62 +365,31 @@ class _PaginaAgendaState extends State<PaginaAgenda> {
    * Fornece as tabs para a página de agenda
    */
   DefaultTabController getTabs() => DefaultTabController(
-    initialIndex: DateTime.now().weekday - 1,
-      length: 7,
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(30.0), // here the desired height
-          child: AppBar(
-            bottom: TabBar(
-              tabs: _getWeekLabels(),
-              indicatorColor: Colors.white,
-              indicatorWeight: 5,
+        initialIndex: DateTime.now().weekday - 1,
+        length: 7,
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(30.0), // here the desired height
+            child: AppBar(
+              bottom: TabBar(
+                tabs: _getWeekLabels(),
+                indicatorColor: Colors.white,
+                indicatorWeight: 5,
+              ),
             ),
           ),
+          body: TabBarView(children: _getPages()),
+          // Todo reimplementar o FloatingActionButton
         ),
-        body: TabBarView(
-          children: _getPages(),
-        ),
-      ),
-    );
-
-  String userDataFilename = "Materiadata.json";
-
-  Future<String> get _filePath async {
-    var directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<io.File> get _file async => io.File(await _filePath + "/" + userDataFilename);
-
-  Future<io.File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
+      );
 
   void method() async {
-    String path = _file.toString();
-    if (await io.File(path).exists()) {
-      readRawData().then((data) {
-        Iterable l = json.decode(data);
-        Map<String, dynamic> a = new Map<String, dynamic>();
-        List<listlist> c = l.map((a) => listlist.fromJson(a)).toList();
-        widget._materias = new List<List<Materia>>();
-        for (int i = 0; i < c.length; i++) widget._materias.add(c[i].list);
-        print(widget._materias.toString());
-      });
-    } else {
-      print("\n\n\n\n\n\n\n não existe");
+    final userBox = Hive.box("user");
+    if (userBox.length != 0) {
+      List<List<Materia>> c = userBox.getAt(0).mat;
+      widget._materias = new List<List<Materia>>();
+      for (int i = 0; i < c.length; i++) widget._materias.add(c[i]);
+      print(widget._materias.toString());
     }
   }
 }

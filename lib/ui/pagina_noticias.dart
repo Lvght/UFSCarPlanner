@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart'; //
 import 'package:http/http.dart' as http;
 import 'package:ufscarplanner/ui/news_page.dart';
 import 'package:async/async.dart';
 import 'package:connectivity/connectivity.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'dart:convert';
+import 'package:hive/hive.dart';
 
 class PaginaNoticias extends StatefulWidget {
   @override
@@ -24,78 +21,50 @@ class AuxMap {
     };
   }
   Map<String, String> map;
-  factory AuxMap.fromJson(Map<String, dynamic> json) {
-    return new AuxMap(json["Data"], json["Link"], json["Titulo"], json["Autor"],
-        json["Texto"]);
-  }
-
-  Map toJson() => {
-        "Data": map["Data"],
-        "Link": map["Link"],
-        "Titulo": map["Titulo"],
-        "Autor": map["Autor"],
-        "Texto": map["Texto"]
-      };
 }
 
 class _PaginaNoticiaState extends State<PaginaNoticias> {
   final AsyncMemoizer _memoizer = AsyncMemoizer();
-  String userDataFilename = "Newsdata.json";
 
-  Future<String> get _filePath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<File> get _file async =>
-      File(await _filePath + "/" + userDataFilename);
-
-  Future<List<Map<String, String>>> intermediate(String url) async {
-    var future;
-    final connectivityResult = await (Connectivity().checkConnectivity());
+  Future<List<Map<String, String>>> getNews(String url) async {
+    final newsBox = Hive.box("news");
+    var listOfNews;
+    var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile ||
         connectivityResult == ConnectivityResult.wifi) {
+//      print("\n\n\n\nTEM NET GENTE\n\n\n\n\n");
       await getLinks(url).then((valor) async {
-        await writeRawData(json.encode(valor));
-        await readRawData().then((data) {
-          Iterable l = json.decode(data);
-          setState(() {
-            List<AuxMap> aux = l.map((a) => AuxMap.fromJson(a)).toList();
-            future = new List<Map<String, String>>();
-            for (int i = 0; i < aux.length; i++) {
-              future.add(aux[i].map);
-            }
-          });
-        });
+        for (int i = 0; i < valor.length; i++) {
+          newsBox.put(i, valor[i]);
+        }
+
+        print("\n\n\n\n");
+
+        listOfNews = new List<Map<String, String>>();
+        print(newsBox.length.toString() + "  " + valor.length.toString());
+        for (int i = 0; i < newsBox.length; i++) {
+          Map<String, String> auxNews = Map.from(newsBox.get(i));
+          listOfNews.add(auxNews);
+        }
+//            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Hello\n"+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n${ listOfNews.toString()} ");
       });
     } else {
-      await readRawData().then((data) {
-        Iterable l = json.decode(data);
-        setState(() {
-          List<AuxMap> aux = l.map((a) => AuxMap.fromJson(a)).toList();
-          future = new List<Map<String, String>>();
-          for (int i = 0; i < aux.length; i++) {
-            future.add(aux[i].map);
-          }
-        });
-      });
-    }
-    return await future;
-  }
+      print("\n\n\n\n N TEM NET GENTE\n\n\n\n\n");
 
-  Future<File> writeRawData(String rawData) async {
-    final file = await _file;
-    return await file.writeAsString(rawData);
-  }
-
-  Future<String> readRawData() async {
-    try {
-      final file = await _file;
-      return await file.readAsString();
-    } catch (e) {
-      print(e);
-      return null;
+      if (newsBox.length != 0) {
+        listOfNews = new List<Map<String, String>>();
+        for (int i = 0; i < newsBox.length; i++) {
+          Map<String, String> auxNews = Map.from(newsBox.get(i));
+          listOfNews.add(auxNews);
+          print(listOfNews[i].toString());
+        }
+      } else {
+        listOfNews = new List<Map<String, String>>();
+        listOfNews.add(new Map<String, String>());
+      }
     }
+    setState(() {});
+    return await listOfNews;
   }
 
   Future<List<Map<String, String>>> getLinks(String url) async {
@@ -117,7 +86,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         .replaceAll("</" + "a>", "")
         .split("TR");
     Map<String, String> B = {"Data": "", "Link": "", "Titulo": ""};
-    Map<String, String> E, C = B;
+    Map<String, String> E;
     List<String> A = ["Data", "Link", "Titulo"];
     List<Map<String, String>> D = new List<Map<String, String>>();
 
@@ -127,7 +96,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
         B[A[0]] = S[i].split("TD")[1];
         B[A[1]] = S[i].split("TD")[2].split('"')[1];
         B[A[2]] = S[i].split("TD")[2].split('"')[2].replaceAll(">", "");
-        E = await LoadNews(B["Link"]);
+        E = await loadNews(B["Link"]);
         B.addAll(E);
         var F = B;
         do {
@@ -146,7 +115,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
     return D;
   }
 
-  Future<Map<String, String>> LoadNews(String url) async {
+  Future<Map<String, String>> loadNews(String url) async {
     http.Response response = await http.get(url);
 
     Map<String, String> E = {"Autor": "", "Texto": ""};
@@ -174,26 +143,27 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
 
   TextStyle _titleStyle() => TextStyle(fontSize: 17);
 
-  TextStyle _subtitleStyle() => TextStyle(fontSize: 13, color: Colors.black26);
+  TextStyle _subtitleStyle() => TextStyle(fontSize: 13, color: Theme.of(context).textTheme.caption.color);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // margin: EdgeInsets.only(top: 15),
+      margin: EdgeInsets.only(top: 15),
       child: FutureBuilder(
           future: this
               ._memoizer
-              .runOnce(() => intermediate('https://www2.ufscar.br/noticias')),
+              .runOnce(() => getNews('https://www2.ufscar.br/noticias')),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
               case ConnectionState.waiting:
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
                 );
               default:
                 return ListView.builder(
-                  padding: EdgeInsets.only(top: 15),
                   itemBuilder: (BuildContext context, int index) {
                     return FlatButton(
                       onPressed: () => Navigator.push(
@@ -204,32 +174,28 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                                     snapshot.data[index]["Autor"],
                                     snapshot.data[index]["Data"],
                                     snapshot.data[index]["Texto"],
-                                    snapshot.data[index]["Link"]
+                                    Theme.of(context)
                                   ))),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(10, 0, 10, 15),
                         padding: EdgeInsets.only(bottom: 15),
-                        decoration: index == snapshot.data.length - 1
-                            ? BoxDecoration()
-                            : BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Colors.black26),
-                                ),
-                              ),
+                        decoration: BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(color: Theme.of(context).dividerColor))),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              snapshot.data[index]["Titulo"],
+                              snapshot.data[index]["Titulo"].trim(),
                               style: _titleStyle(),
                             ),
                             SizedBox(
                               height: 5,
                             ),
                             Text(
-                              snapshot.data[index]["Data"] +
+                              snapshot.data[index]["Data"].trim() +
                                   " | " +
-                                  snapshot.data[index]["Autor"],
+                                  snapshot.data[index]["Autor"].trim(),
                               style: _subtitleStyle(),
                             )
                           ],
@@ -237,7 +203,8 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                       ),
                     );
                   },
-                  itemCount: snapshot.data == null ? 0 : snapshot.data.length,
+                  itemCount:
+                      snapshot.data == null ? 0 : snapshot.data.length - 1,
                 );
             }
           }),

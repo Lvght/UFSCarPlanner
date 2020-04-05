@@ -3,16 +3,16 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import 'package:share/share.dart';
 
 class NewsPage extends StatelessWidget {
-  NewsPage(titulo, autor, data, corpo, link) {
+  NewsPage(titulo, autor, data, corpo, link, theme) {
     this.titulo = titulo;
     this.autor = autor;
     this.data = data;
     this.corpo = corpo;
     this.link = link;
+    this._theme = theme;
     teste = copo(corpo);
   }
 
@@ -20,6 +20,7 @@ class NewsPage extends StatelessWidget {
   String autor;
   String data;
   String corpo;
+  ThemeData _theme;
   String link;
   RichText teste;
 
@@ -28,8 +29,9 @@ class NewsPage extends StatelessWidget {
     var x = src.trim().split("<sploint>");
     List<String> tags = new List<String>();
     Map<String, String> links = new Map<String, String>();
+
     for (int i = 0; i < x.length; i++) {
-      TextStyle a;
+      TextStyle textStyle;
       String text = "";
       if (x[i].contains("<em>")) {
         tags.add("em");
@@ -57,24 +59,23 @@ class NewsPage extends StatelessWidget {
       } else {
         text = x[i];
       }
-      a = TextStyle(
+      textStyle = TextStyle(
         fontSize: 18,
         height: 1.5,
         fontWeight: tags.contains("em") || tags.contains("strong") ? FontWeight.bold : FontWeight.normal,
         fontStyle: tags.contains("i") ? FontStyle.italic : FontStyle.normal,
-        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : Colors.black,
+        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : _theme.textTheme.bodyText1.color,
       );
 
       TextSpan t = new TextSpan(
           text: text,
-          style: a,
+          style: textStyle,
           recognizer: tags.contains("a")
               ? (new TapGestureRecognizer()
                 ..onTap = () async {
                   String url = links[text];
                   if (await canLaunch(url)) {
                     await launch(url);
-                  } else {
                   }
                 })
               : null);
@@ -89,7 +90,7 @@ class NewsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          data + " | " + autor,
+          data.trim() + " | " + autor.trim(),
           style: TextStyle(fontSize: 15),
         ),
         actions: <Widget>[
@@ -105,7 +106,7 @@ class NewsPage extends StatelessWidget {
 
           children: <Widget>[
             Text(
-              titulo,
+              titulo.trim(),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
@@ -113,12 +114,12 @@ class NewsPage extends StatelessWidget {
               height: 10,
             ),
             Text(
-              data + " | " + autor,
-              style: TextStyle(color: Colors.black26, fontSize: 15),
+              data.trim() + " | " + autor.trim(),
+              style: TextStyle(color: _theme.textTheme.caption.color, fontSize: 15),
             ),
             Container(
               height: 1,
-              color: Colors.black26,
+              color: _theme.dividerColor,
               margin: EdgeInsets.only(top: 10, bottom: 15),
             ),
             Container(

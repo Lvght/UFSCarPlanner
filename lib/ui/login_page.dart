@@ -1,9 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widgets;
+import 'package:http/http.dart';
+import 'package:ufscarplanner/helpers/constants.dart';
+import 'package:ufscarplanner/models/materia.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
+import 'package:ufscarplanner/models/user.dart';
+import 'home_page.dart';
 import 'package:ufscarplanner/components/button.dart';
 
 /*
@@ -125,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
 //        isDone = true;
         await tryToClick("aluno-matriculas-form:matriculas-table:0:matricula")
             .then((value) {
-          print("Inside async! A");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
@@ -141,7 +144,6 @@ class _LoginPageState extends State<LoginPage> {
 //        isDone = true;
         await tryToClick("acoes-matriculas-form:solicitacao-inscricao-link")
             .then((value) {
-          print("Inside async! B");
           isDone = value;
           Timer(Duration(seconds: 1), () => null);
         });
@@ -171,7 +173,6 @@ class _LoginPageState extends State<LoginPage> {
         await tryToClick(
                 "inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113")
             .then((value) {
-          print("Inside async! C");
           isDone = value;
           Timer(Duration(milliseconds: 50), () => null);
         });
@@ -210,9 +211,6 @@ class _LoginPageState extends State<LoginPage> {
       print("Escrevendo...\n");
       await userHelper.saveUser(user);
 
-      auxSubjectParser =
-          json.encode(user.materias.toString()).replaceAll("\\n", "");
-      user.mat = userHelper.subjectParser(auxSubjectParser);
       print("Os dados foram escritos\n");
 
       // Retorna o app à tela inicial
@@ -243,12 +241,10 @@ class _LoginPageState extends State<LoginPage> {
           .split("IRA")[1]
           .split(">")[2]
           .split(contrabarra + "u003C" + "/span")[0];
-      debugPrint("VALOR DO IRA = ${user.ira}");
 
       user.nome = rawData
           .split("${this._loginTextController.text} - ")[1]
           .split(contrabarra + "u003C" + "/span>")[0];
-      debugPrint("Valor do nome = ${user.nome}");
 
       this._webViewController.evaluateJavascript(
           "document.getElementById('inscricao-resultados-form:periodo-regular-andamento-table:0:j_idt113').click();");
@@ -296,6 +292,8 @@ class _LoginPageState extends State<LoginPage> {
         return 0.8;
       case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
         return 0.9;
+      default:
+        return 0.0;
     }
   }
 
@@ -316,9 +314,9 @@ class _LoginPageState extends State<LoginPage> {
       case WebViewState.REQ_ACOESMATRICULAS:
         return "Acessando o SIGA... [3/6]";
       case WebViewState.REQ_INSCRICOESRESULTADOS:
-        return "Acessando o SIGA [4/6]";
+        return "Acessando o SIGA... [4/6]";
       case WebViewState.REQ_RESUMOINSCRICOESRESULTADOS:
-        return "Acessando o SIGA [5/6]";
+        return "Acessando o SIGA... [5/6]";
       case WebViewState.UNDEFINED_LOCATION:
         return "Ocorreu um erro.";
     }
@@ -326,7 +324,6 @@ class _LoginPageState extends State<LoginPage> {
 
   InputDecoration _getInputDecoration(String labelText) => InputDecoration(
         hintText: labelText,
-      
       );
 
   User _coleta(String s) {
@@ -360,7 +357,7 @@ class _LoginPageState extends State<LoginPage> {
         .split("</" + "body>")[0]
         .split('id=' +
             contrabarra +
-            '"inscricao-resultados-form:atividades-inscritas-table:${io}:j_idt171')[0]
+            '"inscricao-resultados-form:atividades-inscritas-table:$io:j_idt171')[0]
         .replaceAll(contrabarra + 'u003C', "<")
         .replaceAll("<td", "<>TD<")
         .replaceAll("<tr", "<>TR<")
@@ -439,16 +436,17 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: widgets.Text("Login"),
+          title: Text("Entrar no SIGA"),
         ),
-        body: Container(
+        body: SingleChildScrollView(
+          padding: EdgeInsets.only(top: 25),
           child: Center(
             child: Form(
               key: _key,
               child: Container(
-                child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Text(
                       _getDisplayText(),
@@ -458,7 +456,7 @@ class _LoginPageState extends State<LoginPage> {
                     LinearProgressIndicator(
                       value: _getProgress(),
                       backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation(Colors.red),
+                      valueColor: AlwaysStoppedAnimation(Theme.of(context).accentColor),
                     ),
                     SizedBox(
                       height: 30,
@@ -467,7 +465,6 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (str) =>
                           str.isEmpty ? "Insira o seu RA ou CPF." : null,
                       decoration: _getInputDecoration('Login (CPF ou RA)'),
-                      cursorColor: Colors.red,
                       controller: _loginTextController,
                       keyboardType: TextInputType.number,
                       enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
@@ -478,41 +475,40 @@ class _LoginPageState extends State<LoginPage> {
                           str.isEmpty ? "Insira a sua senha." : null,
                       decoration: _getInputDecoration('Senha'),
                       obscureText: true,
-                      cursorColor: Colors.red,
                       controller: _passwordTextController,
                       enabled: widget._state == WebViewState.ISAT_LOGINPAGE ||
                           widget._state == WebViewState.LOGIN_FAILED,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Button(
-                        child: Text("Fazer login"),
-                        onPressed:
-                            (widget._state == WebViewState.ISAT_LOGINPAGE ||
-                                    widget._state == WebViewState.LOGIN_FAILED)
-                                ? () {
-                                    if (_key.currentState.validate()) {
-                                      print("Botão pressionado");
-                                      FocusScope.of(context)
-                                          .requestFocus(FocusNode());
+                    SizedBox(height: 30,),
+                    RaisedButton(
+                      color: Theme.of(context).accentColor,
+                      textColor: Colors.white,
+                      child: Text("Fazer login"),
+                      onPressed:
+                          (widget._state == WebViewState.ISAT_LOGINPAGE ||
+                                  widget._state == WebViewState.LOGIN_FAILED)
+                              ? () {
+                                  if (_key.currentState.validate()) {
+                                    print("Botão pressionado");
+                                    FocusScope.of(context)
+                                        .requestFocus(FocusNode());
 
-                                      this.user.ra = _loginTextController.text;
+                                    this.user.ra = _loginTextController.text;
 
-                                      // Ativa o WebView
-                                      this._webViewController.evaluateJavascript(
-                                          "document.getElementById('login:usuario').value = '" +
-                                              _loginTextController.text +
-                                              "';");
-                                      this._webViewController.evaluateJavascript(
-                                          "document.getElementById('login:password').value = '" +
-                                              _passwordTextController.text +
-                                              "';");
-                                      this._webViewController.evaluateJavascript(
-                                          "document.getElementById('login:loginButton').click();");
-                                    }
+                                    // Ativa o WebView
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:usuario').value = '" +
+                                            _loginTextController.text +
+                                            "';");
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:password').value = '" +
+                                            _passwordTextController.text +
+                                            "';");
+                                    this._webViewController.evaluateJavascript(
+                                        "document.getElementById('login:loginButton').click();");
                                   }
-                                : null,
-                      ),
+                                }
+                              : null,
                     ),
 //                  Text(
 //                    widget._routeStr,

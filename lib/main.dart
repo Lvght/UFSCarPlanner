@@ -1,32 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:ufscarplanner/helpers/themes.dart';
 import 'package:ufscarplanner/ui/home_page.dart';
-import 'package:ufscarplanner/helpers/DataScrapper.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:hive/hive.dart';
+import 'package:ufscarplanner/models/user.dart';
+import 'package:ufscarplanner/models/materia.dart';
+import 'package:ufscarplanner/models/meal.dart';
+import 'package:ufscarplanner/ui/pagina_game.dart';
 
 void main() async {
-/*
-  DataScrapper d = DataScrapper("https://www2.ufscar.br/restaurantes-universitario/cardapio");
-  await d.initiate();
-  String pag="";
-  for (int i=0;i<d.meals.length;i++){
-    pag+=d.meals[i].toString()+"\n\n\n";
+  MyGame().widget;
+  WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDirectory = await path_provider.getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  Hive.registerAdapter(MealAdapter());
+  Hive.registerAdapter(MateriaAdapter());
+  Hive.registerAdapter(UserAdapter());
+  await Hive.openBox("news");
+  await Hive.openBox("meals");
+  await Hive.openBox("user");
+  await Hive.openBox('preferences');
+
+  runApp(UfscarApp());
+}
+
+class UfscarApp extends StatefulWidget {
+  @override
+  _UfscarAppState createState() => _UfscarAppState();
+}
+
+class _UfscarAppState extends State<UfscarApp> {
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: Hive.box('preferences').listenable(),
+      builder: (context, box, widget) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: Hive.box('preferences').get('darkMode', defaultValue: false) as bool
+              ? buildDarkTheme()
+              : buildLightTheme(),
+          home: HomePage(),
+        );
+      },
+    );
   }
-  print(pag);
-*/
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      primarySwatch: Colors.red,
-      // primaryColor: Colors.red,
-      // iconTheme: IconThemeData(
-      //   color: Colors.red,
-      // ),
-      bottomAppBarTheme: BottomAppBarTheme(
-        color: Colors.pink,
-      ),
-      bottomAppBarColor: Colors.greenAccent
-    ),
-    home: HomePage(),
-  ));
-
-
 }
