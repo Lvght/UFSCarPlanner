@@ -151,7 +151,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
 
   TextStyle _titleStyle() => TextStyle(fontSize: 17);
 
-  TextStyle _subtitleStyle() => TextStyle(fontSize: 13, color: Colors.black26);
+  TextStyle _subtitleStyle() => TextStyle(fontSize: 13, color: Theme.of(context).textTheme.caption.color);
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +182,7 @@ class _PaginaNoticiaState extends State<PaginaNoticias> {
                                     snapshot.data[index]["Autor"],
                                     snapshot.data[index]["Data"],
                                     snapshot.data[index]["Texto"],
+                                    Theme.of(context)
                                   ))),
                       child: Container(
                         margin: EdgeInsets.fromLTRB(10, 0, 10, 15),

@@ -28,7 +28,7 @@ class Background extends StatelessWidget {
       ),
       size: Size(double.infinity, double.infinity),
       waveAmplitude: 25,
-      backgroundColor: Colors.blue[50],
+      backgroundColor: Colors.transparent,
     );
   }
 }

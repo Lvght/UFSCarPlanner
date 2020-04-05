@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewsPage extends StatelessWidget {
-  NewsPage(titulo, autor, data, corpo) {
+  NewsPage(titulo, autor, data, corpo, theme) {
     this.titulo = titulo;
     this.autor = autor;
     this.data = data;
     this.corpo = corpo;
+    this._theme = theme;
     teste = copo(corpo);
   }
 
@@ -17,6 +18,7 @@ class NewsPage extends StatelessWidget {
   String autor;
   String data;
   String corpo;
+  ThemeData _theme;
   RichText teste;
 
   RichText copo(String src) {
@@ -24,8 +26,9 @@ class NewsPage extends StatelessWidget {
     var x = src.trim().split("<sploint>");
     List<String> tags = new List<String>();
     Map<String, String> links = new Map<String, String>();
+
     for (int i = 0; i < x.length; i++) {
-      TextStyle a;
+      TextStyle textStyle;
       String text = "";
       if (x[i].contains("<em>")) {
         tags.add("em");
@@ -53,17 +56,17 @@ class NewsPage extends StatelessWidget {
       } else {
         text = x[i];
       }
-      a = TextStyle(
+      textStyle = TextStyle(
         fontSize: 18,
         height: 1.5,
         fontWeight: tags.contains("em") || tags.contains("strong") ? FontWeight.bold : FontWeight.normal,
         fontStyle: tags.contains("i") ? FontStyle.italic : FontStyle.normal,
-        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : Colors.black,
+        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : _theme.textTheme.bodyText1.color,
       );
 
       TextSpan t = new TextSpan(
           text: text,
-          style: a,
+          style: textStyle,
           recognizer: tags.contains("a")
               ? (new TapGestureRecognizer()
                 ..onTap = () async {
@@ -112,7 +115,7 @@ class NewsPage extends StatelessWidget {
             ),
             Text(
               data.trim() + " | " + autor.trim(),
-              style: TextStyle(color: Colors.black26, fontSize: 15),
+              style: TextStyle(color: _theme.textTheme.caption.color, fontSize: 15),
             ),
             Container(
               height: 1,

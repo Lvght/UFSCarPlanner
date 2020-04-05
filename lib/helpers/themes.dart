@@ -11,6 +11,5 @@ ThemeData buildLightTheme() {
 
 ThemeData buildDarkTheme() {
   return ThemeData.dark().copyWith(
-
   );
 }

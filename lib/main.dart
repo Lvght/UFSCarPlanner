@@ -38,7 +38,9 @@ class _UfscarAppState extends State<UfscarApp> {
       builder: (context, box, widget) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: Hive.box('preferences').get('darkMode', defaultValue: false) as bool ? buildDarkTheme() : buildLightTheme(),
+          theme: Hive.box('preferences').get('darkMode', defaultValue: false) as bool
+              ? buildDarkTheme()
+              : buildLightTheme(),
           home: HomePage(),
         );
       },
