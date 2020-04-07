@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:ufscarplanner/helpers/UserData.dart';
 import 'package:ufscarplanner/ui/home_page.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:ufscarplanner/ui/pagina_game.dart';
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -66,7 +66,15 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             Divider(),
-            Text("Autores", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+            GestureDetector(child:  Text("Autores", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),onDoubleTap: (){
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyGame()));
+
+
+            },),
             SizedBox(height: 10,),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

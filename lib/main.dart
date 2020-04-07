@@ -10,7 +10,7 @@ import 'package:ufscarplanner/models/meal.dart';
 import 'package:ufscarplanner/ui/pagina_game.dart';
 
 void main() async {
-  MyGame().widget;
+  MyGame();
   WidgetsFlutterBinding.ensureInitialized();
   final appDocumentDirectory = await path_provider.getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);

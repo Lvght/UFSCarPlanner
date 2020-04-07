@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               onLongPress: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyGame().widget));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MyGame()));
                 setState(() {});
               },
             ),
