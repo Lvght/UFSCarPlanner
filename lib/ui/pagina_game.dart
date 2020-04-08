@@ -5,37 +5,55 @@ import 'dart:ui';
 import 'dart:core';
 import 'package:flame/components/mixins/tapable.dart';
 import 'package:flame/gestures.dart';
+import 'package:flame/position.dart';
+
+import 'package:flame/text_config.dart';
 import 'package:flame/anchor.dart';
 import 'package:flame/components/component.dart';
 import 'package:flame/components/mixins/has_game_ref.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
+
 import 'package:http/http.dart';
 
 BuildContext contexto;
 
 class Player extends PositionComponent with Tapable  {
 
-  Paint _paint = Paint()
-    ..color = const Color(0xFFFFFFFF);
-  double x, y, targetX, targetY, step, timer, cooldown = 1;
+  List<Paint> _paint = [
+    Paint()
+      ..color = const Color(0xFFFF0B10),
+    Paint()
+      ..color = const Color(0xFFFF5A00),
+    Paint()
+      ..color = const Color(0xFFFFCE00),
+    Paint()
+      ..color = const Color(0xFFD6FF00),
+    Paint()
+      ..color = const Color(0xFFA6FF00),
+    Paint()
+      ..color = const Color(0xFF06FF00),
+   ];
+  double x, y, targetX, targetY, step, timer, cooldown = 0.4;
+  int score;
   Rect player;
+  int life = 5;
   Player() {
-    player = Rect.fromLTWH(50, 50, 50, 50);
+    player = Rect.fromLTWH(0.5*MediaQuery.of(contexto).size.width, 0.5*MediaQuery.of(contexto).size.height,0.1*MediaQuery.of(contexto).size.width , 0.1*MediaQuery.of(contexto).size.width);
     x = 0;
+    score = 0;
     y = 0;
     timer = 0;
-    targetX = 0;
-    targetY = 0;
+    targetX = 0.5*MediaQuery.of(contexto).size.width;
+    targetY = 0.5*MediaQuery.of(contexto).size.height;
     step = 400.4;
   }
 
 
   @override
   void render(Canvas c) {
-    _paint.color = Color(0xFFFFFFFF-(timer*1000).floor());
-    c.drawRect(player, _paint);
+    c.drawRect(player, _paint[life]);
   }
   double getAngle(){
     return  math.atan((targetY - y)/(targetX-x));
@@ -46,12 +64,11 @@ class Player extends PositionComponent with Tapable  {
     y=player.center.dy;
     if((targetX-x).abs()>4 || (targetY-y).abs()>4)
       player = player.shift(Offset((targetX-x)/(targetX-x).abs()*math.cos(getAngle()).abs()*(step*t),(targetY-y)/(targetY-y).abs()*math.sin(getAngle()).abs()*(step*t)));
-    else{
       if(timer > cooldown ){
         timer = 0;
         new Bullet(this);
       }
-    }
+
     timer += t;
 
 
@@ -66,12 +83,12 @@ class Meteor extends PositionComponent {
   static List<Meteor> list;
   double step = 1;
   Player player;
-  Meteor(Player player,double x,double y) {
+  Meteor(Player player,double x,double y,double step) {
     if(list==null)
       list= new List<Meteor>();
     list.add(this);
-    step = math.Random().nextDouble()*2+0.7;
-    rect = new Rect.fromLTWH(x, y, math.Random().nextDouble()*50+20, math.Random().nextDouble()*50+20);
+    this.step = step;
+    rect = new Rect.fromLTWH(x, y, math.Random().nextDouble()*30+10, math.Random().nextDouble()*30+10);
     this.player = player;
   }
   @override
@@ -83,8 +100,12 @@ class Meteor extends PositionComponent {
   void update(double t) {
     rect = rect.shift(Offset(0, step));
 
-    if ((rect.center.dx - player.x).abs() < 5 && (rect.center.dy - player.y).abs() < 5)
+    if ((rect.center.dx - player.x).abs() < player.player.width && (rect.center.dy - player.y).abs() < player.player.height) {
       meteorDestroy();
+      if(player.life>0) {
+        player.life--;
+      }
+    }
     if(rect.center.dy>MediaQuery.of(contexto).size.height)
       meteorDestroy();
   }
@@ -97,8 +118,9 @@ class Meteor extends PositionComponent {
 
 class Bullet extends PositionComponent {
   Paint _paint = Paint()
-    ..color = const Color(0xFFFFFFFF);
+    ..color = const Color(0xFFFFF0000);
   Rect rect;
+  static double size =0.02*MediaQuery.of(contexto).size.width;
   static List<Bullet> list;
   double step = 10;
   Player player;
@@ -107,7 +129,7 @@ class Bullet extends PositionComponent {
       list = new List<Bullet>();
     list.add(this);
     this.player = player;
-    rect = new Rect.fromLTWH(player.player.center.dx, player.player.center.dy-10, 10, 10);
+    rect = new Rect.fromLTWH(player.player.center.dx-size/2, player.player.center.dy-size, size, size);
 
   }
   @override
@@ -122,7 +144,9 @@ class Bullet extends PositionComponent {
     for (int i = 0; i < Meteor.list.length;i++)
       if ((Meteor.list[i].rect.center.dx - rect.center.dx).abs() < Meteor.list[i].rect.size.width && (Meteor.list[i].rect.center.dy - rect.center.dy).abs() < Meteor.list[i].rect.size.height){
         Meteor.list[i].meteorDestroy();
+        player.score++;
         bulletDestroy();
+        print(player.score);
       }
     if(rect.center.dy<0)
       bulletDestroy();
@@ -145,9 +169,13 @@ class Spawner{
 
   void update(double t) {
     timer+=t;
-    if(timer>0.4){
+    if(timer>0.8){
       timer=0;
-      new Meteor(player, math.Random().nextDouble()*MediaQuery.of(contexto).size.width, y);
+      int r = math.Random().nextInt(20);
+      double posx = math.Random().nextDouble()*MediaQuery.of(contexto).size.width;
+      double vel = math.Random().nextDouble()*2+0.7;
+      for(int i=0;i<r;i++)
+        new Meteor(player, posx+i/math.sqrt(r), y+i/math.sqrt(r),vel);
     }
   }
 
@@ -161,6 +189,8 @@ class TheGame extends Game with TapDetector {
     ..color = const Color(0xFF0000FF);
   final _greenPaint = Paint()
     ..color = const Color(0xFF00FF00);
+
+  TextConfig config = TextConfig(fontSize: 23.0,color: Color(0xFFFFFFFF));
   @override
   void onTapDown(TapDownDetails details) {
     player.targetX = details.globalPosition.dx;
@@ -195,6 +225,8 @@ class TheGame extends Game with TapDetector {
     if(Meteor.list!=null)
     for(int i = 0; i < Meteor.list.length;i++)
       Meteor.list[i].render(c);
+
+    config.render(c,"Score: "+player.score.toString(),Position(20, 20));
   }
 
 }
@@ -202,7 +234,6 @@ class TheGame extends Game with TapDetector {
 class MyGame extends StatefulWidget {
   @override
   _MyGameState createState() => _MyGameState();
-
 
 }
 class _MyGameState extends State{
