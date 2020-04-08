@@ -101,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       padding: EdgeInsets.all(0),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       child: Text(
-                        "@oak_branchs",
+                        "@oak_branches",
                         textAlign: TextAlign.left,
                         style: TextStyle(fontSize: 18, color: Colors.red),
                       ),

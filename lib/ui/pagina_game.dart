@@ -6,7 +6,7 @@ import 'dart:core';
 import 'package:flame/components/mixins/tapable.dart';
 import 'package:flame/gestures.dart';
 import 'package:flame/position.dart';
-
+import 'package:flame/sprite.dart';
 import 'package:flame/text_config.dart';
 import 'package:flame/anchor.dart';
 import 'package:flame/components/component.dart';
@@ -25,6 +25,8 @@ class Player extends PositionComponent with Tapable  {
     Paint()
       ..color = const Color(0xFFFF0B10),
     Paint()
+      ..color = const Color(0xFFFF0B10),
+    Paint()
       ..color = const Color(0xFFFF5A00),
     Paint()
       ..color = const Color(0xFFFFCE00),
@@ -35,12 +37,17 @@ class Player extends PositionComponent with Tapable  {
     Paint()
       ..color = const Color(0xFF06FF00),
    ];
+  Sprite nave = Sprite('nave.png');
+
   double x, y, targetX, targetY, step, timer, cooldown = 0.4;
   int score;
-  Rect player;
-  int life = 5;
+  Rect player,lifeRect;
+  int life = 6;
   Player() {
+
+
     player = Rect.fromLTWH(0.5*MediaQuery.of(contexto).size.width, 0.5*MediaQuery.of(contexto).size.height,0.1*MediaQuery.of(contexto).size.width , 0.1*MediaQuery.of(contexto).size.width);
+    lifeRect =  Rect.fromLTWH(player.bottomLeft.dx,player.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(life) , 0.01*MediaQuery.of(contexto).size.width);
     x = 0;
     score = 0;
     y = 0;
@@ -50,10 +57,12 @@ class Player extends PositionComponent with Tapable  {
     step = 400.4;
   }
 
-
   @override
   void render(Canvas c) {
-    c.drawRect(player, _paint[life]);
+    c.drawRect(lifeRect, _paint[life]);
+
+    // in your render method
+    nave.renderRect(c, player);
   }
   double getAngle(){
     return  math.atan((targetY - y)/(targetX-x));
@@ -62,9 +71,15 @@ class Player extends PositionComponent with Tapable  {
   void update(double t) {
     x=player.center.dx;
     y=player.center.dy;
-    if((targetX-x).abs()>4 || (targetY-y).abs()>4)
-      player = player.shift(Offset((targetX-x)/(targetX-x).abs()*math.cos(getAngle()).abs()*(step*t),(targetY-y)/(targetY-y).abs()*math.sin(getAngle()).abs()*(step*t)));
-      if(timer > cooldown ){
+    if((targetX-x).abs()>4 || (targetY-y).abs()>4) {
+      Offset offset = Offset(
+          (targetX - x) / (targetX - x).abs() * math.cos(getAngle()).abs() *
+              (step * t),
+          (targetY - y) / (targetY - y).abs() * math.sin(getAngle()).abs() *
+              (step * t));
+      player = player.shift(offset);
+      lifeRect = lifeRect.shift(offset);
+    }if(timer > cooldown ){
         timer = 0;
         new Bullet(this);
       }
@@ -77,13 +92,15 @@ class Player extends PositionComponent with Tapable  {
 }
 
 class Meteor extends PositionComponent {
-  Paint _paint = Paint()
-    ..color = const Color(0xFFFFFFFF);
+  Color color = new Color.fromRGBO(200, math.Random().nextInt(20)+126, 50, 1);
+  Paint _paint ;
   Rect rect;
   static List<Meteor> list;
   double step = 1;
   Player player;
   Meteor(Player player,double x,double y,double step) {
+    _paint = Paint()
+      ..color = color;
     if(list==null)
       list= new List<Meteor>();
     list.add(this);
@@ -104,6 +121,7 @@ class Meteor extends PositionComponent {
       meteorDestroy();
       if(player.life>0) {
         player.life--;
+        player.lifeRect =  Rect.fromLTWH(player.player.bottomLeft.dx,player.player.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(player.life) , 0.01*MediaQuery.of(contexto).size.width);
       }
     }
     if(rect.center.dy>MediaQuery.of(contexto).size.height)
