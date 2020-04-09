@@ -19,6 +19,142 @@ import 'package:http/http.dart';
 
 BuildContext contexto;
 
+
+class Star extends PositionComponent {
+  Color color;
+  Paint _paint ;
+  Rect rect;
+  static List<Star> list;
+  double step = 1;
+  Star(double x,double y,double step) {
+
+    this.step = step/2;
+    color = new Color.fromRGBO(255,255,255,step*100);
+    _paint = Paint()
+      ..color = color;
+    if(list==null)
+      list= new List<Star>();
+    list.add(this);
+    double size = MediaQuery.of(contexto).size.width*0.001*(10+10);
+    rect = new Rect.fromLTWH(x, y, size ,size);
+
+  }
+  @override
+  void render(Canvas c) {
+    c.drawRect(rect, _paint);
+  }
+
+  @override
+  void update(double t) {
+    rect = rect.shift(Offset(0, step));
+
+    if(rect.center.dy>MediaQuery.of(contexto).size.height)
+      starDestroy();
+  }
+
+  void starDestroy(){
+    list.remove(this);
+    this.destroy();
+  }
+}
+
+class Enemy extends Player with Tapable{
+
+  List<Paint> _paint = [
+    Paint()
+      ..color = const Color(0xFFFF0B10),
+    Paint()
+      ..color = const Color(0xFFFF0B10),
+    Paint()
+      ..color = const Color(0xFFFF5A00),
+    Paint()
+      ..color = const Color(0xFFFFCE00),
+    Paint()
+      ..color = const Color(0xFFD6FF00),
+    Paint()
+      ..color = const Color(0xFFA6FF00),
+    Paint()
+      ..color = const Color(0xFF06FF00),
+  ];
+  Sprite nave = Sprite('enemy.png');
+  static List<Enemy> list;
+  double x, y, targetX, targetY, step,fire, timer, cooldown = 0.4;
+  int score;
+  Rect rect,lifeRect;
+  int life = 6;
+  Player jogante;
+
+  Enemy(Player player,double cooldown,double step) {
+    if(list==null)
+      list=new List<Enemy>();
+    list.add(this);
+    fire=1;
+    this.jogante = player;
+    rect = Rect.fromLTWH(0.5*MediaQuery.of(contexto).size.width, -0.5*MediaQuery.of(contexto).size.height,0.1*MediaQuery.of(contexto).size.width , 0.1*MediaQuery.of(contexto).size.width);
+    lifeRect =  Rect.fromLTWH(rect.topLeft.dx,rect.topLeft.dy-0.02*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(life) , 0.01*MediaQuery.of(contexto).size.width);
+    x = 0;
+    score = 0;
+    y = 0;
+    timer = 0;
+    targetX = 0;
+    targetY = rect.height;
+    this.cooldown = cooldown;
+    this.step = step;
+  }
+
+  @override
+  void render(Canvas c) {
+    rect.translate(90, 0);
+    c.drawRect(lifeRect, _paint[life]);
+    // in your render method
+    nave.renderRect(c, rect,overridePaint: _paint[life]);
+  }
+  double getAngle(){
+    return  math.atan((targetY - y)/(targetX-x));
+  }
+  @override
+  void update(double t) {
+    x=rect.center.dx;
+    y=rect.center.dy;
+    if((targetX-x).abs()>4 || (targetY-y).abs()>4) {
+      Offset offset = Offset(
+          (targetX - x) / (targetX - x).abs() * math.cos(getAngle()).abs() *
+              (step * t),
+          (targetY - y) / (targetY - y).abs() * math.sin(getAngle()).abs() *
+              (step * t));
+
+      if(offset.dy.isNaN )
+        offset= Offset(offset.dx,0);
+      if(offset.dx.isNaN)
+        offset= Offset(0,offset.dy);
+        rect = rect.shift(offset);
+        lifeRect = lifeRect.shift(offset);
+
+    }else{
+      targetX= jogante.player.center.dx;
+
+      targetY= 100;
+      if(timer > cooldown ){
+        timer = 0;
+        new Meteor.enemy(this.jogante, rect.center.dx, rect.bottom, fire);
+      }
+    }
+
+    timer += t;
+
+    if(life==0){
+      jogante.score+=20;
+      enemyDestroy();
+    }
+  }
+  enemyDestroy(){
+    list.remove(this);
+    this.destroy();
+  }
+
+
+}
+
 class Player extends PositionComponent with Tapable  {
 
   List<Paint> _paint = [
@@ -92,20 +228,32 @@ class Player extends PositionComponent with Tapable  {
 }
 
 class Meteor extends PositionComponent {
-  Color color = new Color.fromRGBO(200, math.Random().nextInt(20)+126, 50, 1);
+  int random = math.Random().nextInt(20);
+  Color color;
   Paint _paint ;
   Rect rect;
   static List<Meteor> list;
   double step = 1;
   Player player;
   Meteor(Player player,double x,double y,double step) {
+    color = new Color.fromRGBO(200,random.isNaN?0:random +126, 50, 1);
     _paint = Paint()
       ..color = color;
     if(list==null)
       list= new List<Meteor>();
     list.add(this);
     this.step = step;
-    rect = new Rect.fromLTWH(x, y, math.Random().nextDouble()*30+10, math.Random().nextDouble()*30+10);
+    rect = new Rect.fromLTWH(x, y, MediaQuery.of(contexto).size.width*0.003*(math.Random().nextDouble()*30+10), MediaQuery.of(contexto).size.width*0.003*(math.Random().nextDouble()*30+10));
+    this.player = player;
+  }
+  Meteor.enemy(Player player,double x,double y,double step) {
+    _paint = Paint()
+      ..color = const Color.fromRGBO(0, 255, 255, 150);
+    if(list==null)
+      list= new List<Meteor>();
+    list.add(this);
+    this.step = step;
+    rect = new Rect.fromLTWH(x, y, MediaQuery.of(contexto).size.width*0.003*(10), MediaQuery.of(contexto).size.width*0.003*(10));
     this.player = player;
   }
   @override
@@ -115,7 +263,9 @@ class Meteor extends PositionComponent {
 
   @override
   void update(double t) {
-    rect = rect.shift(Offset(0, step));
+    Offset offset =Offset(0, step);
+    if(!offset.dx.isNaN && !offset.dy.isNaN)
+    rect = rect.shift(offset);
 
     if ((rect.center.dx - player.x).abs() < player.player.width && (rect.center.dy - player.y).abs() < player.player.height) {
       meteorDestroy();
@@ -164,10 +314,17 @@ class Bullet extends PositionComponent {
         Meteor.list[i].meteorDestroy();
         player.score++;
         bulletDestroy();
-        print(player.score);
       }
     if(rect.center.dy<0)
       bulletDestroy();
+    if(Enemy.list!=null)
+    for (int i = 0; i < Enemy.list.length;i++)
+      if ((Enemy.list[i].rect.center.dx - rect.center.dx).abs() < Enemy.list[i].rect.size.width && (Enemy.list[i].rect.center.dy - rect.center.dy).abs() < Enemy.list[i].rect.size.height){
+        if(Enemy.list[i].life>0)
+        Enemy.list[i].life--;
+        Enemy.list[i].lifeRect =  Rect.fromLTWH( Enemy.list[i].rect.bottomLeft.dx,Enemy.list[i].rect.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(Enemy.list[i].life) , 0.01*MediaQuery.of(contexto).size.width);
+        bulletDestroy();
+      }
   }
 
   void bulletDestroy(){
@@ -178,16 +335,32 @@ class Bullet extends PositionComponent {
 
 class Spawner{
 
-  double step = 10, timer, y = 10;
+  double step = 10, timer,startimer, y = 10;
+  bool rain =true;
   Player player;
   Spawner(Player player) {
+    int r = math.Random().nextInt(40);
+    for(int i=0;i<r;i++)
+      new Star( math.Random().nextDouble()*MediaQuery.of(contexto).size.width,math.Random().nextDouble()*MediaQuery.of(contexto).size.height, math.Random().nextDouble()*2+0.7);
     this.player = player;
     timer = 0;
+    startimer = 0;
   }
 
   void update(double t) {
     timer+=t;
-    if(timer>0.8){
+    startimer+=t;
+    if(startimer>1) {
+      startimer=0;
+      int r = math.Random().nextInt(10);
+      for(int i=0;i<r;i++)
+        new Star( math.Random().nextDouble()*MediaQuery.of(contexto).size.width, y, math.Random().nextDouble()*2+0.7);
+    }
+    if(player.score%100==0 && player.score>90) {
+      new Enemy(player, 1- (0.1*player.score/100>1?1:0.1*player.score/100),5 +100*player.score/100*0.3);
+      player.score+=5;
+    }
+    if(timer>0.8 && rain){
       timer=0;
       int r = math.Random().nextInt(20);
       double posx = math.Random().nextDouble()*MediaQuery.of(contexto).size.width;
@@ -226,16 +399,25 @@ class TheGame extends Game with TapDetector {
   void update(double t) {
     spawner.update(t);
     player.update(t);
+    if(Star.list!=null)
+      for(int i = 0; i < Star.list.length;i++)
+        Star.list[i].update(t);
     if(Bullet.list!=null)
     for(int i = 0; i < Bullet.list.length;i++)
       Bullet.list[i].update(t);
     if(Meteor.list!=null)
     for(int i = 0; i < Meteor.list.length;i++)
       Meteor.list[i].update(t);
+    if(Enemy.list!=null)
+      for(int i = 0; i < Enemy.list.length;i++)
+        Enemy.list[i].update(t);
   }
 
   @override
   void render(Canvas c) {
+    if(Star.list!=null)
+      for(int i = 0; i < Star.list.length;i++)
+        Star.list[i].render(c);
     player.render(c);
     if(Bullet.list!=null)
     for(int i = 0; i < Bullet.list.length;i++)
@@ -243,7 +425,9 @@ class TheGame extends Game with TapDetector {
     if(Meteor.list!=null)
     for(int i = 0; i < Meteor.list.length;i++)
       Meteor.list[i].render(c);
-
+    if(Enemy.list!=null)
+      for(int i = 0; i < Enemy.list.length;i++)
+        Enemy.list[i].render(c);
     config.render(c,"Score: "+player.score.toString(),Position(20, 20));
   }
 
@@ -254,6 +438,7 @@ class MyGame extends StatefulWidget {
   _MyGameState createState() => _MyGameState();
 
 }
+
 class _MyGameState extends State{
   @override
   Widget build(BuildContext context) {
