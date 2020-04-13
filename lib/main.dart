@@ -21,6 +21,7 @@ void main() async {
   await Hive.openBox("meals");
   await Hive.openBox("user");
   await Hive.openBox('preferences');
+  await Hive.openBox("gameConfig");
 
   runApp(UfscarApp());
 }

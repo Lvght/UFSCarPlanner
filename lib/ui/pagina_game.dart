@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'dart:math' as math;
 import 'dart:ui';
-
+import 'package:hive/hive.dart';
 import 'dart:core';
 import 'package:flame/components/mixins/tapable.dart';
 import 'package:flame/gestures.dart';
@@ -19,6 +19,111 @@ import 'package:http/http.dart';
 
 BuildContext contexto;
 
+class Slider extends PositionComponent{
+  
+  Position position;
+  int value;
+  Rect total,verde;
+  List<Paint> paints = List<Paint>();
+  Function function;
+  static List<Slider> list;
+  Slider(double size, Position posicao,Function fun){
+    value = 100;
+    Paint white,green;
+    white.color = Color.fromRGBO(255, 255, 255, 100);
+    green.color = Color.fromRGBO(0, 255, 200, 100);
+    paints.add(white);
+    paints.add(green);
+    if(list==null)
+      list=new List<Slider>();
+    position = posicao;
+    function = fun;
+    list.add(this);
+    total = Rect.fromCenter(center: Offset(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height/2),width: MediaQuery.of(contexto).size.height/2, height: MediaQuery.of(contexto).size.width*0.01 );
+    verde = Rect.fromLTWH(total.left, total.top,value*total.width/100 , total.height);
+  }
+
+  static void clickListener(Offset click){
+    if(list!=null)
+      for(int i =0;i<list.length;i++){
+        if(list[i].total.contains(click)){
+
+        }
+      }
+  }
+
+  @override
+  void render(Canvas c) {
+   c.drawRect(total,paints[0]);
+   c.drawRect(verde, paints[1]);
+   c.drawCircle(verde.centerRight, verde.height, paints[0]);
+  }
+
+  @override
+  void update(double t) {
+
+  }
+
+  SliderDestroy(){
+    list.remove(this);
+    this.destroy();
+  }
+
+  static destroyAll(){
+    if(list!=null)
+      for(int i= 0;i<list.length;i++)
+        list[i].SliderDestroy();
+  }
+  static renderAll(Canvas c){
+    if(list!=null)
+      for(int i= 0;i<list.length;i++)
+        list[i].render(c);
+  }
+}
+
+class Texto extends PositionComponent{
+
+  TextConfig textConfig;
+  String text;
+  Position position;
+  static List<Texto> list;
+  Texto(double size, String texto, Position posicao){
+    if(list==null)
+      list=new List<Texto>();
+    textConfig = new TextConfig(fontSize: size,color: Color.fromRGBO(255, 255, 255, 100));
+    text = texto;
+    position = posicao;
+    list.add(this);
+
+  }
+
+  @override
+  void render(Canvas c) {
+    textConfig.render(c, text, position,anchor:  Anchor.center);
+
+  }
+
+  @override
+  void update(double t) {
+
+  }
+
+  textDestroy(){
+    list.remove(this);
+    this.destroy();
+  }
+
+  static destroyAll(){
+    if(list!=null)
+      for(int i= 0;i<list.length;i++)
+        list[i].textDestroy();
+  }
+  static renderAll(Canvas c){
+    if(list!=null)
+      for(int i= 0;i<list.length;i++)
+        list[i].render(c);
+  }
+}
 
 class Star extends PositionComponent {
   Color color;
@@ -35,7 +140,7 @@ class Star extends PositionComponent {
     if(list==null)
       list= new List<Star>();
     list.add(this);
-    double size = MediaQuery.of(contexto).size.width*0.001*(10+10);
+    double size = MediaQuery.of(contexto).size.width*0.0005*(10+10);
     rect = new Rect.fromLTWH(x, y, size ,size);
 
   }
@@ -83,8 +188,9 @@ class Enemy extends Player with Tapable{
   Rect rect,lifeRect;
   int life = 6;
   Player jogante;
+  TheGame theGame;
+  Enemy(Player player,double cooldown,double step)  {
 
-  Enemy(Player player,double cooldown,double step) {
     if(list==null)
       list=new List<Enemy>();
     list.add(this);
@@ -151,7 +257,11 @@ class Enemy extends Player with Tapable{
     list.remove(this);
     this.destroy();
   }
-
+  static destroyAll(){
+    if(list!=null)
+      for(int i=0; i<list.length;i++)
+        list[i].enemyDestroy();
+  }
 
 }
 
@@ -177,11 +287,12 @@ class Player extends PositionComponent with Tapable  {
 
   double x, y, targetX, targetY, step, timer, cooldown = 0.4;
   int score;
+  int scene;
   Rect player,lifeRect;
   int life = 6;
+  TheGame theGame;
   Player() {
-
-
+    scene = 0;
     player = Rect.fromLTWH(0.5*MediaQuery.of(contexto).size.width, 0.5*MediaQuery.of(contexto).size.height,0.1*MediaQuery.of(contexto).size.width , 0.1*MediaQuery.of(contexto).size.width);
     lifeRect =  Rect.fromLTWH(player.bottomLeft.dx,player.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(life) , 0.01*MediaQuery.of(contexto).size.width);
     x = 0;
@@ -191,6 +302,7 @@ class Player extends PositionComponent with Tapable  {
     targetX = 0.5*MediaQuery.of(contexto).size.width;
     targetY = 0.5*MediaQuery.of(contexto).size.height;
     step = 400.4;
+
   }
 
   @override
@@ -205,6 +317,7 @@ class Player extends PositionComponent with Tapable  {
   }
   @override
   void update(double t) {
+
     x=player.center.dx;
     y=player.center.dy;
     if((targetX-x).abs()>4 || (targetY-y).abs()>4) {
@@ -272,12 +385,29 @@ class Meteor extends PositionComponent {
       if(player.life>0) {
         player.life--;
         player.lifeRect =  Rect.fromLTWH(player.player.bottomLeft.dx,player.player.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(player.life) , 0.01*MediaQuery.of(contexto).size.width);
+      }else{
+        player.scene = 2;
+        TheGame.clearScreen();
+        TheGame.highscore = player.score>TheGame.highscore?player.score:TheGame.highscore;
+        TheGame.spawner.rain = false;
+        new Texto(20, "Score : "+player.score.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.3));
+        new Texto(23, "Your HighScore: "+TheGame.highscore.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.4));
+        new Button(0.5, "Restart", (){player.scene = 1;
+        TheGame.clearScreen();
+        TheGame.loadGame();});
+        new Button(0.65, "Menu", (){player.scene = 0;
+        TheGame.clearScreen();
+        TheGame.loadMenu();});
       }
     }
     if(rect.center.dy>MediaQuery.of(contexto).size.height)
       meteorDestroy();
   }
-
+  static destroyAll(){
+    if(list!=null)
+      for(int i=0; i<list.length;i++)
+        list[i].meteorDestroy();
+  }
   void meteorDestroy(){
     list.remove(this);
     this.destroy();
@@ -314,6 +444,7 @@ class Bullet extends PositionComponent {
         Meteor.list[i].meteorDestroy();
         player.score++;
         bulletDestroy();
+        break;
       }
     if(rect.center.dy<0)
       bulletDestroy();
@@ -326,7 +457,11 @@ class Bullet extends PositionComponent {
         bulletDestroy();
       }
   }
-
+  static destroyAll(){
+    if(list!=null)
+      for(int i=0; i<list.length;i++)
+        list[i].bulletDestroy();
+  }
   void bulletDestroy(){
     list.remove(this);
     this.destroy();
@@ -362,7 +497,7 @@ class Spawner{
     }
     if(timer>0.8 && rain){
       timer=0;
-      int r = math.Random().nextInt(20);
+      int r = math.Random().nextInt(5);
       double posx = math.Random().nextDouble()*MediaQuery.of(contexto).size.width;
       double vel = math.Random().nextDouble()*2+0.7;
       for(int i=0;i<r;i++)
@@ -370,6 +505,60 @@ class Spawner{
     }
   }
 
+
+}
+
+class Button extends PositionComponent {
+  static List<Button> list;
+  Function onClick;
+  Paint _paint = Paint()
+    ..color =  new Color.fromRGBO(255,255,255,100);
+  double y,fontSize;
+  Rect rect;
+  String text;
+  TextConfig textConfig;
+  Button(double y, String t, Function fun){
+    if(list==null)
+      list= new List<Button>();
+    fontSize = 23;
+    onClick = fun;
+    textConfig = TextConfig(fontSize: fontSize,color: Color.fromRGBO(0,0,0, 100));
+    text = t;
+    rect =  new Rect.fromCenter(center: Offset(MediaQuery.of(contexto).size.width*0.5,MediaQuery.of(contexto).size.height*y),width:MediaQuery.of(contexto).size.width*0.85 ,height:MediaQuery.of(contexto).size.height*0.1 );
+    list.add(this);
+  }
+
+  @override
+  void render(Canvas c) {
+    c.drawRect(rect, _paint);
+    textConfig.render(c, text, Position(rect.center.dx,rect.center.dy),anchor: Anchor.center);
+  }
+
+  static clickListener(Offset click){
+
+    if(list!=null)
+      for(int i=0 ;i<list.length;i++){
+        if(list[i].rect.contains(click)) {
+          list[i].onClick.call();
+
+        }
+      }
+  }
+
+
+  buttonDestroy(){
+    list.remove(this);
+    this.destroy();
+
+  }
+  static destroyAll(){
+    if(list!=null)
+      for(int i=0; i<list.length;i++)
+        list[i].buttonDestroy();
+  }
+  @override
+  void update(double t) {
+  }
 
 }
 
@@ -387,30 +576,112 @@ class TheGame extends Game with TapDetector {
     player.targetX = details.globalPosition.dx;
     player.targetY = details.globalPosition.dy;
   }
-  Player player = Player();
-  Paint _paint;
-
-  Spawner spawner ;
-  TheGame() {
-    spawner= Spawner(player);
-  }
 
   @override
-  void update(double t) {
-    spawner.update(t);
+  void onTapUp(TapUpDetails details) {
+    Button.clickListener(details.globalPosition);
+  }
+
+  static Player player;
+  Paint _paint;
+  static var hiveBox;
+  static Spawner spawner ;
+  TheGame() {
+    //hiveBox = Hive.box("gameConfig");
+    clearScreen();
+    highscore = 0;
+    player = Player();
+    spawner= Spawner(player);
+    player.scene = 0;
+    loadMenu();
+  }
+  gameUpdate(double t){
+
     player.update(t);
-    if(Star.list!=null)
-      for(int i = 0; i < Star.list.length;i++)
-        Star.list[i].update(t);
     if(Bullet.list!=null)
-    for(int i = 0; i < Bullet.list.length;i++)
-      Bullet.list[i].update(t);
+      for(int i = 0; i < Bullet.list.length;i++)
+        Bullet.list[i].update(t);
     if(Meteor.list!=null)
-    for(int i = 0; i < Meteor.list.length;i++)
-      Meteor.list[i].update(t);
+      for(int i = 0; i < Meteor.list.length;i++)
+        Meteor.list[i].update(t);
     if(Enemy.list!=null)
       for(int i = 0; i < Enemy.list.length;i++)
         Enemy.list[i].update(t);
+
+  }
+  static clearScreen(){
+    Button.destroyAll();
+    Enemy.destroyAll();
+    Meteor.destroyAll();
+    Bullet.destroyAll();
+    Texto.destroyAll();
+  }
+
+  static loadGame()
+  {
+    clearScreen();
+    player.score = 0;
+    player.life = 6;
+    spawner.rain = true;
+    player.targetY = MediaQuery.of(contexto).size.height/2;
+    player.targetX = MediaQuery.of(contexto).size.width/2;
+    player.x = player.targetX;
+    player.y = player.targetY;
+  }
+  @override
+  void update(double t) {
+    spawner.update(t);
+    if(Star.list!=null)
+      for(int i = 0; i < Star.list.length;i++)
+        Star.list[i].update(t);
+    switch (player.scene){
+      case(0):
+        break;
+      case(1):
+        gameUpdate(t);
+        break;
+      case(2):
+        break;
+      case(3):
+        break;
+      default:
+        break;
+    }
+
+  }
+  static int highscore;
+  static loadMenu(){
+    clearScreen();
+    new Texto(23, "Your HighScore: "+highscore.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.4));
+    spawner.rain = false;
+    new Button(0.5, "Start",(){
+      clearScreen();
+
+      player.scene=1;
+      loadGame();
+    });
+    new Button(0.65, "Config",(){});
+
+  }
+
+  menuRender(Canvas c){
+    Texto.renderAll(c);
+    if(Button.list!=null)
+      for(int i = 0; i < Button.list.length;i++)
+        Button.list[i].render(c);
+  }
+  gameRender(Canvas c){
+    player.render(c);
+    if(Bullet.list!=null)
+      for(int i = 0; i < Bullet.list.length;i++)
+        Bullet.list[i].render(c);
+    if(Meteor.list!=null)
+      for(int i = 0; i < Meteor.list.length;i++)
+        Meteor.list[i].render(c);
+    if(Enemy.list!=null)
+      for(int i = 0; i < Enemy.list.length;i++)
+        Enemy.list[i].render(c);
+    config.render(c,"Score: "+player.score.toString(),Position(20, 20));
   }
 
   @override
@@ -418,17 +689,24 @@ class TheGame extends Game with TapDetector {
     if(Star.list!=null)
       for(int i = 0; i < Star.list.length;i++)
         Star.list[i].render(c);
-    player.render(c);
-    if(Bullet.list!=null)
-    for(int i = 0; i < Bullet.list.length;i++)
-      Bullet.list[i].render(c);
-    if(Meteor.list!=null)
-    for(int i = 0; i < Meteor.list.length;i++)
-      Meteor.list[i].render(c);
-    if(Enemy.list!=null)
-      for(int i = 0; i < Enemy.list.length;i++)
-        Enemy.list[i].render(c);
-    config.render(c,"Score: "+player.score.toString(),Position(20, 20));
+      switch (player.scene){
+        case(0):
+          menuRender(c);
+          break;
+        case(1):
+          gameRender(c);
+          break;
+        case(2):
+          menuRender(c);
+          break;
+        case(3):
+          break;
+        default:
+          break;
+      }
+
+
+
   }
 
 }
@@ -443,7 +721,7 @@ class _MyGameState extends State{
   @override
   Widget build(BuildContext context) {
     contexto = context;
-    return TheGame().widget;
+    return new TheGame().widget;
   }
 
 }

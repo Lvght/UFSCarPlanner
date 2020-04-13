@@ -71,7 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => MyGame()));
+                      builder: (context) => new MyGame()));
 
 
             },),
