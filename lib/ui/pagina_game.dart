@@ -2,9 +2,11 @@ import 'dart:ffi';
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:core';
 import 'package:flame/components/mixins/tapable.dart';
 import 'package:flame/gestures.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/position.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/text_config.dart';
@@ -21,15 +23,16 @@ BuildContext contexto;
 
 class Slider extends PositionComponent{
   
-  Position position;
+  double position;
   int value;
   Rect total,verde;
   List<Paint> paints = List<Paint>();
   Function function;
   static List<Slider> list;
-  Slider(double size, Position posicao,Function fun){
-    value = 100;
-    Paint white,green;
+  Slider( double posicao,Function fun,bool sfxOrMusic){
+
+    value = sfxOrMusic?TheGame.sfx:TheGame.music;
+    Paint white = new Paint(),green = new Paint();
     white.color = Color.fromRGBO(255, 255, 255, 100);
     green.color = Color.fromRGBO(0, 255, 200, 100);
     paints.add(white);
@@ -39,7 +42,7 @@ class Slider extends PositionComponent{
     position = posicao;
     function = fun;
     list.add(this);
-    total = Rect.fromCenter(center: Offset(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height/2),width: MediaQuery.of(contexto).size.height/2, height: MediaQuery.of(contexto).size.width*0.01 );
+    total = Rect.fromCenter(center: Offset(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*position),width: MediaQuery.of(contexto).size.width*0.8, height: MediaQuery.of(contexto).size.height*0.02 );
     verde = Rect.fromLTWH(total.left, total.top,value*total.width/100 , total.height);
   }
 
@@ -47,7 +50,11 @@ class Slider extends PositionComponent{
     if(list!=null)
       for(int i =0;i<list.length;i++){
         if(list[i].total.contains(click)){
-
+          list[i].value = (((click.dx-list[i].total.left)/(list[i].total.width))*100).floor();
+          list[i].verde = Rect.fromLTWH(list[i].total.left, list[i].total.top,list[i].value*list[i].total.width/100 , list[i].total.height);
+          list[i].function.call(list[i].value);
+          TheGame.save();
+          break;
         }
       }
   }
@@ -74,6 +81,7 @@ class Slider extends PositionComponent{
       for(int i= 0;i<list.length;i++)
         list[i].SliderDestroy();
   }
+
   static renderAll(Canvas c){
     if(list!=null)
       for(int i= 0;i<list.length;i++)
@@ -384,12 +392,15 @@ class Meteor extends PositionComponent {
       meteorDestroy();
       if(player.life>0) {
         player.life--;
+        Flame.audio.play("damage.wav");
         player.lifeRect =  Rect.fromLTWH(player.player.bottomLeft.dx,player.player.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(player.life) , 0.01*MediaQuery.of(contexto).size.width);
       }else{
+        Flame.bgm.stop();
         player.scene = 2;
         TheGame.clearScreen();
         TheGame.highscore = player.score>TheGame.highscore?player.score:TheGame.highscore;
         TheGame.spawner.rain = false;
+        TheGame.save();
         new Texto(20, "Score : "+player.score.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.3));
         new Texto(23, "Your HighScore: "+TheGame.highscore.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.4));
         new Button(0.5, "Restart", (){player.scene = 1;
@@ -441,6 +452,7 @@ class Bullet extends PositionComponent {
     if(Meteor.list!=null)
     for (int i = 0; i < Meteor.list.length;i++)
       if ((Meteor.list[i].rect.center.dx - rect.center.dx).abs() < Meteor.list[i].rect.size.width && (Meteor.list[i].rect.center.dy - rect.center.dy).abs() < Meteor.list[i].rect.size.height){
+        Flame.audio.play("meteor.wav",volume: TheGame.sfx.toDouble()/100);
         Meteor.list[i].meteorDestroy();
         player.score++;
         bulletDestroy();
@@ -453,6 +465,7 @@ class Bullet extends PositionComponent {
       if ((Enemy.list[i].rect.center.dx - rect.center.dx).abs() < Enemy.list[i].rect.size.width && (Enemy.list[i].rect.center.dy - rect.center.dy).abs() < Enemy.list[i].rect.size.height){
         if(Enemy.list[i].life>0)
         Enemy.list[i].life--;
+        Flame.audio.play("shot.wav");
         Enemy.list[i].lifeRect =  Rect.fromLTWH( Enemy.list[i].rect.bottomLeft.dx,Enemy.list[i].rect.bottomLeft.dy+0.01*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(Enemy.list[i].life) , 0.01*MediaQuery.of(contexto).size.width);
         bulletDestroy();
       }
@@ -540,7 +553,7 @@ class Button extends PositionComponent {
       for(int i=0 ;i<list.length;i++){
         if(list[i].rect.contains(click)) {
           list[i].onClick.call();
-
+          break;
         }
       }
   }
@@ -575,21 +588,40 @@ class TheGame extends Game with TapDetector {
   void onTapDown(TapDownDetails details) {
     player.targetX = details.globalPosition.dx;
     player.targetY = details.globalPosition.dy;
+    Slider.clickListener(details.globalPosition);
   }
 
   @override
   void onTapUp(TapUpDetails details) {
     Button.clickListener(details.globalPosition);
   }
-
+  static int sfx,music;
   static Player player;
   Paint _paint;
-  static var hiveBox;
+  static final hiveBox = Hive.box("gameConfig");
   static Spawner spawner ;
+  static save(){
+    List<int> lista = [sfx,music,highscore];
+    while(hiveBox.length>0)
+      hiveBox.deleteAt(hiveBox.length - 1);
+    hiveBox.add(lista);
+  }
   TheGame() {
-    //hiveBox = Hive.box("gameConfig");
+    Flame.bgm.load("bgm.wav");
+    Flame.audio.load("damage.wav");
+    Flame.audio.load("shot.wav");
+    Flame.audio.load("meteor.wav");
+    if(hiveBox.length!=0){
+      List<int> lista = hiveBox.getAt(0);
+      sfx =  lista[0];
+      music = lista[1];
+      highscore = lista[2];
+    }else{
+      sfx = 100;
+      music = 100;
+      highscore = 0;
+    }
     clearScreen();
-    highscore = 0;
     player = Player();
     spawner= Spawner(player);
     player.scene = 0;
@@ -615,10 +647,12 @@ class TheGame extends Game with TapDetector {
     Meteor.destroyAll();
     Bullet.destroyAll();
     Texto.destroyAll();
+    Slider.destroyAll();
   }
 
   static loadGame()
   {
+    Flame.bgm.play("bgm.wav",volume : TheGame.music.toDouble()/100.0);
     clearScreen();
     player.score = 0;
     player.life = 6;
@@ -628,6 +662,7 @@ class TheGame extends Game with TapDetector {
     player.x = player.targetX;
     player.y = player.targetY;
   }
+
   @override
   void update(double t) {
     spawner.update(t);
@@ -651,17 +686,27 @@ class TheGame extends Game with TapDetector {
   }
   static int highscore;
   static loadMenu(){
+
+    print("HELLO");
     clearScreen();
     new Texto(23, "Your HighScore: "+highscore.toString(), Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.4));
     spawner.rain = false;
     new Button(0.5, "Start",(){
       clearScreen();
-
-      player.scene=1;
+      player.scene = 1;
       loadGame();
     });
-    new Button(0.65, "Config",(){});
+    new Button(0.65, "Config",(){
+      TheGame.loadConfig();
 
+
+    });
+    new Button(0.80, "Quit",(){
+      TheGame.clearScreen();
+      Navigator.pop(contexto);
+
+    });
+    print("BYE");
   }
 
   menuRender(Canvas c){
@@ -669,6 +714,7 @@ class TheGame extends Game with TapDetector {
     if(Button.list!=null)
       for(int i = 0; i < Button.list.length;i++)
         Button.list[i].render(c);
+      Slider.renderAll(c);
   }
   gameRender(Canvas c){
     player.render(c);
@@ -690,23 +736,33 @@ class TheGame extends Game with TapDetector {
       for(int i = 0; i < Star.list.length;i++)
         Star.list[i].render(c);
       switch (player.scene){
-        case(0):
-          menuRender(c);
-          break;
         case(1):
           gameRender(c);
           break;
-        case(2):
-          menuRender(c);
-          break;
-        case(3):
-          break;
         default:
+          menuRender(c);
           break;
       }
 
 
 
+  }
+  static void loadConfig() {
+
+    TheGame.clearScreen();
+    player.scene = 3;
+    TheGame.clearScreen();
+
+    new Texto(23, "Sfx volume", Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.1));
+    new Slider(0.2, (int i) {TheGame.sfx = i;},true);
+    new Texto(23, "Music volume", Position(MediaQuery.of(contexto).size.width/2,MediaQuery.of(contexto).size.height*0.3));
+    new Slider(0.4, (int i) {TheGame.music = i;},false);
+    new Button(0.65, "Menu", () {
+
+      TheGame.clearScreen();
+      player.scene = 0;
+      loadMenu();
+    });
   }
 
 }
@@ -721,7 +777,16 @@ class _MyGameState extends State{
   @override
   Widget build(BuildContext context) {
     contexto = context;
-    return new TheGame().widget;
+    return new WillPopScope(child : new TheGame().widget,onWillPop: (){
+      Flame.bgm.stop();
+      Navigator.pop(contexto);
+    },);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Flame.bgm.dispose();
   }
 
 }

@@ -63,6 +63,10 @@ flutter:
     - _assets/twitter.png
     - assets/nave.png
     - assets/enemy.png
+    - assets/shot.wav
+    - assets/meteor.wav
+    - assets/damage.wav
+    - assets/bgm.wav
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

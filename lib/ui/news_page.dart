@@ -64,7 +64,7 @@ class NewsPage extends StatelessWidget {
         height: 1.5,
         fontWeight: tags.contains("em") || tags.contains("strong") ? FontWeight.bold : FontWeight.normal,
         fontStyle: tags.contains("i") ? FontStyle.italic : FontStyle.normal,
-        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : _theme.textTheme.bodyText1.color,
+        color: tags.contains("a") ? Color.fromRGBO(230, 20, 20, 1) : _theme.textTheme.body1.color,
       );
 
       TextSpan t = new TextSpan(
