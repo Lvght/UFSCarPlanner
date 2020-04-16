@@ -141,7 +141,7 @@ class Star extends PositionComponent {
   double step = 1;
   Star(double x,double y,double step) {
 
-    this.step = step/2;
+    this.step = step*MediaQuery.of(contexto).size.height/100;
     color = new Color.fromRGBO(255,255,255,step*100);
     _paint = Paint()
       ..color = color;
@@ -202,7 +202,7 @@ class Enemy extends Player with Tapable{
     if(list==null)
       list=new List<Enemy>();
     list.add(this);
-    fire=1;
+    fire=0.7*MediaQuery.of(contexto).size.height/100;
     this.jogante = player;
     rect = Rect.fromLTWH(0.5*MediaQuery.of(contexto).size.width, -0.5*MediaQuery.of(contexto).size.height,0.1*MediaQuery.of(contexto).size.width , 0.1*MediaQuery.of(contexto).size.width);
     lifeRect =  Rect.fromLTWH(rect.topLeft.dx,rect.topLeft.dy-0.02*MediaQuery.of(contexto).size.width ,0.1*MediaQuery.of(contexto).size.width/6 *(life) , 0.01*MediaQuery.of(contexto).size.width);
@@ -498,7 +498,7 @@ class Spawner{
   void update(double t) {
     timer+=t;
     startimer+=t;
-    if(startimer>1) {
+    if(startimer>0.25) {
       startimer=0;
       int r = math.Random().nextInt(10);
       for(int i=0;i<r;i++)
